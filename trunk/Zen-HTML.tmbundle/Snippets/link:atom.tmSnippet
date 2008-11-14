@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>&lt;link rel="alternate" type="application/atom+xml" title="Atom 0.3" href="${1:atom}"${TM_XHTML}&gt;</string>
+	<key>name</key>
+	<string>link:atom</string>
+	<key>scope</key>
+	<string>text.html</string>
+	<key>tabTrigger</key>
+	<string>link:atom</string>
+	<key>uuid</key>
+	<string>5E50AA39-7289-47D1-9712-13A660111BA7</string>
+</dict>
+</plist>
