@@ -1,0 +1,8 @@
+#summary Как работает Aptana Zen Coding
+#labels Phase-Design
+
+О принципе работы Zen Coding [http://pepelsbey.net/2009/04/zen-coding-concept/ читайте на сайта автора] этой концепции — Вадима Макеева. В процессе разработки концепция была немного расширена. В частности, были добавлены счетчики (символ $) и объединение спиппетов и тэгов в единую последовательность.
+
+Увидеть в действии Aptana Zen Coding можно на сайте YouTube: http://www.youtube.com/watch?v=ug84Ypwqfzk
+
+Видео в хорошем качестве: http://chikuyonok.ru/u/zen-coding-beta.mov
