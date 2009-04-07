@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>JavaScript unit test file</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" href="unittest.css" type="text/css" />
+		<script src="jsunittest.js" type="text/javascript"></script>
+		<script src="jscontext.js" type="text/javascript"></script>
+
+		<script src="../settings.js" type="text/javascript"></script>
+		<script src="../lib/core.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<div id="content">
+			<div id="header">
+				<h1>Zen Coding</h1>
+			</div>
+			<!-- Log output (one per Runner, via {testLog: "testlog"} option)-->
+			<div id="testlog"></div>
+
+			<!-- Put sample/test html here -->
+			<div id="sample"></div>
+		</div>
+		<script type="text/javascript">
+			
+			function expandAbbr(abbr) {
+				var tree = zen_coding.parseIntoTree(abbr);
+				return tree ? tree.toString() : null;
+			}
+			
+			new Test.Unit.Runner({
+				"test '+' operator": function(){ with (this) {
+					assertEqual('<p></p><p></p>', expandAbbr('p+p'));
+					assertEqual('<p></p><p></p>', expandAbbr('p+P'));
+					assertEqual('<p class="name"></p><p></p><p></p>', expandAbbr('p.name+p+p'));
+				 }},
+				"test '>' operator": function(){ with (this) {
+					assertEqual('<p><em></em></p>', expandAbbr('p>em'));
+					assertEqual('<p class="hello"><em class="world"><span></span></em></p>', expandAbbr('p.hello>em.world>span'));
+				 }},
+				"test attributes": function(){ with (this) {
+					assertEqual('<p class="name"></p>', expandAbbr('p.name'));
+					assertEqual('<p class="one two three"></p>', expandAbbr('p.one.two.three'));
+					assertEqual('<p class="one-two three"></p>', expandAbbr('p.one-two.three'));
+					assertEqual('<p class="one two-three"></p>', expandAbbr('p.one.two-three'));
+					assertEqual('<p class="one_two-three"></p>', expandAbbr('p.one_two-three'));
+					assertEqual('<p id="myid"></p>', expandAbbr('p#myid'));
+					assertEqual('<p id="myid" class="name_with-dash32 otherclass"></p>', expandAbbr('p#myid.name_with-dash32.otherclass'));
+					assertEqual('<img src="" />', expandAbbr('img'));
+					assertEqual('<img src="" class="one two three" />', expandAbbr('img.one.two.three'));
+				 }},
+				 
+				 "test expandos":  function(){ with (this) {
+					assertEqual('<dl><dt></dt><dd></dd></dl>', expandAbbr('dl+'));
+					assertEqual('<div></div><div><dl><dt></dt><dd></dd></dl></div>', expandAbbr('div+div>dl+'));
+				 }},
+				 
+				 "test short tags":  function(){ with (this) {
+					assertEqual('<blockquote><p></p></blockquote>', expandAbbr('bq>p'));
+				 }},
+				 
+				 "test misc patterns": function() {with (this) {
+				 	assertEqual('<scr' + 'ipt type="text/javascript"></scr' + 'ipt>', expandAbbr('script'));
+				 	assertEqual('<scr' + 'ipt type="text/javascript" src="|"></scr' + 'ipt>', expandAbbr('script:src'));
+				 	assertEqual('<img src="" />', expandAbbr('img'));
+				 	assertEqual('<some:elem></some:elem>', expandAbbr('some:elem'));
+				 	assertEqual('<li id="id1" class="class1"></li><li id="id2" class="class2"></li><li id="id3" class="class3"></li>', expandAbbr('li#id$.class$*3'));
+				 }}
+			});
+		</script>
+	</body>
+</html>
