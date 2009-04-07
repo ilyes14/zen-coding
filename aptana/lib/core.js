@@ -319,7 +319,7 @@
 			
 			// будем искать аббревиатуру с текущей позиции каретки
 			var original_offset = editor.currentOffset,
-				cur_line = editor.getLineAtOffset(cur_offset),
+				cur_line = editor.getLineAtOffset(original_offset),
 				line_offset = editor.getOffsetAtLine(cur_line),
 				cur_offset = original_offset - line_offset,
 				line = editor.source.substring(line_offset, original_offset),
@@ -329,10 +329,11 @@
 				cur_offset--;
 				if (cur_offset < 0) {
 					// дошли до начала строки
+					start_index = 0;
 					break;
 				}
 				
-				if (!isAllowedChar(editor.source.charAt(cur_offset))) {
+				if (!isAllowedChar(line.charAt(cur_offset))) {
 					start_index = cur_offset + 1;
 					break;
 				}
