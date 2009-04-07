@@ -2,7 +2,7 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @include "settings.js"
- * @include "../monkey-doc.js"
+ * @include "/EclipseMonkey/scripts/monkey-doc.js"
  */var zen_coding = (function(){
 	
 	/**
@@ -319,14 +319,16 @@
 			
 			// будем искать аббревиатуру с текущей позиции каретки
 			var original_offset = editor.currentOffset,
-				cur_offset = original_offset,
 				cur_line = editor.getLineAtOffset(cur_offset),
+				line_offset = editor.getOffsetAtLine(cur_line),
+				cur_offset = original_offset - line_offset,
+				line = editor.source.substring(line_offset, original_offset),
 				start_index = -1;
 			
 			while (true) {
 				cur_offset--;
-				if (cur_offset < 0 || editor.getLineAtOffset(cur_offset) != cur_line) {
-					// дошли до начала кода либо перешли на новую строку
+				if (cur_offset < 0) {
+					// дошли до начала строки
 					break;
 				}
 				
@@ -336,12 +338,9 @@
 				}
 			}
 			
-			// возвращаем курсор в прежнее место
-			editor.currentOffset = original_offset;
-			
-			if (start_index != -1 && start_index != original_offset) 
+			if (start_index != -1) 
 				// что-то нашли, возвращаем аббревиатуру
-				return editor.source.substring(start_index, original_offset);
+				return editor.source.substring(start_index + line_offset, original_offset);
 			else
 				return null;
 		},
