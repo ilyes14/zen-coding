@@ -766,7 +766,7 @@ Based on HTML 5 specification draft.
 {{{
 <!--[if IE]><![endif]-->
 }}}
-*cc:!ie*
+*cc:noie*
 {{{
 <!--[if !IE]><!--><!--<![endif]-->
 }}}
