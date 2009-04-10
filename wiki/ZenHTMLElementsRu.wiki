@@ -450,15 +450,15 @@
 }}}
 *embed, emb*
 {{{
-<embed>
+<embed src="" type="">
 }}}
 *object, obj*
 {{{
-<object></object>
+<object data="" type=""></object>
 }}}
 *param*
 {{{
-<param>
+<param name="" value="">
 }}}
 *video*
 {{{
@@ -570,6 +570,14 @@
 {{{
 <form action=""></form>
 }}}
+*form:get*
+{{{
+<form action="" method="get"></form>
+}}}
+*form:post*
+{{{
+<form action="" method="post"></form>
+}}}
 *fieldset, fset*
 {{{
 <fieldset></fieldset>
@@ -584,75 +592,75 @@
 }}}
 *input:hidden, input:h*
 {{{
-<input type="hidden">
+<input type="hidden" name="">
 }}}
 *input:text, input:t*
 {{{
-<input type="text">
+<input type="text" name="" id="">
 }}}
 *input:search*
 {{{
-<input type="search">
+<input type="search" name="" id="">
 }}}
 *input:email*
 {{{
-<input type="email">
+<input type="email" name="" id="">
 }}}
 *input:url*
 {{{
-<input type="url">
+<input type="url" name="" id="">
 }}}
 *input:password, input:p*
 {{{
-<input type="password">
+<input type="password" name="" id="">
 }}}
 *input:datetime*
 {{{
-<input type="datetime">
+<input type="datetime" name="" id="">
 }}}
 *input:datetime-local*
 {{{
-<input type="datetime-local">
+<input type="datetime-local" name="" id="">
 }}}
 *input:date*
 {{{
-<input type="date">
+<input type="date" name="" id="">
 }}}
 *input:month*
 {{{
-<input type="month">
+<input type="month" name="" id="">
 }}}
 *input:week*
 {{{
-<input type="week">
+<input type="week" name="" id="">
 }}}
 *input:time*
 {{{
-<input type="time">
+<input type="time" name="" id="">
 }}}
 *input:number*
 {{{
-<input type="number">
+<input type="number" name="" id="">
 }}}
 *input:range*
 {{{
-<input type="range">
+<input type="range" name="" id="">
 }}}
 *input:color*
 {{{
-<input type="color">
+<input type="color" name="" id="">
 }}}
 *input:checkbox, input:c*
 {{{
-<input type="checkbox">
+<input type="checkbox" name="" id="">
 }}}
 *input:radio, input:r*
 {{{
-<input type="radio">
+<input type="radio" name="" id="">
 }}}
 *input:file, input:f*
 {{{
-<input type="file">
+<input type="file" name="" id="">
 }}}
 *input:submit, input:s*
 {{{
@@ -660,7 +668,7 @@
 }}}
 *input:image, input:i*
 {{{
-<input type="image" alt="">
+<input type="image" src="" alt="">
 }}}
 *input:reset, input:r*
 {{{
@@ -676,12 +684,12 @@
 }}}
 *select*
 {{{
-<select></select>
+<select name="" id=""></select>
 }}}
 *select+*
 {{{
-<select>
-    <option></option>
+<select name="" id="">
+    <option value=""></option>
 </select>
 }}}
 *optgroup, optg*
@@ -690,7 +698,7 @@
 }}}
 *option, opt*
 {{{
-<option></option>
+<option value=""></option>
 }}}
 
 ==Интерактивные элементы==
@@ -705,7 +713,7 @@
 }}}
 *textarea, tarea*
 {{{
-<textarea cols="30" rows="10"></textarea>
+<textarea name="" id="" cols="30" rows="10"></textarea>
 }}}
 *keygen, kg*
 {{{
