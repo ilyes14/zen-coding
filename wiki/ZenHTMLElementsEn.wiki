@@ -1,4 +1,4 @@
-#summary HTML elements and its shortcuts for Zen HTML plugins
+#summary HTML elements and its aliases for Zen HTML plugins
 
 =Zen HTML Elements=
 
