@@ -1,4 +1,4 @@
-#summary HTML-элементы и их сокращения для плагинов Zen HTML
+#summary HTML-элементы и их псевдонимы для плагинов Zen HTML
 
 =Элементы Zen HTML=
 
