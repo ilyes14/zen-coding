@@ -78,7 +78,7 @@
 <p></p>
 }}}
 
-===`ul#name>li*3.item`===
+===`ul#name>li.item*3`===
 {{{
 <ul id="name">
     <li class="item"></li>
@@ -89,14 +89,14 @@
 
 ==E*N$==
 
-===`p*3.name-$`===
+===`p.name-$*3`===
 {{{
 <p class="name-1"></p>
 <p class="name-2"></p>
 <p class="name-3"></p>
 }}}
 
-===`select>option*3#item-$`===
+===`select>option#item-$*3`===
 {{{
 <select>
     <option id="item-1"></option>
