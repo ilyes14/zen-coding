@@ -887,12 +887,12 @@ Based on HTML 5 specification draft.
 <menu></menu>
 }}}
 
-===`menu:context`===
+===`menu:context, menu:c`===
 {{{
 <menu type="context"></menu>
 }}}
 
-===`menu:toolbar`===
+===`menu:toolbar, menu:t`===
 {{{
 <menu type="toolbar"></menu>
 }}}
