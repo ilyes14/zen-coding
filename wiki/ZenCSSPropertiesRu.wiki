@@ -868,7 +868,7 @@ font-stretch:ultra-expanded;                fst:ue
 {{{
 opacity:;                                                               op
 filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=100);            op:ie
--ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=100)';      op:ie8
+-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=100)';      op:ms
 }}}
 
 {{{
