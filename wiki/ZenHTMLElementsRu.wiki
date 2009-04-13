@@ -556,7 +556,7 @@
 <audio src=""></audio>
 }}}
 
-===`source`===
+===`source, src`===
 {{{
 <source>
 }}}
@@ -580,7 +580,7 @@
 
 ===`area`===
 {{{
-<area shape="" href="" alt="">
+<area shape="" coords="" href="" alt="">
 }}}
 
 ===`area:d`===
@@ -590,17 +590,17 @@
 
 ===`area:c`===
 {{{
-<area shape="circle" href="" alt="">
+<area shape="circle" coords="" href="" alt="">
 }}}
 
 ===`area:r`===
 {{{
-<area shape="rect" href="" alt="">
+<area shape="rect" coords="" href="" alt="">
 }}}
 
 ===`area:p`===
 {{{
-<area shape="poly" href="" alt="">
+<area shape="poly" coords="" href="" alt="">
 }}}
 
 ==Табличные данные==
