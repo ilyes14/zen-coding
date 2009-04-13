@@ -629,6 +629,13 @@ Based on HTML 5 specification draft.
 <colgroup></colgroup>
 }}}
 
+===`colgroup+, colg+`===
+{{{
+<colgroup>
+    <col>
+</colgroup>
+}}}
+
 ===`col`===
 {{{
 <col>
