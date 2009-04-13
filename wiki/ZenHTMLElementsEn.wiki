@@ -842,6 +842,13 @@ Based on HTML 5 specification draft.
 <optgroup></optgroup>
 }}}
 
+===`optgroup+, optg+`===
+{{{
+<optgroup>
+    <option value=""></option>
+</optgroup>
+}}}
+
 ===`option, opt`===
 {{{
 <option value=""></option>
