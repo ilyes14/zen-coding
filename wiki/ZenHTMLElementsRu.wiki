@@ -629,6 +629,13 @@
 <colgroup></colgroup>
 }}}
 
+===`colgroup+, colg+`===
+{{{
+<colgroup>
+    <col>
+</colgroup>
+}}}
+
 ===`col`===
 {{{
 <col>
