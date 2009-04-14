@@ -12,7 +12,7 @@
 	 */
 	function isAllowedChar(ch) {
 		var char_code = ch.charCodeAt(0),
-			special_chars = '#.>+*:$-_';
+			special_chars = '#.>+*:$-_!@';
 		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter
@@ -84,13 +84,17 @@
 		this.name = Tag.getRealName(name);
 		this.count = count || 1;
 		this.children = [];
-		this.attributes = {};
+		this.attributes = [];
 		
 		//добавляем атрибуты по умолчанию
 		var def_attrs = zen_settings.html.default_attributes[name];
 		if (def_attrs) {
-			for (var attr_name in def_attrs) {
-				this.addAttribute(attr_name, def_attrs[attr_name])
+			
+			def_attrs = def_attrs instanceof Array ? def_attrs : [def_attrs];
+			for (var i = 0; i < def_attrs.length; i++) {
+				var attrs = def_attrs[i];
+				for (var attr_name in attrs) 
+					this.addAttribute(attr_name, attrs[attr_name]);
 			}
 		}
 	}
@@ -102,8 +106,16 @@
 	 */
 	Tag.getRealName = function(name) {
 		var real_name = name;
-		if (zen_settings.html.short_names[name]) // аббревиатура: bq -> blockquote
-			real_name = zen_settings.html.short_names[name];
+		var aliases = zen_settings.html.aliases || zen_settings.html.short_names;
+		
+		if (aliases[name]) // аббревиатура: bq -> blockquote
+			real_name = aliases[name];
+		else if (name.indexOf(':') != -1) {
+			// проверим, есть ли группирующий селектор
+			var group_name = name.substring(0, name.indexOf(':')) + ':*';
+			if (aliases[group_name])
+				real_name = aliases[group_name];
+		}
 		
 		return real_name;
 	}
@@ -123,7 +135,8 @@
 		 * @param {String} value Значение атрибута
 		 */
 		addAttribute: function(name, value) {
-			this.attributes[name] = value;
+			this.attributes.push({name: name, value: value});
+//			this.attributes[name] = value;
 		},
 		
 		/**
@@ -180,13 +193,16 @@
 				content = '', 
 				start_tag = '', 
 				end_tag = '',
-				cursor = format ? '|' : '';
+				cursor = format ? '|' : '',
+				a;
 
 			indent = indent || false;
 				
 			// делаем строку атрибутов
-			for (var a in this.attributes) 
-				attrs += ' ' + a + '="' + (this.attributes[a] || cursor) + '"';
+			for (var i = 0; i < this.attributes.length; i++) {
+				a = this.attributes[i];
+				attrs += ' ' + a.name + '="' + (a.value || cursor) + '"';
+			}
 			
 			// выводим потомков
 			if (!this.isEmpty())
@@ -260,7 +276,7 @@
 				end = '',
 				child_padding = '',
 				child_token = '${child}';
-				
+			
 			if (data) {
 				if (format) {
 					var nl = getNewline();
@@ -355,7 +371,7 @@
 			var root = new Tag(''),
 				parent = root,
 				last = null,
-				re = /([\+>])?([a-z][a-z0-9:]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?/ig;
+				re = /([\+>])?([a-z][a-z0-9:\!]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?/ig;
 			
 			if (!abbr)
 				return null;
@@ -397,7 +413,8 @@
 		 * @param {String|Number} pad Количество отступов или сам отступ
 		 * @return {String}
 		 */
-		padString: padString
+		padString: padString,
+		getNewline: getNewline
 	}
 	
 })();
