@@ -5,53 +5,93 @@
  * Key: M3+E
  * Listener: commandService().addExecutionListener(this);
  * DOM: http://download.eclipse.org/technology/dash/update/org.eclipse.eclipsemonkey.lang.javascript
- * DOM: http://localhost/com.aptana.ide.scripting
  * 
  * @include "/EclipseMonkey/scripts/monkey-doc.js"
  * @include "settings.js"
  * @include "lib/core.js"
  */
 include('settings.js');
+try {
+	include('my-settings.js');
+} catch(e){}
+
 include('lib/core.js');
 
 function main() {
-	var editor = editors.activeEditor;
-	var partition = getPartition(editor.currentOffset);
-	
-	if (partition != 'text/html' && partition != 'text/xml') {
-		printMessage('"Expand abbreviation" works in html editor only.');
+	var editor_type = getEditorType();
+	if (!editor_type) {
+		printMessage('"Expand abbreviation" doesn\'t work in this editor.');
 		return;
 	}
 	
-	var abbr = zen_coding.findAbbreviation();
+	var abbr = zen_coding.findAbbreviation(),
+		content = null;
 	if (abbr) {
-		var tree = zen_coding.parseIntoTree(abbr);
-		if (tree) {
-			var expanded_data = tree.toString(true);
-			
-			// берем отступ у текущей строки
-			var cur_line_num = editor.getLineAtOffset(editor.currentOffset);
-			var cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), editor.currentOffset);
-			var cur_line_pad = (cur_line.match(/^(\s+)/) || [''])[0];
-			expanded_data = zen_coding.padString(expanded_data, cur_line_pad); 
-			
-			var start_pos = editor.selectionRange.endingOffset - abbr.length;
-			var cursor_pos = expanded_data.indexOf('|');
-			expanded_data = expanded_data.replace(/\|/g, '');
-			
-			// заменяем аббревиатуру на текст
-			editor.applyEdit(start_pos, abbr.length, expanded_data);
-			
-			// ставим курсор
-			if (cursor_pos != -1)
-				editor.currentOffset = start_pos + cursor_pos;
-				
+		if (editor_type == 'html') {
+			var tree = zen_coding.parseIntoTree(abbr);
+			if (tree) 
+				content = tree.toString(true);
+		} else {
+			try {
+				content = zen_settings[editor_type].snippets[abbr];
+			} catch(e) {}
 		}
+		
+		replaceAbbreviationWithContent(abbr, content);
 	}
+}
+
+/**
+ * Заменяет аббревиатуру на ее значение. Отчкой отсчета считается текущая 
+ * позиция каретки в редакторе. Многострочное содержимое будет автоматически
+ * отбито нужным количеством отступов
+ * @param {String} abbr Аббревиатура
+ * @param {String} content Содержимое
+ */
+function replaceAbbreviationWithContent(abbr, content) {
+	var editor = editors.activeEditor;
+	
+	if (!content)
+		return;
+		
+	// заменяем переводы строк на те, что используются в редакторе
+	content = content.replace(/\n/g, zen_coding.getNewline());
+	
+	// берем отступ у текущей строки
+	var cur_line_num = editor.getLineAtOffset(editor.currentOffset);
+	var cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), editor.currentOffset);
+	var cur_line_pad = (cur_line.match(/^(\s+)/) || [''])[0];
+	content = zen_coding.padString(content, cur_line_pad); 
+	
+	// получаем позицию, куда нужно поставить курсор
+	var start_pos = editor.selectionRange.endingOffset - abbr.length;
+	var cursor_pos = content.indexOf('|');
+	content = content.replace(/\|/g, '');
+	
+	// заменяем аббревиатуру на текст
+	editor.applyEdit(start_pos, abbr.length, content);
+	
+	// ставим курсор
+	if (cursor_pos != -1)
+		editor.currentOffset = start_pos + cursor_pos;
 }
 
 function printMessage(message) {
 	out.println(message);
+}
+
+/**
+ * Возвращает тип текущего редактора (css или html)
+ * @return {String|null}
+ */
+function getEditorType() {
+	var content_types = {
+		'text/html':  'html',
+		'text/xml' :  'html',
+		'text/css' :  'css'
+	};
+	
+	return content_types[getPartition(editors.activeEditor.currentOffset)];
 }
 
 /**

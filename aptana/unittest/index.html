@@ -46,8 +46,7 @@
 					assertEqual('<p class="one_two-three"></p>', expandAbbr('p.one_two-three'));
 					assertEqual('<p id="myid"></p>', expandAbbr('p#myid'));
 					assertEqual('<p id="myid" class="name_with-dash32 otherclass"></p>', expandAbbr('p#myid.name_with-dash32.otherclass'));
-					assertEqual('<img src="" />', expandAbbr('img'));
-					assertEqual('<img src="" class="one two three" />', expandAbbr('img.one.two.three'));
+					assertEqual('<span class="one two three"></span>', expandAbbr('span.one.two.three'));
 				 }},
 				 
 				 "test expandos":  function(){ with (this) {
@@ -61,8 +60,9 @@
 				 
 				 "test misc patterns": function() {with (this) {
 				 	assertEqual('<scr' + 'ipt type="text/javascript"></scr' + 'ipt>', expandAbbr('script'));
-				 	assertEqual('<scr' + 'ipt type="text/javascript" src="|"></scr' + 'ipt>', expandAbbr('script:src'));
-				 	assertEqual('<img src="" />', expandAbbr('img'));
+				 	assertEqual('<scr' + 'ipt type="text/javascript" src=""></scr' + 'ipt>', expandAbbr('script:src'));
+				 	assertEqual('<img src="" alt="" />', expandAbbr('img'));
+				 	assertEqual('<input type="checkbox" name="" id="" />', expandAbbr('input:c'));
 				 	assertEqual('<some:elem></some:elem>', expandAbbr('some:elem'));
 				 	assertEqual('<li id="id1" class="class1"></li><li id="id2" class="class2"></li><li id="id3" class="class3"></li>', expandAbbr('li#id$.class$*3'));
 				 }}
