@@ -100,7 +100,8 @@ clear:both;                                 cl:b
 display:;                                   d
 display:none;                               d:n
 display:block;                              d:b
-display:inline;                             d:ib
+display:inline;                             d:i
+display:inline-block;                       d:ib
 display:list-item;                          d:li
 display:run-in;                             d:ri
 display:compact;                            d:cp
