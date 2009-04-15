@@ -102,6 +102,8 @@ display:none;                               d:n
 display:block;                              d:b
 display:inline;                             d:i
 display:inline-block;                       d:ib
+display:-moz-inline-box:;                   d:mib
+display:-moz-inline-stack:;                 d:mis
 display:list-item;                          d:li
 display:run-in;                             d:ri
 display:compact;                            d:cp
@@ -471,6 +473,8 @@ border-left-color:#000;                     bdlc
 
 {{{
 border-radius:;                             bdrs
+-webkit-border-radius:;                     bdrs:w
+-moz-border-radius:;                        bdrs:m
 border-top-right-radius:;                   bdtrrs
 border-top-left-radius:;                    bdtlrs
 border-bottom-right-radius:;                bdbrrs
