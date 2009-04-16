@@ -896,21 +896,21 @@ cursor:text;                                cur:t
 
 {{{
 page-break-before:;                         pgbb
-page-break-before:auto;                     pgbb:au
-page-break-before:always;                   pgbb:al
+page-break-before:auto;                     pgbb:a
+page-break-before:always;                   pgbb:aw
 page-break-before:left;                     pgbb:l
 page-break-before:right;                    pgbb:r
 }}}
 
 {{{
 page-break-inside:;                         pgbi
-page-break-inside:auto;                     pgbi:au
+page-break-inside:auto;                     pgbi:a
 page-break-inside:avoid;                    pgbi:av
 }}}
 
 {{{
 page-break-after:;                          pgba
-page-break-after:auto;                      pgba:au
+page-break-after:auto;                      pgba:a
 page-break-after:always;                    pgba:al
 page-break-after:left;                      pgba:l
 page-break-after:right;                     pgba:r
