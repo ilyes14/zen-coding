@@ -31,6 +31,10 @@ Property                                    Alias
 !important                                  !
 }}}
 
+{{{
+expression()                                exp
+}}}
+
 ==Properties Groups==
 
 ===Sorting Methods===
@@ -171,7 +175,7 @@ zoom:1;                                     zoo
 {{{
 clip:;                                      cp
 clip:auto;                                  cp:a
-clip:rect();                                cp:r
+clip:rect(0 0 0 0);                         cp:r
 }}}
 
 {{{
@@ -183,8 +187,11 @@ box-sizing:border-box;                      bxz:bb
 {{{
 box-shadow:;                                bxsh
 box-shadow:none;                            bxsh:n
--webkit-box-shadow:0 0 0 #000;              bxsh:w
--moz-box-shadow:0 0 0 0 #000;               bxsh:m
+box-shadow:0 0 0 #000;                      bxsh+
+-webkit-box-shadow:;                        bxsh:w
+-webkit-box-shadow:0 0 0 #000;              bxsh:w+
+-moz-box-shadow:;                           bxsh:m
+-moz-box-shadow:0 0 0 0 #000;               bxsh:m+
 }}}
 
 ===Sizing===
@@ -278,8 +285,8 @@ outline-color:invert;                       oc:i
 
 {{{
 border:;                                    bd
-border:1px solid #000;                      bd+
 border:none;                                bd:n
+border:1px solid #000;                      bd+
 }}}
 
 {{{
@@ -300,8 +307,10 @@ border-color:#000;                          bdc
 {{{
 border-image:url();                                     bdi
 border-image:none;                                      bdi:n
--webkit-border-image:url() 0 0 0 0 stretch stretch;     bdi:w
--moz-border-image:url() 0 0 0 0 stretch stretch;        bdi:m
+-webkit-border-image:;                                  bdi:w
+-webkit-border-image:url() 0 0 0 0 stretch stretch;     bdi:w+
+-moz-border-image:;                                     bdi:m
+-moz-border-image:url() 0 0 0 0 stretch stretch;        bdi:m+
 }}}
 
 {{{
@@ -397,8 +406,8 @@ border-width:;                              bdw
 
 {{{
 border-top:;                                bdt
-border-top:1px solid #000;                  bdt+
 border-top:none;                            bdt:n
+border-top:1px solid #000;                  bdt+
 }}}
 
 {{{
@@ -416,8 +425,8 @@ border-top-color:#000;                      bdtc
 
 {{{
 border-right:;                              bdr
-border-right:1px solid #000;                bdr+
 border-right:none;                          bdr:n
+border-right:1px solid #000;                bdr+
 }}}
 
 {{{
@@ -435,8 +444,8 @@ border-right-color:#000;                    bdrc
 
 {{{
 border-bottom:;                             bdb
-border-bottom:1px solid #000;               bdb+
 border-bottom:none;                         bdb:n
+border-bottom:1px solid #000;               bdb+
 }}}
 
 {{{
@@ -454,8 +463,8 @@ border-bottom-color:#000;                   bdbc
 
 {{{
 border-left:;                               bdl
-border-left:1px solid #000;                 bdl+
 border-left:none;                           bdl:n
+border-left:1px solid #000;                 bdl+
 }}}
 
 {{{
@@ -472,19 +481,19 @@ border-left-color:#000;                     bdlc
 }}}
 
 {{{
-border-radius:;                             bdrs
--webkit-border-radius:;                     bdrs:w
--moz-border-radius:;                        bdrs:m
-border-top-right-radius:;                   bdtrrs
-border-top-left-radius:;                    bdtlrs
-border-bottom-right-radius:;                bdbrrs
-border-bottom-left-radius:;                 bdblrs
+border-radius:;                             bdrz
+-webkit-border-radius:;                     bdrz:w
+-moz-border-radius:;                        bdrz:m
+border-top-right-radius:;                   bdtrrz
+border-top-left-radius:;                    bdtlrz
+border-bottom-right-radius:;                bdbrrz
+border-bottom-left-radius:;                 bdblrz
 }}}
 
 {{{
 background:;                                                                bg
-background:#FFF url() 0 0 no-repeat;                                        bg+
 background:none;                                                            bg:n
+background:#FFF url() 0 0 no-repeat;                                        bg+
 filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='x.png');     bg:ie
 }}}
 
@@ -499,9 +508,10 @@ background-image:none;                      bgi:n
 
 {{{
 background-repeat:;                         bgr
-background-repeat:no-repeat;                bgr:n
+background-repeat:repeat;                   bgr:r
 background-repeat:repeat-x;                 bgr:x
 background-repeat:repeat-y;                 bgr:y
+background-repeat:no-repeat;                bgr:n
 }}}
 
 {{{
@@ -653,9 +663,9 @@ text-align-last:right;                      tal:r
 {{{
 text-decoration:;                           td
 text-decoration:none;                       td:n
-text-decoration:underline;                  td:u
 text-decoration:overline;                   td:o
 text-decoration:line-through;               td:l
+text-decoration:underline;                  td:u
 }}}
 
 {{{
@@ -695,8 +705,8 @@ text-justify:tibetan;                       tj:t
 
 {{{
 text-outline:;                              to
-text-outline:0 0 #000;                      to+
 text-outline:none;                          to:n
+text-outline:0 0 #000;                      to+
 }}}
 
 {{{
@@ -707,8 +717,8 @@ text-replace:none;                          tr:n
 {{{
 text-transform:;                            tt
 text-transform:none;                        tt:n
-text-transform:capitalize;                  tt:c
 text-transform:uppercase;                   tt:u
+text-transform:capitalize;                  tt:c
 text-transform:lowercase;                   tt:l
 }}}
 
@@ -722,8 +732,8 @@ text-wrap:suppress;                         tw:s
 
 {{{
 text-shadow:;                               tsh
-text-shadow:0 0 0 #000;                     tsh+
 text-shadow:none;                           tsh:n
+text-shadow:0 0 0 #000;                     tsh+
 }}}
 
 {{{
@@ -763,8 +773,8 @@ word-spacing:;                              wos
 
 {{{
 word-wrap:;                                 wow
-word-wrap:normal;                           wow:nm
-word-wrap:none;                             wow:n
+word-wrap:normal;                           wow:n
+word-wrap:none;                             wow:no
 word-wrap:unrestricted;                     wow:u
 word-wrap:suppress;                         wow:s
 }}}
@@ -809,12 +819,12 @@ font-size-adjust:none;                      fza:n
 }}}
 
 {{{
-font-family:;                               ff
-font-family:serif;                          ff:s
-font-family:sans-serif;                     ff:ss
-font-family:cursive;                        ff:c
-font-family:fantasy;                        ff:f
-font-family:monospace;                      ff:m
+font-family:;                                               ff
+font-family:'Georgia','Times New Roman',serif;              ff:s
+font-family:Helvetica,Arial,sans-serif;                     ff:ss
+font-family:'Monotype Corsiva','Comic Sans MS',cursive;     ff:c
+font-family:Capitals,Impact,fantasy;                        ff:f
+font-family:Monaco,'Courier New',monospace;                 ff:m
 }}}
 
 {{{
@@ -896,22 +906,22 @@ cursor:text;                                cur:t
 
 {{{
 page-break-before:;                         pgbb
-page-break-before:auto;                     pgbb:au
-page-break-before:always;                   pgbb:al
+page-break-before:auto;                     pgbb:a
+page-break-before:always;                   pgbb:aw
 page-break-before:left;                     pgbb:l
 page-break-before:right;                    pgbb:r
 }}}
 
 {{{
 page-break-inside:;                         pgbi
-page-break-inside:auto;                     pgbi:au
+page-break-inside:auto;                     pgbi:a
 page-break-inside:avoid;                    pgbi:av
 }}}
 
 {{{
 page-break-after:;                          pgba
-page-break-after:auto;                      pgba:au
-page-break-after:always;                    pgba:al
+page-break-after:auto;                      pgba:a
+page-break-after:always;                    pgba:aw
 page-break-after:left;                      pgba:l
 page-break-after:right;                     pgba:r
 }}}
