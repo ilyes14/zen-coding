@@ -291,7 +291,7 @@
 					}
 				}
 				
-				var parts = data.split('${child}');
+				var parts = data.split(child_token);
 				begin = parts[0] || '';
 				end = parts[1] || '';
 			}

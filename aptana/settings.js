@@ -637,6 +637,7 @@ var zen_settings = {
 			'input:*': 'input',
 			'script:*': 'script',
 			'html:*': 'html',
+			'a:*': 'a',
 			
 			bq: 'blockquote',
 			acr: 'acronym',
