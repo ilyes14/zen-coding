@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
-Textmate bundle
-Created on Apr 20, 2009
-
-@author: sergey
-'''
 import os
 import sys
 import re
@@ -15,7 +9,14 @@ sys.path.append(os.getenv('TM_BUNDLE_SUPPORT'))
 from zencoding import zen_core
 
 zen_core.newline = os.getenv('TM_LINE_ENDING', zen_core.newline)
-zen_core.insertion_point = '$0'
+
+point_ix = 0
+def place_ins_point(text):
+	globals()['point_ix'] += 1
+	return '$%s' % point_ix
+
+zen_core.insertion_point = place_ins_point
+zen_core.sub_insertion_point = place_ins_point
 
 cur_line = os.getenv('TM_CURRENT_LINE', '')
 cur_index = int(os.getenv('TM_LINE_INDEX', 0))
@@ -28,3 +29,5 @@ if abbr:
 		result = zen_core.pad_string(result, cur_line_pad.group(1))
 	
 	print(result)
+else:
+	print(cur_line)

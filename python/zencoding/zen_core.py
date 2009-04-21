@@ -14,7 +14,10 @@ newline = '\n'
 "Символ перевода строки"
 
 insertion_point = '|'
-"Сивол, указывающий, куда нужно поставить курсор"
+"Символ, указывающий, куда нужно поставить курсор"
+
+sub_insertion_point = ''
+"Символ, указывающий, куда нужно поставить курсор (для редакторов, которые позволяют указать несколько символов)"
 
 def is_allowed_char(ch):
 	"""
@@ -87,8 +90,15 @@ def parse_into_tree(abbr):
 	last = None
 	token = re.compile(r'([\+>])?([a-z][a-z0-9:\!]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?', re.IGNORECASE)
 	
+	def expando_replace(m):
+		ex = m.group(1)
+		if ex in zen_settings['html']['expandos']:
+			return zen_settings['html']['expandos'][ex]
+		else:
+			return ex
+		
 	# заменяем разворачиваемые элементы
-	abbr = re.sub(r'([a-z][a-z0-9]*)\+$', lambda m: m.group(0) in zen_settings['html']['expandos'] and zen_settings['html']['expandos'][m.group(0)] or m.group(0), abbr)
+	abbr = re.sub(r'([a-z][a-z0-9]*)\+$', expando_replace, abbr)
 	
 	def token_expander(operator, tag_name, id_attr, class_name, multiplier):
 		multiplier = multiplier and int(multiplier) or 1
@@ -146,8 +156,8 @@ def expand_abbr(abbr):
 	if tree:
 		result = tree.to_string(True)
 		if result:
-			result = result.replace('|', insertion_point, 1)
-			return result.replace('|', '')
+			result = re.sub('\|', insertion_point, result, 1)
+			return re.sub('\|', sub_insertion_point, result)
 		
 	return ''
 
@@ -352,5 +362,6 @@ make_map('empty_elements')
 
 			
 if __name__ == '__main__':
+	print(parse_into_tree('ul+').to_string(True))
 	print(parse_into_tree('cc:ie6>p+blockquote#sample$.so.many.classes*2').to_string(True))
 
