@@ -237,7 +237,10 @@ class Tag(object):
 		self.children.append(tag)
 	
 	def __has_element(self, collection_name, def_value = False):
-		return (self.__res.has_key(collection_name) and self.name in self.__res[collection_name]) or def_value
+		if collection_name in self.__res:
+			return self.name in self.__res[collection_name]
+		else:
+			return def_value
 		
 	
 	def is_empty(self):
@@ -388,6 +391,7 @@ make_map('empty_elements')
 			
 if __name__ == '__main__':
 	print(parse_into_tree('ul+').to_string(True))
+	print(parse_into_tree('span+em').to_string(True))
 	print(parse_into_tree('tmatch', 'xml').to_string(True))
 	print(parse_into_tree('d', 'css').to_string(True))
 	print(parse_into_tree('cc:ie6>p+blockquote#sample$.so.many.classes*2').to_string(True))
