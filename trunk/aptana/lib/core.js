@@ -5,6 +5,8 @@
  * @include "/EclipseMonkey/scripts/monkey-doc.js"
  */var zen_coding = (function(){
 	
+	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/;
+	
 	/**
 	 * Проверяет, является ли символ допустимым в аббревиатуре
 	 * @param {String} ch
@@ -55,7 +57,7 @@
 		
 		// бьем текст на строки и отбиваем все, кроме первой, строки
 		var nl = getNewline(), 
-			lines = text.split(nl);
+			lines = text.split(new RegExp('\\r?\\n|' + nl));
 			
 		result += lines[0];
 		for (var j = 1; j < lines.length; j++) 
@@ -66,10 +68,24 @@
 	
 	/**
 	 * Проверяет, является ли аббревиатура сниппетом
+	 * @param {String} abbr
+	 * @param {String} type
 	 * @return {Boolean}
 	 */
-	function isShippet(abbr) {
-		return zen_settings.html.snippets[abbr] ? true : false;
+	function isShippet(abbr, type) {
+		var res = zen_settings[type || 'html'];
+		return res.snippets && zen_settings[type || 'html'].snippets[abbr] ? true : false;
+	}
+	
+	/**
+	 * Проверяет, закачивается ли строка полноценным тэгом. В основном 
+	 * используется для проверки принадлежности символа '>' аббревиатуре 
+	 * или тэгу
+	 * @param {String} str
+	 * @return {Boolean}
+	 */
+	function isEndsWithTag(str) {
+		return re_tag.test(str);
 	}
 	
 	/**
@@ -77,18 +93,20 @@
 	 * @class
 	 * @param {String} name Имя тэга
 	 * @param {Number} count Сколько раз вывести тэг (по умолчанию: 1)
+	 * @param {String} type Тип тэга (html, xml)
 	 */
-	function Tag(name, count) {
+	function Tag(name, count, type) {
 		name = name.toLowerCase();
-		
-		this.name = Tag.getRealName(name);
+		type = type || 'html';
+		this.name = Tag.getRealName(name, type);
 		this.count = count || 1;
 		this.children = [];
 		this.attributes = [];
+		this._res = zen_settings[type];
 		
 		//добавляем атрибуты по умолчанию
-		var def_attrs = zen_settings.html.default_attributes[name];
-		if (def_attrs) {
+		if ('default_attributes' in this._res) {
+			var def_attrs = this._res.default_attributes[name];		if (def_attrs) {
 			
 			def_attrs = def_attrs instanceof Array ? def_attrs : [def_attrs];
 			for (var i = 0; i < def_attrs.length; i++) {
@@ -98,17 +116,19 @@
 			}
 		}
 	}
+	}
 	
 	/**
 	 * Возвращает настоящее имя тэга
 	 * @param {String} name
 	 * @return {String}
 	 */
-	Tag.getRealName = function(name) {
-		var real_name = name;
-		var aliases = zen_settings.html.aliases || zen_settings.html.short_names;
+	Tag.getRealName = function(name, type) {
+		var real_name = name,
+			res = zen_settings[type || 'html'],
+			aliases = res.aliases || res.short_names;
 		
-		if (aliases[name]) // аббревиатура: bq -> blockquote
+		if (aliases && aliases[name]) // аббревиатура: bq -> blockquote
 			real_name = aliases[name];
 		else if (name.indexOf(':') != -1) {
 			// проверим, есть ли группирующий селектор
@@ -136,7 +156,6 @@
 		 */
 		addAttribute: function(name, value) {
 			this.attributes.push({name: name, value: value});
-//			this.attributes[name] = value;
 		},
 		
 		/**
@@ -144,7 +163,9 @@
 		 * @return {Boolean}
 		 */
 		isEmpty: function() {
-			return zen_settings.html.empty_elements[this.name];
+			return ('empty_elements' in this._res) 
+				? this._res.empty_elements[this.name] 
+				: false;
 		},
 		
 		/**
@@ -152,7 +173,9 @@
 		 * @return {Boolean}
 		 */
 		isInline: function() {
-			return zen_settings.html.inline_elements[this.name];
+			return ('inline_elements' in this._res) 
+				? this._res.inline_elements[this.name] 
+				: false;
 		},
 		
 		/**
@@ -160,7 +183,9 @@
 		 * @return {Boolean}
 		 */
 		isBlock: function() {
-			return zen_settings.html.block_elements[this.name];
+			return ('block_elements' in this._res) 
+				? this._res.block_elements[this.name] 
+				: true;
 		},
 		
 		/**
@@ -243,11 +268,12 @@
 		}
 	};
 	
-	function Snippet(name, count) {
+	function Snippet(name, count, type) {
 		/** @type {String} */
 		this.name = name;
 		this.count = count || 1;
 		this.children = [];
+		this._res = zen_settings[type || 'html'];
 	}
 	
 	Snippet.prototype = {
@@ -271,7 +297,7 @@
 			
 			var content = '', 
 				result = [], 
-				data = zen_settings.html.snippets[this.name],
+				data = this._res.snippets[this.name],
 				begin = '',
 				end = '',
 				child_padding = '',
@@ -336,9 +362,18 @@
 			// будем искать аббревиатуру с текущей позиции каретки
 			var original_offset = editor.currentOffset,
 				cur_line = editor.getLineAtOffset(original_offset),
-				line_offset = editor.getOffsetAtLine(cur_line),
-				cur_offset = original_offset - line_offset,
-				line = editor.source.substring(line_offset, original_offset),
+				line_offset = editor.getOffsetAtLine(cur_line);
+			
+			return this.extractAbbreviation(editor.source.substring(line_offset, original_offset));
+		},
+		
+		/**
+		 * Извлекает аббревиатуру из строки
+		 * @param {String} str
+		 * @return {String} Аббревиатура или пустая строка
+		 */
+		extractAbbreviation: function(str) {
+			var cur_offset = str.length,
 				start_index = -1;
 			
 			while (true) {
@@ -349,7 +384,9 @@
 					break;
 				}
 				
-				if (!isAllowedChar(line.charAt(cur_offset))) {
+				var ch = str.charAt(cur_offset);
+				
+				if (!isAllowedChar(ch) || (ch == '>' && isEndsWithTag(str.substring(0, cur_offset + 1)))) {
 					start_index = cur_offset + 1;
 					break;
 				}
@@ -357,34 +394,40 @@
 			
 			if (start_index != -1) 
 				// что-то нашли, возвращаем аббревиатуру
-				return editor.source.substring(start_index + line_offset, original_offset);
+				return str.substring(start_index);
 			else
-				return null;
+				return '';
 		},
 		
 		/**
 		 * Преобразует аббревиатуру в дерево элементов
 		 * @param {String} abbr Аббревиатура
+		 * @param {String} type Тип документа (xsl, html)
 		 * @return {Tag}
 		 */
-		parseIntoTree: function(abbr) {
-			var root = new Tag(''),
+		parseIntoTree: function(abbr, type) {
+			type = type || 'html';
+			var root = new Tag('', 1, type),
 				parent = root,
 				last = null,
-				re = /([\+>])?([a-z][a-z0-9:\!]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?/ig;
+				res = zen_settings[type],
+				re = /([\+>])?([a-z][a-z0-9:\!\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?/ig;
 			
 			if (!abbr)
 				return null;
 			
 			// заменяем разворачиваемые элементы
 			abbr = abbr.replace(/([a-z][a-z0-9]*)\+$/i, function(str, tag_name){
-				return zen_settings.html.expandos[tag_name] || str;
+				if ('expandos' in res)
+					return res.expandos[tag_name] || str;
+				else
+					return str;
 			});
 			
 			abbr = abbr.replace(re, function(str, operator, tag_name, id, class_name, multiplier){
 				multiplier = multiplier ? parseInt(multiplier) : 1;
 				
-				var current = isShippet(tag_name) ? new Snippet(tag_name, multiplier) : new Tag(tag_name, multiplier);
+				var current = isShippet(tag_name, type) ? new Snippet(tag_name, multiplier, type) : new Tag(tag_name, multiplier, type);
 				if (id)
 					current.addAttribute('id', id.substr(1));
 				

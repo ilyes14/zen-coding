@@ -104,7 +104,7 @@ def parse_into_tree(abbr, doc_type = 'html'):
 	root = Tag('', 1, doc_type)
 	parent = root
 	last = None
-	token = re.compile(r'([\+>])?([a-z][a-z0-9:\!\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?', re.IGNORECASE)
+	token = re.compile(r'([\+>])?([a-z][a-z0-9:\!]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?', re.IGNORECASE)
 	
 	def expando_replace(m):
 		ex = m.group(1)
@@ -388,7 +388,7 @@ make_map('empty_elements')
 			
 if __name__ == '__main__':
 	print(parse_into_tree('ul+').to_string(True))
-	print(parse_into_tree('tmatch', 'xml').to_string(True))
+	print(parse_into_tree('tmatch', 'xsl').to_string(True))
 	print(parse_into_tree('d', 'css').to_string(True))
 	print(parse_into_tree('cc:ie6>p+blockquote#sample$.so.many.classes*2').to_string(True))
 
