@@ -23,8 +23,8 @@
 		</div>
 		<script type="text/javascript">
 			
-			function expandAbbr(abbr) {
-				var tree = zen_coding.parseIntoTree(abbr);
+			function expandAbbr(abbr, type) {
+				var tree = zen_coding.parseIntoTree(abbr, type || 'html');
 				return tree ? tree.toString() : null;
 			}
 			
@@ -58,6 +58,12 @@
 					assertEqual('<blockquote><p></p></blockquote>', expandAbbr('bq>p'));
 				 }},
 				 
+				 "test tag match": function(){ with (this) {
+					assertEqual('bq>p', zen_coding.extractAbbreviation('<div>bq>p'));
+					assertEqual('bq>p', zen_coding.extractAbbreviation('<div class="hello" id="world">bq>p'));
+					assertEqual('bq>p', zen_coding.extractAbbreviation('<div some:extention="value">bq>p'));
+				 }},
+				 
 				 "test misc patterns": function() {with (this) {
 				 	assertEqual('<scr' + 'ipt type="text/javascript"></scr' + 'ipt>', expandAbbr('script'));
 				 	assertEqual('<scr' + 'ipt type="text/javascript" src=""></scr' + 'ipt>', expandAbbr('script:src'));
@@ -65,7 +71,15 @@
 				 	assertEqual('<input type="checkbox" name="" id="" />', expandAbbr('input:c'));
 				 	assertEqual('<some:elem></some:elem>', expandAbbr('some:elem'));
 				 	assertEqual('<li id="id1" class="class1"></li><li id="id2" class="class2"></li><li id="id3" class="class3"></li>', expandAbbr('li#id$.class$*3'));
+				 }},
+				 
+				 "test XSL": function(){ with (this) {
+					assertEqual('<xsl:template match="" mode=""></xsl:template>', expandAbbr('tmatch', 'xsl'));
+					assertEqual('<xsl:choose><xsl:when test=""></xsl:when></xsl:choose>', expandAbbr('choose+', 'xsl'));
+					assertEqual('<xsl:variable><div></div><p></p></xsl:variable>', expandAbbr('xsl:variable>div+p', 'xsl'));
 				 }}
+				 
+				 
 			});
 		</script>
 	</body>

@@ -564,7 +564,7 @@ var zen_settings = {
 			'link:atom': [{rel: "alternate"}, {type: "application/atom+xml"}, {title: "Atom"}, {href: "atom.xml"}],
 			'meta:utf': [{"http-equiv": "Content-Type"}, {content: "text/html;charset=UTF-8"}],
 			'meta:win': [{"http-equiv": "Content-Type"}, {content: "text/html;charset=Win-1251"}],
-			'meta:compat': {"http-equiv": "X-UA-Compatible", content: "IE=7"},
+			'meta:compat': [{"http-equiv": "X-UA-Compatible"}, {content: "IE=7"}],
 			style: {type: 'text/css'},
 			script: {type: 'text/javascript'},
 			'script:src': [{type: 'text/javascript'}, {src: ""}],
@@ -575,7 +575,7 @@ var zen_settings = {
 			param: [{name: ''}, {value: ''}],
 			map: {name: ''},
 			area: [{shape: ''}, {coords: ''}, {href: ''}, {alt: ''}],
-			'area:d': [{shape: 'default'}, {coords: ''}, {href: ''}, {alt: ''}],
+			'area:d': [{shape: 'default'}, {href: ''}, {alt: ''}],
 			'area:c': [{shape: 'circle'}, {coords: ''}, {href: ''}, {alt: ''}],
 			'area:r': [{shape: 'rect'}, {coords: ''}, {href: ''}, {alt: ''}],
 			'area:p': [{shape: 'poly'}, {coords: ''}, {href: ''}, {alt: ''}],
@@ -595,6 +595,7 @@ var zen_settings = {
 			'input:password': [{type: 'password'}, {name: ''}, {id: ''}],
 			'input:p': [{type: 'password'}, {name: ''}, {id: ''}],
 			'input:datetime': [{type: 'datetime'}, {name: ''}, {id: ''}],
+			'input:date': [{type: 'date'}, {name: ''}, {id: ''}],
 			'input:datetime-local': [{type: 'datetime-local'}, {name: ''}, {id: ''}],
 			'input:month': [{type: 'month'}, {name: ''}, {id: ''}],
 			'input:week': [{type: 'week'}, {name: ''}, {id: ''}],
@@ -605,6 +606,7 @@ var zen_settings = {
 			'input:c': [{type: 'checkbox'}, {name: ''}, {id: ''}],
 			'input:radio': [{type: 'radio'}, {name: ''}, {id: ''}],
 			'input:r': [{type: 'radio'}, {name: ''}, {id: ''}],
+			'input:range': [{type: 'range'}, {name: ''}, {id: ''}],
 			'input:file': [{type: 'file'}, {name: ''}, {id: ''}],
 			'input:f': [{type: 'file'}, {name: ''}, {id: ''}],
 			'input:submit': [{type: 'submit'}, {value: ''}],
@@ -612,7 +614,6 @@ var zen_settings = {
 			'input:image': [{type: 'image'}, {src: ''}, {alt: ''}],
 			'input:i': [{type: 'image'}, {src: ''}, {alt: ''}],
 			'input:reset': [{type: 'reset'}, {value: ''}],
-			'input:r': [{type: 'reset'}, {value: ''}],
 			'input:button': [{type: 'button'}, {value: ''}],
 			'input:b': [{type: 'button'}, {value: ''}],
 			select: [{name: ''}, {id: ''}],
@@ -638,6 +639,7 @@ var zen_settings = {
 			'script:*': 'script',
 			'html:*': 'html',
 			'a:*': 'a',
+			'menu:*': 'menu',
 			
 			bq: 'blockquote',
 			acr: 'acronym',
@@ -653,7 +655,18 @@ var zen_settings = {
 			optg: 'optgroup',
 			opt: 'option',
 			tarea: 'textarea',
-			leg: 'legend'
+			leg: 'legend',
+			sect: 'section',
+			art: 'article',			hdr: 'header',			ftr: 'footer',			adr: 'address',			dlg: 'dialog',
+			str: 'strong',
+			prog: 'progress',
+			fset: 'fieldset',
+			datag: 'datagrid',
+			datal: 'datalist',
+			kg: 'keygen',
+			out: 'output',
+			det: 'details',
+			cmd: 'command'
 		},
 		
 		/**
@@ -673,11 +686,28 @@ var zen_settings = {
 			optg: 'optgroup>option'
 		},
 		
-		empty_elements: "area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed",
+		empty_elements: "area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,keygen,command",
 		
 		block_elements: "address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,link,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,h1,h2,h3,h4,h5,h6",
 		
 		inline_elements: "a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var"
+	},
+	
+	xsl: {
+		default_attributes: {
+			tmatch: [{match: ''}, {mode: ''}],
+			tname: [{name: ''}],
+			'xsl:when': {test: ''}
+		},
+		
+		aliases: {
+			tmatch: 'xsl:template',
+			tname: 'xsl:template'
+		},
+		
+		expandos: {
+			'choose': 'xsl:choose>xsl:when'
+		}
 	}
 };
 

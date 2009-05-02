@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="Zen Coding" default="main">
+	<property name="textmate_bundle" value="./plugins/TextMate/Zen Coding.tmbundle"/>
+	
+	<target name="main" depends="build_textmate">
+		<echo>Done</echo>
+	</target>
+	
+	<target name="build_textmate">
+		<copy file="./python/zencoding/textmate.py" tofile="${textmate_bundle}/Commands/Expand Abbreviation.tmCommand"/>
+		<copy todir="${textmate_bundle}/Support/zencoding">
+			<filelist dir="./python/zencoding">
+				<file name="settings.py"/>
+				<file name="zen_core.py"/>
+			</filelist>
+		</copy>
+	</target>
+</project>
+ 

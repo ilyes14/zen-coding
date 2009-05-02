@@ -96,7 +96,7 @@ zen_settings = {
 			'param': [{'name': ''}, {'value': ''}],
 			'map': {'name': ''},
 			'area': [{'shape': ''}, {'coords': ''}, {'href': ''}, {'alt': ''}],
-			'area:d': [{'shape': 'default'}, {'href': ''}, {'alt': ''}],
+			'area:d': [{'shape': 'default'}, {'coords': ''}, {'href': ''}, {'alt': ''}],
 			'area:c': [{'shape': 'circle'}, {'coords': ''}, {'href': ''}, {'alt': ''}],
 			'area:r': [{'shape': 'rect'}, {'coords': ''}, {'href': ''}, {'alt': ''}],
 			'area:p': [{'shape': 'poly'}, {'coords': ''}, {'href': ''}, {'alt': ''}],
@@ -116,7 +116,6 @@ zen_settings = {
 			'input:password': [{'type': 'password'}, {'name': ''}, {'id': ''}],
 			'input:p': [{'type': 'password'}, {'name': ''}, {'id': ''}],
 			'input:datetime': [{'type': 'datetime'}, {'name': ''}, {'id': ''}],
-			'input:date': [{'type': 'date'}, {'name': ''}, {'id': ''}],
 			'input:datetime-local': [{'type': 'datetime-local'}, {'name': ''}, {'id': ''}],
 			'input:month': [{'type': 'month'}, {'name': ''}, {'id': ''}],
 			'input:week': [{'type': 'week'}, {'name': ''}, {'id': ''}],
@@ -134,6 +133,7 @@ zen_settings = {
 			'input:image': [{'type': 'image'}, {'src': ''}, {'alt': ''}],
 			'input:i': [{'type': 'image'}, {'src': ''}, {'alt': ''}],
 			'input:reset': [{'type': 'reset'}, {'value': ''}],
+			'input:r': [{'type': 'reset'}, {'value': ''}],
 			'input:button': [{'type': 'button'}, {'value': ''}],
 			'input:b': [{'type': 'button'}, {'value': ''}],
 			'select': [{'name': ''}, {'id': ''}],
@@ -159,7 +159,6 @@ zen_settings = {
 			'script:*': 'script',
 			'html:*': 'html',
 			'a:*': 'a',
-			'menu:*': 'menu',
 			
 			'bq': 'blockquote',
 			'acr': 'acronym',
@@ -175,22 +174,7 @@ zen_settings = {
 			'optg': 'optgroup',
 			'opt': 'option',
 			'tarea': 'textarea',
-			'leg': 'legend',
-			'sect': 'section',
-			'art': 'article',
-			'hdr': 'header',
-			'ftr': 'footer',
-			'adr': 'address',
-			'dlg': 'dialog',
-			'str': 'strong',
-			'prog': 'progress',
-			'fset': 'fieldset',
-			'datag': 'datagrid',
-			'datal': 'datalist',
-			'kg': 'keygen',
-			'out': 'output',
-			'det': 'details',
-			'cmd': 'command'
+			'leg': 'legend'
 		},
 		
 		 # Expanded patterns (ends with +) 
@@ -208,7 +192,7 @@ zen_settings = {
 			'optg': 'optgroup>option'
 		},
 		
-		'empty_elements': "area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,keygen,command",
+		'empty_elements': "area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed",
 		
 		'block_elements': "address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,link,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,h1,h2,h3,h4,h5,h6",
 		
