@@ -690,7 +690,7 @@ zen_settings = {
 		}
 	},
 	
-	'xml': {
+	'xsl': {
 		'default_attributes': {
 			'tmatch': [{'match': ''}, {'mode': ''}],
 			'tname': {'name': ''},
@@ -707,7 +707,7 @@ zen_settings = {
 		}
 	},
 	
-	'xsl': {
+	'xml': {
 		
 	}
 }

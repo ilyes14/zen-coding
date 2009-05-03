@@ -108,7 +108,7 @@ def parse_into_tree(abbr, doc_type = 'html'):
 	
 	def expando_replace(m):
 		ex = m.group(1)
-		if ex in zen_settings[doc_type]['expandos']:
+		if 'expandos' in zen_settings[doc_type] and ex in zen_settings[doc_type]['expandos']:
 			return zen_settings[doc_type]['expandos'][ex]
 		else:
 			return ex

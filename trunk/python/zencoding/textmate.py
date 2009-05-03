@@ -23,7 +23,11 @@ cur_line = os.getenv('TM_CURRENT_LINE', '')
 cur_index = int(os.getenv('TM_LINE_INDEX', 0))
 scope = os.getenv('TM_SCOPE')
 
-doc_type = re.findall(r'\bhtml|css|xml|xsl\b', scope)[-1]
+if 'xsl' in scope:
+	doc_type = 'xsl'
+else:
+	doc_type = re.findall(r'\bhtml|css|xml\b', scope)[-1]
+	
 # doc_type = re.search(r'\b(html|css|xml|xsl)\b', scope)
 if not doc_type:
 	doc_type = 'html'
