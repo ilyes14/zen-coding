@@ -697,16 +697,30 @@ var zen_settings = {
 		default_attributes: {
 			tmatch: [{match: ''}, {mode: ''}],
 			tname: [{name: ''}],
-			'xsl:when': {test: ''}
+			'xsl:when': {test: ''},
+			'var': [{'name': ''}, {'select': ''}],
+			'vari': {'name': ''},			'if': {'test': ''},			'call': {'name': ''},			'attr': {'name': ''},			'wp': [{'name': ''}, {'select': ''}],			'par': [{'name': ''}, {'select': ''}],
+			'val': {'select': ''},
+			'co': {'select': ''},
+			'each': {'select': ''},
+			'ap': [{'select': ''}, {'mode': ''}]
+			
 		},
 		
 		aliases: {
 			tmatch: 'xsl:template',
-			tname: 'xsl:template'
+			tname: 'xsl:template',
+			'var': 'xsl:variable',
+			'vari': 'xsl:variable',			'if': 'xsl:if',			'call': 'xsl:call-template',			'wp': 'xsl:with-param',			'par': 'xsl:param',
+			'val': 'xsl:value-of',
+			'attr': 'xsl:attribute',
+			'co' : 'xsl:copy-of',
+			'each' : 'xsl:for-each',
+			'ap' : 'xsl:apply-templates'
 		},
 		
 		expandos: {
-			'choose': 'xsl:choose>xsl:when'
+			'choose': 'xsl:choose>xsl:when+xsl:otherwise'
 		}
 	}
 };
@@ -742,3 +756,7 @@ function zenMakeMap(str){
 zen_settings.html.block_elements = zenMakeMap(zen_settings.html.block_elements);
 zen_settings.html.inline_elements = zenMakeMap(zen_settings.html.inline_elements);
 zen_settings.html.empty_elements = zenMakeMap(zen_settings.html.empty_elements);
+
+zenExtend(zen_settings.xsl.default_attributes, zen_settings.html.default_attributes);
+zenExtend(zen_settings.xsl.expandos, zen_settings.html.expandos);
+zenExtend(zen_settings.xsl.aliases, zen_settings.html.aliases);
