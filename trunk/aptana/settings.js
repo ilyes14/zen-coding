@@ -727,3 +727,18 @@ function zenExtend(obj, extender) {
 	for (var p in extender) if (extender.hasOwnProperty(p))
 		obj[p] = extender[p];
 }
+
+/**
+ * Вспомогательная функция, которая преобразовывает строку в хэш
+ * @return {Object}
+ */
+function zenMakeMap(str){
+	var obj = {}, items = str.split(",");
+	for ( var i = 0; i < items.length; i++ )
+		obj[ items[i] ] = true;
+	return obj;
+}
+
+zen_settings.html.block_elements = zenMakeMap(zen_settings.html.block_elements);
+zen_settings.html.inline_elements = zenMakeMap(zen_settings.html.inline_elements);
+zen_settings.html.empty_elements = zenMakeMap(zen_settings.html.empty_elements);

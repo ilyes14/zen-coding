@@ -5,6 +5,8 @@
 	<property name="textmate_bundle_name" value="Zen Coding.tmbundle"/>
 	<property name="textmate_bundle_path" value="${textmate}/${textmate_bundle_name}"/>
 	
+	<property name="aptana_path" value="${basedir}/aptana"/>
+	
 	<target name="main" depends="build_textmate">
 		<echo>Done</echo>
 	</target>
@@ -31,6 +33,21 @@
 		<mkdir dir="${tm_bundle_path}"/>
 		<copydir dest="${tm_bundle_path}" src="${textmate_bundle_path}"/>
 		<exec command="osascript -e 'tell app &quot;TextMate&quot; to reload bundles'"/>
+	</target>
+	
+	<target name="install_aptana">
+		<property name="aptana_scripts" value="${user.home}/Projects/EclipseMonkey/scripts"/>
+		<copy todir="${aptana_scripts}/lib">
+			<fileset dir="${aptana_path}/lib">
+				<include name="*.js"/>
+			</fileset>
+		</copy>
+		
+		<copy todir="${aptana_scripts}">
+			<fileset dir="${aptana_path}">
+				<include name="*.js"/>
+			</fileset>
+		</copy>
 	</target>
 </project>
  

@@ -23,17 +23,6 @@
 	}
 	
 	/**
-	 * Вспомогательная функция, которая преобразовывает строку в хэш
-	 * @return {Object}
-	 */
-	function makeMap(str){
-		var obj = {}, items = str.split(",");
-		for ( var i = 0; i < items.length; i++ )
-			obj[ items[i] ] = true;
-		return obj;
-	}
-	
-	/**
 	 * Возвращает символ перевода строки, используемый в редакторе
 	 * @return {String}
 	 */
@@ -65,6 +54,9 @@
 			
 		return result;
 	}
+	
+	/**
+	 * Get the type of the partition based on the current offset	 * @param {Number} offset	 * @return {String}	 */	function getPartition(offset){		var class_name = String(editors.activeEditor.textEditor.getClass());		if (class_name == 'class org.eclipse.wst.xsl.ui.internal.editor.XSLEditor')			return 'text/xsl';					try {				var fileContext = editors.activeEditor.textEditor.getFileContext();				if (fileContext !== null && fileContext !== undefined) {				var partition = fileContext.getPartitionAtOffset(offset);				return String(partition.getType());			}		} catch(e) {					}			return null;	}
 	
 	/**
 	 * Проверяет, является ли аббревиатура сниппетом
@@ -340,11 +332,6 @@
 		}
 	}
 	
-	// инициализация движка
-	zen_settings.html.block_elements = makeMap(zen_settings.html.block_elements);
-	zen_settings.html.inline_elements = makeMap(zen_settings.html.inline_elements);
-	zen_settings.html.empty_elements = makeMap(zen_settings.html.empty_elements);
-	
 	return {
 		/**
 		 * Ищет аббревиатуру в текущем редакторе и возвращает ее
@@ -457,7 +444,14 @@
 		 * @return {String}
 		 */
 		padString: padString,
-		getNewline: getNewline
+		getNewline: getNewline,
+		
+		/**
+		 * Ищет новую точку вставки каретки		 * @param {Number} Инкремент поиска: -1 — ищем влево, 1 — ищем вправо		 * @param {Number} Начальное смещение относительно текущей позиции курсора		 * @return {Number} Вернет -1, если не была найдена новая позиция		 */		findNewEditPoint: function(inc, offset) {			inc = inc || 1;
+			offset = offset || 0;			var editor = editors.activeEditor,				cur_point = editor.currentOffset + offset,				max_len = editor.sourceLength,				next_point = -1;						function ch(ix) {				return editor.source.charAt(ix);			}							while (cur_point < max_len && cur_point > 0) {				cur_point += inc;				var cur_char = ch(cur_point),					next_char = ch(cur_point + 1),					prev_char = ch(cur_point - 1);									switch (cur_char) {					case '"':					case '\'':						if (next_char == cur_char && prev_char == '=') {							// пустой атрибут							next_point = cur_point + 1;						}						break;					case '>':						if (next_char == '<') {							// между тэгами							next_point = cur_point + 1;						}						break;				}								if (next_point != -1)					break;			}						return next_point;		},
+		
+		/**
+		 * Возвращает тип текущего редактора (css или html)		 * @return {String|null}		 */		getEditorType: function() {			var content_types = {				'text/html':  'html',				'text/xml' :  'html',				'text/css' :  'css',				'text/xsl' :  'xsl'			};						return content_types[getPartition(editors.activeEditor.currentOffset)];		}
 	}
 	
 })();

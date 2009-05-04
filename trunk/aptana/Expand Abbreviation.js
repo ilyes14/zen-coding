@@ -22,7 +22,7 @@ include('lib/core.js');
 
 function main() {
 	try {
-		var editor_type = getEditorType();
+		var editor_type = zen_coding.getEditorType();
 		if (!editor_type) {
 			if (use_tab)
 				expandTab();
@@ -125,46 +125,6 @@ function replaceAbbreviationWithContent(abbr, content) {
 
 function printMessage(message) {
 	out.println(message);
-}
-
-/**
- * Возвращает тип текущего редактора (css или html)
- * @return {String|null}
- */
-function getEditorType() {
-	var content_types = {
-		'text/html':  'html',
-		'text/xml' :  'html',
-		'text/css' :  'css',
-		'text/xsl' :  'xsl'
-	};
-	
-	return content_types[getPartition(editors.activeEditor.currentOffset)];
-}
-
-/**
- * Get the type of the partition based on the current offset
- * @param {Number} offset
- * @return {String}
- */
-function getPartition(offset){
-	var class_name = String(editors.activeEditor.textEditor.getClass());
-	if (class_name == 'class org.eclipse.wst.xsl.ui.internal.editor.XSLEditor')
-		return 'text/xsl';
-		
-	try {
-
-		var fileContext = editors.activeEditor.textEditor.getFileContext();
-
-		if (fileContext !== null && fileContext !== undefined) {
-			var partition = fileContext.getPartitionAtOffset(offset);
-			return String(partition.getType());
-		}
-	} catch(e) {
-		
-	}
-
-	return null;
 }
 
 function commandService(){
