@@ -451,7 +451,17 @@
 			offset = offset || 0;			var editor = editors.activeEditor,				cur_point = editor.currentOffset + offset,				max_len = editor.sourceLength,				next_point = -1;						function ch(ix) {				return editor.source.charAt(ix);			}							while (cur_point < max_len && cur_point > 0) {				cur_point += inc;				var cur_char = ch(cur_point),					next_char = ch(cur_point + 1),					prev_char = ch(cur_point - 1);									switch (cur_char) {					case '"':					case '\'':						if (next_char == cur_char && prev_char == '=') {							// пустой атрибут							next_point = cur_point + 1;						}						break;					case '>':						if (next_char == '<') {							// между тэгами							next_point = cur_point + 1;						}						break;				}								if (next_point != -1)					break;			}						return next_point;		},
 		
 		/**
-		 * Возвращает тип текущего редактора (css или html)		 * @return {String|null}		 */		getEditorType: function() {			var content_types = {				'text/html':  'html',				'text/xml' :  'html',				'text/css' :  'css',				'text/xsl' :  'xsl'			};						return content_types[getPartition(editors.activeEditor.currentOffset)];		}
+		 * Возвращает тип текущего редактора (css или html)		 * @return {String|null}		 */		getEditorType: function() {			var content_types = {				'text/html':  'html',				'text/xml' :  'html',				'text/css' :  'css',				'text/xsl' :  'xsl'			};						return content_types[getPartition(editors.activeEditor.currentOffset)];		},
+		
+		/**
+		 * Возвращает отступ текущей строки у редактора
+		 * @return {String}
+		 */
+		getCurrentLinePadding: function() {
+			var editor = editors.activeEditor,
+				cur_line_num = editor.getLineAtOffset(editor.selectionRange.startingOffset),
+				end_offset = editor.getOffsetAtLine(cur_line_num + 1) + getNewline().length,
+				cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), end_offset);			return (cur_line.match(/^(\s+)/) || [''])[0];		}
 	}
 	
 })();

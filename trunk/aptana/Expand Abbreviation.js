@@ -2,16 +2,15 @@
  * Menu: Zen Coding > Expand Abbreviation
  * Kudos: Sergey Chikuyonok (http://chikuyonok.ru), Vadim Makeev (http://pepelsbey.net)
  * License: EPL 1.0
- * Key: Tab
+ * Key: M3+E
  * DOM: http://download.eclipse.org/technology/dash/update/org.eclipse.eclipsemonkey.lang.javascript
- * Listener: commandService().addExecutionListener(this);
  * 
  * @include "/EclipseMonkey/scripts/monkey-doc.js"
  * @include "settings.js"
  * @include "lib/core.js"
  */
 
-var use_tab = true; 
+var use_tab = false; 
 
 include('settings.js');
 try {
@@ -104,11 +103,8 @@ function replaceAbbreviationWithContent(abbr, content) {
 	// заменяем переводы строк на те, что используются в редакторе
 	content = content.replace(/\n/g, zen_coding.getNewline());
 	
-	// берем отступ у текущей строки
-	var cur_line_num = editor.getLineAtOffset(editor.currentOffset);
-	var cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), editor.currentOffset);
-	var cur_line_pad = (cur_line.match(/^(\s+)/) || [''])[0];
-	content = zen_coding.padString(content, cur_line_pad); 
+	// ставим отступ у текущей строки
+	content = zen_coding.padString(content, zen_coding.getCurrentLinePadding()); 
 	
 	// получаем позицию, куда нужно поставить курсор
 	var start_pos = editor.selectionRange.endingOffset - abbr.length;
@@ -126,27 +122,3 @@ function replaceAbbreviationWithContent(abbr, content) {
 function printMessage(message) {
 	out.println(message);
 }
-
-function commandService(){
-	var commandServiceClass = Packages.org.eclipse.ui.commands.ICommandService;
-
-	// same as doing ICommandService.class
-    var commandService = Packages.org.eclipse.ui.PlatformUI.getWorkbench().getAdapter(commandServiceClass);
-    return commandService;
-}
-
-/**
- * Called before any/every command is executed, so we must filter on command ID
- */
-function preExecute(commandId, event) {
-	if (commandId == "com.aptana.ide.editors.views.actions.actionKeyCommand"){
-		main();
-    }
-}
-
-/* Add in all methods required by the interface, even if they are unused */
-function postExecuteSuccess(commandId, returnValue) {}
-
-function notHandled(commandId, exception) {}
-
-function postExecuteFailure(commandId, exception) {}
