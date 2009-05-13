@@ -821,7 +821,7 @@ font-size-adjust:none;                      fza:n
 
 {{{
 font-family:;                                               ff
-font-family:'Georgia','Times New Roman',serif;              ff:s
+font-family:Georgia,'Times New Roman',serif;              ff:s
 font-family:Helvetica,Arial,sans-serif;                     ff:ss
 font-family:'Monotype Corsiva','Comic Sans MS',cursive;     ff:c
 font-family:Capitals,Impact,fantasy;                        ff:f
