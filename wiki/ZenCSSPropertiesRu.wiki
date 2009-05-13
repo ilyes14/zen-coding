@@ -499,7 +499,7 @@ filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='x.png');     bg:i
 
 {{{
 background-color:#FFF;                      bgc
-background-color:transparent;                 bgc:t
+background-color:transparent;               bgc:t
 }}}
 
 {{{
