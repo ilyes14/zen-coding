@@ -1,5 +1,4 @@
 #summary Особенности NetBeans Zen HTML
-#labels Featured
 
 = Особенности NetBeans Zen HTML =
 
