@@ -26,12 +26,7 @@
 
 == Доступные макрокоманды ==
 
-http://code.google.com/p/zen-coding/wiki/ZenHTMLElementsRu (в списке + меняем на = т.к. NetBeans + не поддерживает)
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+http://code.google.com/p/zen-coding/wiki/ZenHTMLElementsRu (в списке + меняем на = т.к. *NetBeans* + не поддерживает)
 
 == Дополнительные возможности ==
   * ALT+2 → class=""
