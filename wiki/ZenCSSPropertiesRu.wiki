@@ -39,14 +39,14 @@ expression()                                exp
 
 ===Методика сортировки===
 
-  * Positioning
-  * Box behavior and properties
-  * Sizing
-  * Color appearance
-  * Special content types
-  * Text
-  * Visual properties
-  * Print
+  * Позиционирование
+  * Поведение и свойства блока
+  * Размерность блока
+  * Цветовое оформление
+  * Специальные типы содержимого
+  * Текст
+  * Визуальные свойства
+  * Печать
 
 ===Позиционирование===
 
