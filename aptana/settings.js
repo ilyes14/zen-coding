@@ -8,6 +8,16 @@ var zen_settings = {
 	/** Inner element indentation */
 	indentation: '\t',     // TODO take from Aptana settings
 	
+	/** 
+	 * Variables that can be placed inside snippets or abbreviations as ${variable}
+	 * ${child} variable is reserved, don't use it 
+	 */
+	variables: {
+		lang: 'en',
+		locale: 'en-US',
+		charset: 'UTF-8'
+	},
+	
 	css: {
 		snippets: {
 			"@i": "@import url(|);",
@@ -489,274 +499,215 @@ var zen_settings = {
 			'cc:ie': '<!--[if IE]>\n\t${child}|\n<![endif]-->',
 			'cc:noie': '<!--[if !IE]><!-->\n\t${child}|\n<!--<![endif]-->',
 			'html:4t': '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\n' +
-					'<html lang="ru">\n' +
+					'<html lang="${lang}">\n' +
 					'<head>\n' +
 					'	<title></title>\n' +
-					'	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">\n' +
+					'	<meta http-equiv="Content-Type" content="text/html;charset=${charset}">\n' +
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
 			
 			'html:4s': '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">\n' +
-					'<html lang="ru">\n' +
+					'<html lang="${lang}">\n' +
 					'<head>\n' +
 					'	<title></title>\n' +
-					'	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">\n' +
+					'	<meta http-equiv="Content-Type" content="text/html;charset=${charset}">\n' +
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
 			
 			'html:xt': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n' +
-					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">\n' +
+					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${lang}">\n' +
 					'<head>\n' +
 					'	<title></title>\n' +
-					'	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />\n' +
+					'	<meta http-equiv="Content-Type" content="text/html;charset=${charset}" />\n' +
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
 			
 			'html:xs': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n' +
-					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">\n' +
+					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${lang}">\n' +
 					'<head>\n' +
 					'	<title></title>\n' +
-					'	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />\n' +
+					'	<meta http-equiv="Content-Type" content="text/html;charset=${charset}" />\n' +
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
 			
 			'html:xxs': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n' +
-					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">\n' +
+					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${lang}">\n' +
 					'<head>\n' +
 					'	<title></title>\n' +
-					'	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />\n' +
+					'	<meta http-equiv="Content-Type" content="text/html;charset=${charset}" />\n' +
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
 			
 			'html:5': '<!DOCTYPE HTML>\n' +
-					'<html lang="ru-RU">\n' +
+					'<html lang="${locale}">\n' +
 					'<head>\n' +
 					'	<title></title>\n' +
-					'	<meta charset="UTF-8">\n' +
+					'	<meta charset="${charset}">\n' +
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>'
 		},
 		
-		/** 
-		 * Default attributes and values that will be added to the element 
-		 */
-		default_attributes: {
-			a: {href: ''},
-			'a:link': {href: 'http://|'},
-			'a:mail': {href: 'mailto:|'},
-			abbr: {title: ''},
-			acronym: {title: ''},
-			base: {href: ''},
-			bdo: {dir: ''},
-			'bdo:r': {dir: 'rtl'},
-			'bdo:l': {dir: 'ltr'},
-			'link:css': [{rel: "stylesheet"}, {type: "text/css"}, {href: "|style.css"}, {media: "all"}],
-			'link:print': [{rel: "stylesheet"}, {type: "text/css"}, {href: "|print.css"}, {media: "print"}],
-			'link:favicon': [{rel: "shortcut icon"}, {type: "image/x-icon"}, {href: "|favicon.ico"}],
-			'link:touch': [{rel: "apple-touch-icon"}, {href: "|favicon.png"}],
-			'link:rss': [{rel: "alternate"}, {type: "application/rss+xml"}, {title: "RSS"}, {href: "|rss.xml"}],
-			'link:atom': [{rel: "alternate"}, {type: "application/atom+xml"}, {title: "Atom"}, {href: "atom.xml"}],
-			'meta:utf': [{"http-equiv": "Content-Type"}, {content: "text/html;charset=UTF-8"}],
-			'meta:win': [{"http-equiv": "Content-Type"}, {content: "text/html;charset=Win-1251"}],
-			'meta:compat': [{"http-equiv": "X-UA-Compatible"}, {content: "IE=7"}],
-			style: {type: 'text/css'},
-			script: {type: 'text/javascript'},
-			'script:src': [{type: 'text/javascript'}, {src: ""}],
-			img: [{src: ''}, {alt: ''}],
-			iframe: [{src: ''}, {frameborder: '0'}],
-			embed: [{src: ''}, {type: ''}],
-			object: [{data: ''}, {type: ''}],
-			param: [{name: ''}, {value: ''}],
-			map: {name: ''},
-			area: [{shape: ''}, {coords: ''}, {href: ''}, {alt: ''}],
-			'area:d': [{shape: 'default'}, {href: ''}, {alt: ''}],
-			'area:c': [{shape: 'circle'}, {coords: ''}, {href: ''}, {alt: ''}],
-			'area:r': [{shape: 'rect'}, {coords: ''}, {href: ''}, {alt: ''}],
-			'area:p': [{shape: 'poly'}, {coords: ''}, {href: ''}, {alt: ''}],
-			link: [{rel: 'stylesheet'}, {href: ''}],
-			form: {action: ''},
-			'form:get': {action: '', method: 'get'},
-			'form:post': {action: '', method: 'post'},
-			label: {'for': ''},
-			input: {type: ''},
-			'input:hidden': [{type: 'hidden'}, {name: ''}],
-			'input:h': [{type: 'hidden'}, {name: ''}],
-			'input:text': [{type: 'text'}, {name: ''}, {id: ''}],
-			'input:t': [{type: 'text'}, {name: ''}, {id: ''}],
-			'input:search': [{type: 'search'}, {name: ''}, {id: ''}],
-			'input:email': [{type: 'email'}, {name: ''}, {id: ''}],
-			'input:url': [{type: 'url'}, {name: ''}, {id: ''}],
-			'input:password': [{type: 'password'}, {name: ''}, {id: ''}],
-			'input:p': [{type: 'password'}, {name: ''}, {id: ''}],
-			'input:datetime': [{type: 'datetime'}, {name: ''}, {id: ''}],
-			'input:date': [{type: 'date'}, {name: ''}, {id: ''}],
-			'input:datetime-local': [{type: 'datetime-local'}, {name: ''}, {id: ''}],
-			'input:month': [{type: 'month'}, {name: ''}, {id: ''}],
-			'input:week': [{type: 'week'}, {name: ''}, {id: ''}],
-			'input:time': [{type: 'time'}, {name: ''}, {id: ''}],
-			'input:number': [{type: 'number'}, {name: ''}, {id: ''}],
-			'input:color': [{type: 'color'}, {name: ''}, {id: ''}],
-			'input:checkbox': [{type: 'checkbox'}, {name: ''}, {id: ''}],
-			'input:c': [{type: 'checkbox'}, {name: ''}, {id: ''}],
-			'input:radio': [{type: 'radio'}, {name: ''}, {id: ''}],
-			'input:r': [{type: 'radio'}, {name: ''}, {id: ''}],
-			'input:range': [{type: 'range'}, {name: ''}, {id: ''}],
-			'input:file': [{type: 'file'}, {name: ''}, {id: ''}],
-			'input:f': [{type: 'file'}, {name: ''}, {id: ''}],
-			'input:submit': [{type: 'submit'}, {value: ''}],
-			'input:s': [{type: 'submit'}, {value: ''}],
-			'input:image': [{type: 'image'}, {src: ''}, {alt: ''}],
-			'input:i': [{type: 'image'}, {src: ''}, {alt: ''}],
-			'input:reset': [{type: 'reset'}, {value: ''}],
-			'input:button': [{type: 'button'}, {value: ''}],
-			'input:b': [{type: 'button'}, {value: ''}],
-			select: [{name: ''}, {id: ''}],
-			option: {value: ''},
-			textarea: [{name: ""}, {id: ""}, {cols: "30"}, {rows: "10"}],
-			'menu:context': {type: 'context'},
-			'menu:c': {type: 'context'},
-			'menu:toolbar': {type: 'toolbar'},
-			'menu:t': {type: 'toolbar'},
-			video: {src: ''},
-			audio: {src: ''},
-			'html:xml': [{xmlns: "http://www.w3.org/1999/xhtml"}, {'xml:lang': "ru"}]
+		abbreviations: {
+			'a': '<a href=""></a>',
+			'a:link': '<a href="http://|"></a>',
+			'a:mail': '<a href="mailto:|"></a>',
+			'abbr': '<abbr title=""></abbr>',
+			'acronym': '<acronym title=""></acronym>',
+			'base': '<base href="" />',
+			'bdo': '<bdo dir=""></bdo>',
+			'bdo:r': '<bdo dir="rtl"></bdo>',
+			'bdo:l': '<bdo dir="ltr"></bdo>',
+			'link:css': '<link rel="stylesheet" type="text/css" href="|style.css" media="all" />',
+			'link:print': '<link rel="stylesheet" type="text/css" href="|print.css" media="print" />',
+			'link:favicon': '<link rel="shortcut icon" type="image/x-icon" href="|favicon.ico" />',
+			'link:touch': '<link rel="apple-touch-icon" href="|favicon.png" />',
+			'link:rss': '<link rel="alternate" type="application/rss+xml" title="RSS" href="|rss.xml" />',
+			'link:atom': '<link rel="alternate" type="application/atom+xml" title="Atom" href="atom.xml" />',
+			'meta:utf': '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />',
+			'meta:win': '<meta http-equiv="Content-Type" content="text/html;charset=Win-1251" />',
+			'meta:compat': '<meta http-equiv="X-UA-Compatible" content="IE=7" />',
+			'style': '<style type="text/css"></style>',
+			'script': '<script type="text/javascript"></script>',
+			'script:src': '<script type="text/javascript" src=""></script>',
+			'img': '<img src="" alt="" />',
+			'iframe': '<iframe src="" frameborder="0"></iframe>',
+			'embed': '<embed src="" type="" />',
+			'object': '<object data="" type=""></object>',
+			'param': '<param name="" value="" />',
+			'map': '<map name=""></map>',
+			'area': '<area shape="" coords="" href="" alt="" />',
+			'area:d': '<area shape="default" href="" alt="" />',
+			'area:c': '<area shape="circle" coords="" href="" alt="" />',
+			'area:r': '<area shape="rect" coords="" href="" alt="" />',
+			'area:p': '<area shape="poly" coords="" href="" alt="" />',
+			'link': '<link rel="stylesheet" href="" />',
+			'form': '<form action=""></form>',
+			'form:get': '<form action="" method="get"></form>',
+			'form:post': '<form action="" method="post"></form>',
+			'label': '<label for=""></label>',
+			'input': '<input type="" />',
+			'input:hidden': '<input type="hidden" name="" />',
+			'input:h': '<input type="hidden" name="" />',
+			'input:text': '<input type="text" name="" id="" />',
+			'input:t': '<input type="text" name="" id="" />',
+			'input:search': '<input type="search" name="" id="" />',
+			'input:email': '<input type="email" name="" id="" />',
+			'input:url': '<input type="url" name="" id="" />',
+			'input:password': '<input type="password" name="" id="" />',
+			'input:p': '<input type="password" name="" id="" />',
+			'input:datetime': '<input type="datetime" name="" id="" />',
+			'input:date': '<input type="date" name="" id="" />',
+			'input:datetime-local': '<input type="datetime-local" name="" id="" />',
+			'input:month': '<input type="month" name="" id="" />',
+			'input:week': '<input type="week" name="" id="" />',
+			'input:time': '<input type="time" name="" id="" />',
+			'input:number': '<input type="number" name="" id="" />',
+			'input:color': '<input type="color" name="" id="" />',
+			'input:checkbox': '<input type="checkbox" name="" id="" />',
+			'input:c': '<input type="checkbox" name="" id="" />',
+			'input:radio': '<input type="radio" name="" id="" />',
+			'input:r': '<input type="radio" name="" id="" />',
+			'input:range': '<input type="range" name="" id="" />',
+			'input:file': '<input type="file" name="" id="" />',
+			'input:f': '<input type="file" name="" id="" />',
+			'input:submit': '<input type="submit" value="" />',
+			'input:s': '<input type="submit" value="" />',
+			'input:image': '<input type="image" src="" alt="" />',
+			'input:i': '<input type="image" src="" alt="" />',
+			'input:reset': '<input type="reset" value="" />',
+			'input:button': '<input type="button" value="" />',
+			'input:b': '<input type="button" value="" />',
+			'select': '<select name="" id=""></select>',
+			'option': '<option value=""></option>',
+			'textarea': '<textarea name="" id="" cols="30" rows="10"></textarea>',
+			'menu:context': '<menu type="context"></menu>',
+			'menu:c': '<menu type="context"></menu>',
+			'menu:toolbar': '<menu type="toolbar"></menu>',
+			'menu:t': '<menu type="toolbar"></menu>',
+			'video': '<video src=""></video>',
+			'audio': '<audio src=""></audio>',
+			'html:xml': '<html xmlns="http://www.w3.org/1999/xhtml"></html>',
+			'bq': '<blockquote></blockquote>',
+			'acr': '<acronym></acronym>',
+			'fig': '<figure></figure>',
+			'ifr': '<iframe></iframe>',
+			'emb': '<embed></embed>',
+			'obj': '<object></object>',
+			'src': '<source></source>',
+			'cap': '<caption></caption>',
+			'colg': '<colgroup></colgroup>',
+			'fst': '<fieldset></fieldset>',
+			'btn': '<button></button>',
+			'optg': '<optgroup></optgroup>',
+			'opt': '<option></option>',
+			'tarea': '<textarea></textarea>',
+			'leg': '<legend></legend>',
+			'sect': '<section></section>',
+			'art': '<article></article>',
+			'hdr': '<header></header>',
+			'ftr': '<footer></footer>',
+			'adr': '<address></address>',
+			'dlg': '<dialog></dialog>',
+			'str': '<strong></strong>',
+			'prog': '<progress></progress>',
+			'fset': '<fieldset></fieldset>',
+			'datag': '<datagrid></datagrid>',
+			'datal': '<datalist></datalist>',
+			'kg': '<keygen></keygen>',
+			'out': '<output></output>',
+			'det': '<details></details>',
+			'cmd': '<command></command>',
 			
+			// expandos
+			'ol+': 'ol>li',
+			'ul+': 'ul>li',
+			'dl+': 'dl>dt+dd',
+			'map+': 'map>area',
+			'table+': 'table>tr>td',
+			'colgroup+': 'colgroup>col',
+			'colg+': 'colgroup>col',
+			'tr+': 'tr>td',
+			'select+': 'select>option',
+			'optgroup+': 'optgroup>option',
+			'optg+': 'optgroup>option'
+
 		},
 		
-		aliases: {
-			'link:*': 'link',
-			'meta:*': 'meta',
-			'area:*': 'area',
-			'bdo:*': 'bdo',
-			'form:*': 'form',
-			'input:*': 'input',
-			'script:*': 'script',
-			'html:*': 'html',
-			'a:*': 'a',
-			'menu:*': 'menu',
-			
-			bq: 'blockquote',
-			acr: 'acronym',
-			fig: 'figure',
-			ifr: 'iframe',
-			emb: 'embed',
-			obj: 'object',
-			src: 'source',
-			cap: 'caption',
-			colg: 'colgroup',
-			fst: 'fieldset',
-			btn: 'button',
-			optg: 'optgroup',
-			opt: 'option',
-			tarea: 'textarea',
-			leg: 'legend',
-			sect: 'section',
-			art: 'article',			hdr: 'header',			ftr: 'footer',			adr: 'address',			dlg: 'dialog',
-			str: 'strong',
-			prog: 'progress',
-			fset: 'fieldset',
-			datag: 'datagrid',
-			datal: 'datalist',
-			kg: 'keygen',
-			out: 'output',
-			det: 'details',
-			cmd: 'command'
-		},
-		
-		/**
-		 * Expanded patterns (ends with +) 
-		 */
-		expandos: {
-			ol: 'ol>li',
-			ul: 'ul>li',
-			dl: 'dl>dt+dd',
-			map: 'map>area',
-			table: 'table>tr>td',
-			colgroup: 'colgroup>col',
-			colg: 'colgroup>col',
-			tr: 'tr>td',
-			select: 'select>option',
-			optgroup: 'optgroup>option',
-			optg: 'optgroup>option'
-		},
-		
-		empty_elements: "area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,keygen,command",
-		
-		block_elements: "address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,link,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,h1,h2,h3,h4,h5,h6",
-		
-		inline_elements: "a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var"
+		element_types: {
+			empty: "area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,keygen,command",
+			block_level: "address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,link,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,h1,h2,h3,h4,h5,h6",
+			inline_level: "a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var"
+		}
 	},
 	
 	xsl: {
-		default_attributes: {
-			tmatch: [{match: ''}, {mode: ''}],
-			tname: [{name: ''}],
-			'xsl:when': {test: ''},
-			'var': [{'name': ''}, {'select': ''}],
-			'vari': {'name': ''},			'if': {'test': ''},			'call': {'name': ''},			'attr': {'name': ''},			'wp': [{'name': ''}, {'select': ''}],			'par': [{'name': ''}, {'select': ''}],
-			'val': {'select': ''},
-			'co': {'select': ''},
-			'each': {'select': ''},
-			'ap': [{'select': ''}, {'mode': ''}]
+		abbreviations: {
+			'tm': '<xsl:template match="" mode=""></xsl:template>',
+			'tmatch': 'tm',
+			'tn': '<xsl:template name=""></xsl:template>',
+			'tname': 'tn',
+			'xsl:when': '<xsl:when test=""></xsl:when>',
+			'wh': 'xsl:when',
+			'var': '<xsl:variable name="">|</xsl:variable>',
+			'vare': '<xsl:variable name="" select=""/>',
+			'if': '<xsl:if test=""></xsl:if>',
+			'call': '<xsl:call-template name=""/>',
+			'attr': '<xsl:attribute name=""></xsl:attribute>',
+			'wp': '<xsl:with-param name="" select=""/>',
+			'par': '<xsl:param name="" select=""/>',
+			'val': '<xsl:value-of select=""/>',
+			'co': '<xsl:copy-of select=""/>',
+			'each': '<xsl:for-each select=""></xsl:for-each>',
+			'ap': '<xsl:apply-templates select="" mode=""/>',
 			
-		},
-		
-		aliases: {
-			tmatch: 'xsl:template',
-			tname: 'xsl:template',
-			'var': 'xsl:variable',
-			'vari': 'xsl:variable',			'if': 'xsl:if',			'call': 'xsl:call-template',			'wp': 'xsl:with-param',			'par': 'xsl:param',
-			'val': 'xsl:value-of',
-			'attr': 'xsl:attribute',
-			'co' : 'xsl:copy-of',
-			'each' : 'xsl:for-each',
-			'ap' : 'xsl:apply-templates'
-		},
-		
-		expandos: {
-			'choose': 'xsl:choose>xsl:when+xsl:otherwise'
+			//expandos
+			'choose+': 'xsl:choose>xsl:when+xsl:otherwise'
 		}
 	}
 };
-
-/**
- * You can write your own snippets, attributes and tags in "my-settings.js" file 
- * and use <code>zenExtend()</code> method to add them to the global collection.
- * @param {Object} obj Object to extend
- * @param {Object} extender Object to extend with
- * 
- * @example
- * zenExtend(zen_settings.html.snippets, {
- * 	foo: 'bar',
- * 	snip2: 'Hello world!'
- * });
- */
-function zenExtend(obj, extender) {
-	for (var p in extender) if (extender.hasOwnProperty(p))
-		obj[p] = extender[p];
-}
-
-/**
- * Вспомогательная функция, которая преобразовывает строку в хэш
- * @return {Object}
- */
-function zenMakeMap(str){
-	var obj = {}, items = str.split(",");
-	for ( var i = 0; i < items.length; i++ )
-		obj[ items[i] ] = true;
-	return obj;
-}
-
-zen_settings.html.block_elements = zenMakeMap(zen_settings.html.block_elements);
-zen_settings.html.inline_elements = zenMakeMap(zen_settings.html.inline_elements);
-zen_settings.html.empty_elements = zenMakeMap(zen_settings.html.empty_elements);
-
-zenExtend(zen_settings.xsl.default_attributes, zen_settings.html.default_attributes);
-zenExtend(zen_settings.xsl.expandos, zen_settings.html.expandos);
-zenExtend(zen_settings.xsl.aliases, zen_settings.html.aliases);
