@@ -7,6 +7,12 @@
 	
 	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/;
 	
+	var TYPE_ABBREVIATION = 'zen-tag',
+		TYPE_EXPANDO = 'zen-expando',
+	
+		/** Reference to another abbreviation or tag */
+		TYPE_REFERENCE = 'zen-reference';
+	
 	/**
 	 * Проверяет, является ли символ допустимым в аббревиатуре
 	 * @param {String} ch
@@ -28,6 +34,26 @@
 	 */
 	function getNewline() {
 		return editors.activeEditor.lineDelimiter;
+	}
+	
+	/**
+	 * Trim whitespace from string
+	 * @param {String} text
+	 * @return {String}
+	 */
+	function trim(text) {
+		return (text || "").replace( /^\s+|\s+$/g, "" );
+	}
+	
+	/**
+	 * Helper function that transforms string into hash
+	 * @return {Object}
+	 */
+	function stringToHash(str){
+		var obj = {}, items = str.split(",");
+		for ( var i = 0; i < items.length; i++ )
+			obj[ items[i] ] = true;
+		return obj;
 	}
 	
 	/**
@@ -81,6 +107,20 @@
 	}
 	
 	/**
+	 * Returns specified elements collection (like 'empty', 'block_level') from
+	 * <code>resource</code>. If collections wasn't found, returns empty object
+	 * @param {Object} resource
+	 * @param {String} type
+	 * @return {Object}
+	 */
+	function getElementsCollection(resource, type) {
+		if (resource.element_types)
+			return resource.element_types[type] || {}
+		else
+			return {};
+	}
+	
+	/**
 	 * Тэг
 	 * @class
 	 * @param {String} name Имя тэга
@@ -90,46 +130,27 @@
 	function Tag(name, count, type) {
 		name = name.toLowerCase();
 		type = type || 'html';
-		this.name = Tag.getRealName(name, type);
+		
+		 var abbr = zen_settings[type].abbreviations[name];
+		 if (abbr && abbr.type == TYPE_REFERENCE)
+		 	abbr = zen_settings[type].abbreviations[abbr.value];
+		 	
+		this.name = (abbr) ? abbr.value.name : name;
 		this.count = count || 1;
 		this.children = [];
 		this.attributes = [];
+		this._abbr = abbr;
 		this._res = zen_settings[type];
 		
-		//добавляем атрибуты по умолчанию
-		if ('default_attributes' in this._res) {
-			var def_attrs = this._res.default_attributes[name];		if (def_attrs) {
-			
-			def_attrs = def_attrs instanceof Array ? def_attrs : [def_attrs];
-			for (var i = 0; i < def_attrs.length; i++) {
-				var attrs = def_attrs[i];
-				for (var attr_name in attrs) 
-					this.addAttribute(attr_name, attrs[attr_name]);
+		// add default attributes
+		if (this._abbr && this._abbr.value.attributes) {
+			var def_attrs = this._abbr.value.attributes;			if (def_attrs) {
+				for (var i = 0; i < def_attrs.length; i++) {
+					var attr = def_attrs[i];
+					this.addAttribute(attr.name, attr.value);
+				}
 			}
 		}
-	}
-	}
-	
-	/**
-	 * Возвращает настоящее имя тэга
-	 * @param {String} name
-	 * @return {String}
-	 */
-	Tag.getRealName = function(name, type) {
-		var real_name = name,
-			res = zen_settings[type || 'html'],
-			aliases = res.aliases || res.short_names;
-		
-		if (aliases && aliases[name]) // аббревиатура: bq -> blockquote
-			real_name = aliases[name];
-		else if (name.indexOf(':') != -1) {
-			// проверим, есть ли группирующий селектор
-			var group_name = name.substring(0, name.indexOf(':')) + ':*';
-			if (aliases[group_name])
-				real_name = aliases[group_name];
-		}
-		
-		return real_name;
 	}
 	
 	Tag.prototype = {
@@ -155,9 +176,7 @@
 		 * @return {Boolean}
 		 */
 		isEmpty: function() {
-			return ('empty_elements' in this._res) 
-				? this._res.empty_elements[this.name] 
-				: false;
+			return (this._abbr && this._abbr.value.is_empty) || (this.name in getElementsCollection(this._res, 'empty'));
 		},
 		
 		/**
@@ -165,9 +184,7 @@
 		 * @return {Boolean}
 		 */
 		isInline: function() {
-			return ('inline_elements' in this._res) 
-				? this._res.inline_elements[this.name] 
-				: false;
+			return (this.name in getElementsCollection(this._res, 'inline_level'));
 		},
 		
 		/**
@@ -175,9 +192,7 @@
 		 * @return {Boolean}
 		 */
 		isBlock: function() {
-			return ('block_elements' in this._res) 
-				? this._res.block_elements[this.name] 
-				: true;
+			return (this.name in getElementsCollection(this._res, 'block_level'));
 		},
 		
 		/**
@@ -336,6 +351,7 @@
 		/**
 		 * Ищет аббревиатуру в текущем редакторе и возвращает ее
 		 * @return {String|null}
+		 * TODO move to Eclipse specific file
 		 */
 		findAbbreviation: function() {
 			/** Текущий редактор */
@@ -403,12 +419,9 @@
 			if (!abbr)
 				return null;
 			
-			// заменяем разворачиваемые элементы
-			abbr = abbr.replace(/([a-z][a-z0-9]*)\+$/i, function(str, tag_name){
-				if ('expandos' in res)
-					return res.expandos[tag_name] || str;
-				else
-					return str;
+			// replace expandos
+			abbr = abbr.replace(/([a-z][\w\:\-]*)\+$/i, function(str){
+				return (res.abbreviations[str]) ? res.abbreviations[str].value : str;
 			});
 			
 			abbr = abbr.replace(re, function(str, operator, tag_name, id, class_name, multiplier){
@@ -422,7 +435,7 @@
 					current.addAttribute('class', class_name.substr(1).replace(/\./g, ' '));
 				
 				
-				// двигаемся вглубь дерева
+				// dive into tree
 				if (operator == '>' && last)
 					parent = last;
 					
@@ -432,8 +445,8 @@
 				return '';
 			});
 			
-			// если в abbr пустая строка — значит, вся аббревиатура без проблем 
-			// была преобразована в дерево, если нет, то аббревиатура была не валидной
+			// empty 'abbr' string means that abbreviation was successfully expanded,
+			// if not—abbreviation wasn't valid 
 			return (!abbr) ? root : null;
 		},
 		
@@ -451,7 +464,8 @@
 			offset = offset || 0;			var editor = editors.activeEditor,				cur_point = editor.currentOffset + offset,				max_len = editor.sourceLength,				next_point = -1;						function ch(ix) {				return editor.source.charAt(ix);			}							while (cur_point < max_len && cur_point > 0) {				cur_point += inc;				var cur_char = ch(cur_point),					next_char = ch(cur_point + 1),					prev_char = ch(cur_point - 1);									switch (cur_char) {					case '"':					case '\'':						if (next_char == cur_char && prev_char == '=') {							// пустой атрибут							next_point = cur_point + 1;						}						break;					case '>':						if (next_char == '<') {							// между тэгами							next_point = cur_point + 1;						}						break;				}								if (next_point != -1)					break;			}						return next_point;		},
 		
 		/**
-		 * Возвращает тип текущего редактора (css или html)		 * @return {String|null}		 */		getEditorType: function() {			var content_types = {				'text/html':  'html',				'text/xml' :  'html',				'text/css' :  'css',				'text/xsl' :  'xsl'			};						return content_types[getPartition(editors.activeEditor.currentOffset)];		},
+		 * Возвращает тип текущего редактора (css или html)		 * @return {String|null}
+		 * TODO move to Eclipse-specific file		 */		getEditorType: function() {			var content_types = {				'text/html':  'html',				'text/xml' :  'html',				'text/css' :  'css',				'text/xsl' :  'xsl'			};						return content_types[getPartition(editors.activeEditor.currentOffset)];		},
 		
 		/**
 		 * Возвращает отступ текущей строки у редактора
@@ -461,7 +475,133 @@
 			var editor = editors.activeEditor,
 				cur_line_num = editor.getLineAtOffset(editor.selectionRange.startingOffset),
 				end_offset = editor.getOffsetAtLine(cur_line_num + 1) + getNewline().length,
-				cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), end_offset);			return (cur_line.match(/^(\s+)/) || [''])[0];		}
+				cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), end_offset);			return (cur_line.match(/^(\s+)/) || [''])[0];		},
+		
+		settings_parser: (function(){
+			/**
+			 * Unified object for parsed data
+			 */
+			function entry(type, key, value) {
+				return {
+					type: type,
+					key: key,
+					value: value
+				};
+			}
+			
+			/** Regular expression for XML tag matching */
+			var re_tag = /^<([\w\-]+(?:\:\w+)?)((?:\s+[\w\-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
+				
+				re_attrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g;
+			
+			/**
+			 * Make expando from string
+			 * @param {String} key
+			 * @param {String} value
+			 * @return {Object}
+			 */
+			function makeExpando(key, value) {
+//				if (key.substr(-1) == '+') 
+//					key = key.substring(0, key.length - 2);	
+				
+				return entry(TYPE_EXPANDO, key, value);
+			}
+			
+			/**
+			 * Make abbreviation from string
+			 * @param {String} key Abbreviation key
+			 * @param {String} tag_name Expanded element's tag name
+			 * @param {String} attrs Expanded element's attributes
+			 * @param {Boolean} is_empty Is expanded element empty or not
+			 * @return {Object}
+			 */
+			function makeAbbreviation(key, tag_name, attrs, is_empty) {
+				var result = {
+					name: tag_name,
+					is_empty: Boolean(is_empty)
+				};
+				
+				if (attrs) {
+					var m;
+					result.attributes = [];
+					while (m = re_attrs.exec(attrs)) {
+						result.attributes.push({
+							name: m[1],
+							value: m[3]
+						});
+					}
+				}
+				
+				return entry(TYPE_ABBREVIATION, key, result);
+			}
+			
+			/**
+			 * Parses all abbreviations inside object
+			 * @param {Object} obj
+			 */
+			function parseAbbreviations(obj) {
+				for (var key in obj) {
+					var value = obj[key], m;
+					
+					key = trim(key);
+					if (key.substr(-1) == '+') {
+						// this is expando, leave 'value' as is
+						obj[key] = makeExpando(key, value);
+					} else if (m = re_tag.exec(value)) {
+						obj[key] = makeAbbreviation(key, m[1], m[2], m[3] == '/');
+					} else {
+						// assume it's reference to another abbreviation
+						obj[key] = entry(TYPE_REFERENCE, key, value);
+					}
+					
+				}
+			}
+			
+			return {
+				/**
+				 * Parse user's settings
+				 * @param {Object} settings
+				 */
+				parse: function(settings) {
+					for (var p in settings) {
+						if (p == 'abbreviations')
+							parseAbbreviations(settings[p]);
+						else if (typeof(settings[p]) == 'object')
+							arguments.callee(settings[p]);
+					}
+				},
+				
+				extend: function(parent, child) {
+					for (var p in child) {
+						if (typeof(child[p]) == 'object' && parent.hasOwnProperty(p))
+							arguments.callee(parent[p], child[p]);
+						else
+							parent[p] = child[p];
+					}
+				},
+				
+				/**
+				 * Create hash maps on certain string properties
+				 * @param {Object} obj
+				 */
+				createMaps: function(obj) {
+					for (var p in obj) {
+						if (p == 'element_types') {
+							for (var k in obj[p]) 
+								obj[p][k] = stringToHash(obj[p][k]);
+						} else if (typeof(obj[p]) == 'object') {
+							arguments.callee(obj[p]);
+						}
+					}
+				},
+				
+				TYPE_ABBREVIATION: TYPE_ABBREVIATION,
+				TYPE_EXPANDO: TYPE_EXPANDO,
+				
+				/** Reference to another abbreviation or tag */
+				TYPE_REFERENCE: TYPE_REFERENCE
+			}
+		})()
 	}
 	
 })();
