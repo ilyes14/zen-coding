@@ -22,57 +22,6 @@ try {
 
 include('lib/core.js');
 
-// first we need to expand some strings into hashes
-zen_coding.settings_parser.createMaps(zen_settings);
-if ('my_zen_settings' in this) {
-	// we need to extend default settings with user's
-	zen_coding.settings_parser.createMaps(my_zen_settings);
-	zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
-}
-
-// now we need to parse final set of settings
-zen_coding.settings_parser.parse(zen_settings);
-
-/**
- * Extends parent object with child's properties
- * @param {Object} parent
- * @param {Object} child
- */
-function zenExtend(parent, child) {
-	for (var p in child) {
-		if (typeof(child[p]) == 'object' && parent.hasOwnProperty(p)) 
-			zenExtend(parent[p], child[p]);
-		else
-			parent[p] = child[p];
-	}
-}
-
-/**
- * Helper function that transforms string into hash
- * @return {Object}
- */
-function zenMakeMap(str){
-	var obj = {}, items = str.split(",");
-	for ( var i = 0; i < items.length; i++ )
-		obj[ items[i] ] = true;
-	return obj;
-}
-
-/**
- * Create hash maps on certain string properties
- * @param {Object} obj
- */
-function createMaps(obj) {
-	for (var p in obj) {
-		if (p == 'element_types') {
-			for (var k in obj[p]) 
-				obj[p][k] = zenMakeMap(obj[p][k]);
-		} else if (typeof(obj[p]) == 'object') {
-			createMaps(obj[p]);
-		}
-	}
-}
-
 function main() {
 	try {
 		var editor_type = zen_coding.getEditorType();

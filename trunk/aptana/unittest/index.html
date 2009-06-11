@@ -23,23 +23,14 @@
 			<div id="sample"></div>
 		</div>
 		<script type="text/javascript">
+			zen_coding.setupProfile('demo', {tag_case: 'upper', attr_case: 'upper'});
 			
-			// first we need to expand some strings into hashes
-			zen_coding.settings_parser.createMaps(zen_settings);
-			console.log(this);
-			if ('my_zen_settings' in this) {
-				// we need to extend default settings with user's
-				zen_coding.settings_parser.createMaps(my_zen_settings);
-				zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
-			}
-			
-			// now we need to parse final set of settings
-			zen_coding.settings_parser.parse(zen_settings);
-			
-			function expandAbbr(abbr, type) {
+			function expandAbbr(abbr, type, profile) {
 				var tree = zen_coding.parseIntoTree(abbr, type || 'html');
-				return tree ? tree.toString() : null;
+				return tree ? tree.toString(profile) : null;
 			}
+			
+			
 			
 			new Test.Unit.Runner({
 				"test '+' operator": function(){ with (this) {

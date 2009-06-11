@@ -12,6 +12,25 @@
 	
 		/** Reference to another abbreviation or tag */
 		TYPE_REFERENCE = 'zen-reference';
+		
+	var default_profile = {
+		tag_case: 'lower',
+		attr_case: 'lower',
+		attr_quotes: 'double',
+		
+		// each tag on new line
+		tag_nl: 'decide',
+		
+		place_cursor: true,
+		
+		// indent tags
+		indent: true,
+		
+		// use self-closing style for writing empty elements, e.g. <br /> or <br>
+		self_closing_tag: 'xhtml'
+	};
+	
+	var profiles = {};
 	
 	/**
 	 * Проверяет, является ли символ допустимым в аббревиатуре
@@ -33,7 +52,8 @@
 	 * @return {String}
 	 */
 	function getNewline() {
-		return editors.activeEditor.lineDelimiter;
+//		return editors.activeEditor.lineDelimiter;
+		return '\n';
 	}
 	
 	/**
@@ -43,6 +63,18 @@
 	 */
 	function trim(text) {
 		return (text || "").replace( /^\s+|\s+$/g, "" );
+	}
+	
+	function createProfile(options) {
+		var result = {};
+		for (var p in default_profile)
+			result[p] = (p in options) ? options[p] : default_profile[p];
+		
+		return result;
+	}
+	
+	function setupProfile(name, options) {
+		profiles[name.toLowerCase()] = createProfile(options || {});
 	}
 	
 	/**
@@ -66,7 +98,7 @@
 		var pad_str = '', result = '';
 		if (typeof(pad) == 'number')
 			for (var i = 0; i < pad; i++) 
-				pad_str += zen_settings.indentation;
+				pad_str += zen_settings.variables.indentation;
 		else
 			pad_str = pad;
 		
@@ -131,10 +163,10 @@
 		name = name.toLowerCase();
 		type = type || 'html';
 		
-		 var abbr = zen_settings[type].abbreviations[name];
-		 if (abbr && abbr.type == TYPE_REFERENCE)
-		 	abbr = zen_settings[type].abbreviations[abbr.value];
-		 	
+		var abbr = zen_settings[type].abbreviations[name];
+		if (abbr && abbr.type == TYPE_REFERENCE)
+			abbr = zen_settings[type].abbreviations[abbr.value];
+		
 		this.name = (abbr) ? abbr.value.name : name;
 		this.count = count || 1;
 		this.children = [];
@@ -210,60 +242,75 @@
 		},
 		
 		/**
-		 * Преобразует тэг в строку. Если будет передан аргумент 
-		 * <code>format</code> — вывод будет отформатирован согласно настройкам
-		 * в <code>zen_settings</code>. Также в этом случае будет ставится 
-		 * символ «|», означающий место вставки курсора. Курсор будет ставится
-		 * в пустых атрибутах и элементах без потомков
-		 * @param {Boolean} format Форматировать вывод
-		 * @param {Boolean} indent Добавлять отступ
+		 * Transforms tag into string using profile
+		 * @param {String} profile Profile name
 		 * @return {String}
 		 */
-		toString: function(format, indent) {
+		toString: function(profile_name) {
+			
 			var result = [], 
+				profile = (profile_name in profiles) ? profiles[profile_name] : profiles['plain'],
 				attrs = '', 
 				content = '', 
 				start_tag = '', 
 				end_tag = '',
-				cursor = format ? '|' : '',
-				a;
+				cursor = profile.place_cursor ? '|' : '',
+				self_closing = '',
+				a,
+				attr_name;
 
-			indent = indent || false;
+			if (profile.self_closing_tag == 'xhtml')
+				self_closing = ' /';
+			else if (profile.self_closing_tag === true)
+				self_closing = '/';
 				
 			// делаем строку атрибутов
 			for (var i = 0; i < this.attributes.length; i++) {
 				a = this.attributes[i];
-				attrs += ' ' + a.name + '="' + (a.value || cursor) + '"';
+				attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : a.name.toLowerCase();
+				attrs += ' ' + attr_name + '="' + (a.value || cursor) + '"';
 			}
 			
 			// выводим потомков
 			if (!this.isEmpty())
 				for (var j = 0; j < this.children.length; j++) {
-					content += this.children[j].toString(format, true);
-					if (format && this.children[j].isBlock() && j != this.children.length - 1)
+					content += this.children[j].toString(profile_name);
+					if (
+						(j != this.children.length - 1) &&
+						(profile.tag_nl === true || (profile.tag_nl == 'decide' && this.children[j].isBlock()))
+					)
 						content += getNewline();
 				}
 			
 			if (this.name) {
+				var tag_name = (profile.tag_case == 'upper') ? this.name.toUpperCase() : this.name.toLowerCase();
 				if (this.isEmpty()) {
-					start_tag = '<' + this.name + attrs + ' />';
+					start_tag = '<' + tag_name + attrs + self_closing + '>';
 				} else {
-					start_tag = '<' + this.name + attrs + '>';
-					end_tag = '</' + this.name + '>';
+					start_tag = '<' + tag_name + attrs + '>';
+					end_tag = '</' + tag_name + '>';
 				}
 			}
 			
 			// форматируем вывод
-			if (format) {
-				if (this.name && this.hasBlockChildren()) {
-					start_tag += getNewline() + zen_settings.indentation;
+			if (profile.tag_nl !== false) {
+				if (
+					this.name && 
+					(
+						profile.tag_nl === true || 
+						(profile.tag_nl == 'decide' && this.hasBlockChildren()) 
+					)
+				) {
+					start_tag += getNewline() + zen_settings.variables.indentation;
 					end_tag = getNewline() + end_tag;
 				}
 				
-				if (content)
-					content = padString(content, indent ? 1 : 0);
-				else
-					start_tag += cursor;
+				if (this.name) {
+					if (content)
+						content = padString(content, profile.indent ? 1 : 0);
+					else
+						start_tag += cursor;
+				}
 					
 			}
 					
@@ -271,7 +318,11 @@
 			for (var i = 0; i < this.count; i++) 
 				result.push(start_tag.replace(/\$/g, i + 1) + content + end_tag);
 			
-			return result.join(format && this.isBlock() ? getNewline() : '');
+			var glue = '';
+			if (profile.tag_nl === true || (profile.tag_nl == 'decide' && this.isBlock()))
+				glue = getNewline();
+				
+			return result.join(glue);
 		}
 	};
 	
@@ -299,11 +350,10 @@
 			return true; 
 		},
 		
-		toString: function(format, indent) {
-			indent = indent || false;
-			
+		toString: function(profile_name) {
 			var content = '', 
-				result = [], 
+				profile = (profile_name in profiles) ? profiles[profile_name] : profiles['plain'],
+				result = [],
 				data = this._res.snippets[this.name],
 				begin = '',
 				end = '',
@@ -311,7 +361,7 @@
 				child_token = '${child}';
 			
 			if (data) {
-				if (format) {
+				if (profile.tag_nl !== false) {
 					var nl = getNewline();
 					data = data.replace(/\n/g, nl);
 					// нужно узнать, какой отступ должен быть у потомков
@@ -330,8 +380,14 @@
 			}
 			
 			for (var i = 0; i < this.children.length; i++) {
-				content += this.children[i].toString(format, true);
-				if (format && this.children[i].isBlock() && i != this.children.length - 1)
+				content += this.children[i].toString(profile_name);
+				if (
+					i != this.children.length - 1 &&
+					(
+						profile.tag_nl === true || 
+						(profile.tag_nl == 'decide' && this.children[i].isBlock())
+					)
+				)
 					content += getNewline();
 			}
 			
@@ -343,9 +399,16 @@
 			for (var i = 0; i < this.count; i++) 
 				result.push(begin.replace(/\$/g, i + 1) + content + end);
 			
-			return result.join(format ? getNewline() : '');
+			return result.join((profile.tag_nl !== false) ? getNewline() : '');
 		}
 	}
+	
+	// create default profiles
+	setupProfile('xhtml');
+	setupProfile('html', {self_closing_tag: false});
+	setupProfile('xml', {self_closing_tag: true, tag_nl: true});
+	setupProfile('plain', {tag_nl: false, indent: false, place_cursor: false});
+	
 	
 	return {
 		/**
@@ -477,6 +540,8 @@
 				end_offset = editor.getOffsetAtLine(cur_line_num + 1) + getNewline().length,
 				cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), end_offset);			return (cur_line.match(/^(\s+)/) || [''])[0];		},
 		
+		setupProfile: setupProfile,
+		
 		settings_parser: (function(){
 			/**
 			 * Unified object for parsed data
@@ -605,3 +670,14 @@
 	}
 	
 })();
+
+// first we need to expand some strings into hashes
+zen_coding.settings_parser.createMaps(zen_settings);
+if ('my_zen_settings' in this) {
+	// we need to extend default settings with user's
+	zen_coding.settings_parser.createMaps(my_zen_settings);
+	zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
+}
+
+// now we need to parse final set of settings
+zen_coding.settings_parser.parse(zen_settings);
