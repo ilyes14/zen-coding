@@ -26,11 +26,10 @@
 			zen_coding.setupProfile('demo', {tag_case: 'upper', attr_case: 'upper'});
 			
 			function expandAbbr(abbr, type, profile) {
-				var tree = zen_coding.parseIntoTree(abbr, type || 'html');
-				return tree ? tree.toString(profile) : null;
+				return zen_coding.expandAbbreviation(abbr, type, profile);
 			}
 			
-			
+			console.log(expandAbbr('html:xs>ul#nav>li.item$*4', 'html', 'xhtml'));
 			
 			new Test.Unit.Runner({
 				"test '+' operator": function(){ with (this) {
