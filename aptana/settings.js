@@ -4,10 +4,6 @@
  * @link http://chikuyonok.ru
  */
 var zen_settings = {
-	
-	/** Inner element indentation */
-	indentation: '\t',     // TODO take from Aptana settings
-	
 	/** 
 	 * Variables that can be placed inside snippets or abbreviations as ${variable}
 	 * ${child} variable is reserved, don't use it 
@@ -15,7 +11,11 @@ var zen_settings = {
 	variables: {
 		lang: 'en',
 		locale: 'en-US',
-		charset: 'UTF-8'
+		charset: 'UTF-8',
+		profile: 'xhtml',
+		
+		/** Inner element indentation */
+		indentation: '\t'     // TODO take from Aptana settings
 	},
 	
 	css: {
