@@ -153,6 +153,18 @@
 	}
 	
 	/**
+	 * Replace variables like ${var} in string
+	 * @param {String} str
+	 * @return {String}
+	 */
+	function replaceVariables(str) {
+		var re_variable = /\$\{([\w\-]+)\}/g;
+		return str.replace(/\$\{([\w\-]+)\}/g, function(str, p1){
+			return (p1 in zen_settings.variables) ? zen_settings.variables[p1] : str;
+		});
+	}
+	
+	/**
 	 * Тэг
 	 * @class
 	 * @param {String} name Имя тэга
@@ -397,7 +409,7 @@
 			
 			// выводим тэг нужное количество раз
 			for (var i = 0; i < this.count; i++) 
-				result.push(begin.replace(/\$/g, i + 1) + content + end);
+				result.push(begin.replace(/\$(?!\{)/g, i + 1) + content + end);
 			
 			return result.join((profile.tag_nl !== false) ? getNewline() : '');
 		}
@@ -431,6 +443,11 @@
 				line_offset = editor.getOffsetAtLine(cur_line);
 			
 			return this.extractAbbreviation(editor.source.substring(line_offset, original_offset));
+		},
+		
+		expandAbbreviation: function(abbr, type, profile) {
+			var tree = this.parseIntoTree(abbr, type || 'html');
+			return replaceVariables(tree ? tree.toString(profile) : '');
 		},
 		
 		/**
