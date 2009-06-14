@@ -8,7 +8,7 @@ Created on Apr 17, 2009
 '''
 from zencoding.settings import zen_settings
 import re
-
+import stparser
 
 newline = '\n'
 "Символ перевода строки"
@@ -20,6 +20,48 @@ sub_insertion_point = ''
 "Символ, указывающий, куда нужно поставить курсор (для редакторов, которые позволяют указать несколько символов)"
 
 re_tag = re.compile(r'<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:\'[^\']*\')|[^>\s]+))?)*\s*(\/?)>$')
+
+profiles = {}
+
+default_profile = {
+	'tag_case': 'lower',         # values are 'lower', 'upper'
+	'attr_case': 'lower',        # values are 'lower', 'upper'
+	'attr_quotes': 'double',     # values are 'single', 'double'
+	
+	'tag_nl': 'decide',          # each tag on new line, values are True, False, 'decide'
+	
+	'place_cursor': True,        # place cursor char — | (pipe) — in output
+	
+	'indent': True,              # indent tags
+	
+	'self_closing_tag': 'xhtml'  # use self-closing style for writing empty elements, e.g. <br /> or <br>. 
+                                 # values are True, False, 'xhtml'
+}
+
+def has_deep_key(obj, key):
+	"""
+	Check if <code>obj</code> dictionary contains deep key. For example,
+	example, it will allow you to test existance of my_dict[key1][key2][key3],
+	testing existance of my_dict[key1] first, then my_dict[key1][key2], 
+	and finally my_dict[key1][key2][key3]
+	@param obj: Dictionary to test
+	@param obj: dict
+	@param key: Deep key to test. Can be list (like ['key1', 'key2', 'key3']) or
+	string (like 'key1.key2.key3')
+	@type key: list, tuple, str
+	@return: bool
+	"""
+	if isinstance(key, str):
+		key = key.split('.')
+		
+	last_obj = obj
+	for v in key:
+		if v not in last_obj:
+			return False
+		last_obj = last_obj[v]
+	
+	return True
+		
 
 def is_allowed_char(ch):
 	"""
@@ -41,7 +83,27 @@ def make_map(prop):
 		obj[a] = True
 		
 	zen_settings['html'][prop] = obj
+
+def create_profile(options):
+	"""
+	Create profile by adding default values for passed optoin set
+	@param options: Profile options
+	@type options: dict
+	"""
+	for k, v in default_profile:
+		options.setdefault(k, v)
 	
+	return options
+
+def setup_profile(name, options = {}):
+	"""
+	@param name: Profile name
+	@type name: str
+	@param options: Profile options
+	@type options: dict
+	"""
+	profiles[name.lower()] = create_profile(options);
+
 def get_newline():
 	"""
 	Возвращает символ перевода строки, используемый в редакторе
@@ -75,11 +137,11 @@ def pad_string(text, pad):
 
 def is_snippet(abbr, doc_type = 'html'):
 	"""
+	Check is passed abbreviation is snippet
 	Проверяет, является ли аббревиатура сниппетом
 	@return bool
 	"""
-	res = zen_settings[doc_type]
-	return res.has_key('snippets') and abbr in res['snippets']
+	return get_snippet(doc_type, abbr) and True or False
 
 def is_ends_with_tag(text):
 	"""
@@ -91,6 +153,72 @@ def is_ends_with_tag(text):
 	@return: bool
 	"""
 	return re_tag.search(text) != None
+
+def get_elements_collection(resource, type):
+	"""
+	Returns specified elements collection (like 'empty', 'block_level') from
+	<code>resource</code>. If collections wasn't found, returns empty object
+	@type resource: dict
+	@type type: str
+	@return: dict
+	"""
+	if 'element_types' in resource and type in resource['element_types']:
+		return resource['element_types'][type]
+	else:
+		return {}
+	
+def replace_variables(text):
+	"""
+	Replace variables like ${var} in string
+	@param text: str
+	@return: str
+	"""
+	return re.sub(r'\$\{([\w\-]+)\}', lambda s, p1: p1 in zen_settings['variables'] and zen_settings['variables'][p1] or s, text)
+
+def get_abbreviation(type, abbr):
+	"""
+	Returns abbreviation value from data set
+	@param type: Resource type (html, css, ...)
+	@type type: str
+	@param abbr: Abbreviation name
+	@type abbr: str
+	@return dict, None
+	"""
+	return get_settings_resource(type, abbr, 'abbreviations')
+
+def get_snippet(type, snippet_name):
+	"""
+	Returns snippet value from data set
+	@param type: Resource type (html, css, ...)
+	@type type: str
+	@param snippet_name: Snippet name
+	@type snippet_name: str
+	@return dict, None
+	"""
+	return getSettingsResource(type, snippet_name, 'snippets');
+
+def get_settings_resource(type, abbr, res_name):
+	"""
+	Returns resurce value from data set with respect of inheritance
+	@param type: Resource type (html, css, ...)
+	@type type: str
+	@param abbr: Abbreviation name
+	@type abbr: str
+	@param res_name: Resource name ('snippets' or 'abbreviation')
+	@type res_name: str
+	@return dict, None
+	"""
+	resource = zen_settings[type];
+	
+	if (res_name in resource and abbr in resource[res_name]):
+		return resource[res_name][abbr]
+	elif 'extends' in resource:
+#		find abbreviation in ancestors
+		for k, v in resource['extends']:
+			if v in zen_settings and  res_name in zen_settings[v] and abbr in zen_settings[v][res_name]:
+				return zen_settings[type][res_name][abbr]
+	return None;
+
 
 def parse_into_tree(abbr, doc_type = 'html'):
 	"""
@@ -174,7 +302,7 @@ def expand_abbr(abbr, doc_type = 'html'):
 		result = tree.to_string(True)
 		if result:
 			result = re.sub('\|', insertion_point, result, 1)
-			return re.sub('\|', sub_insertion_point, result)
+			return  replace_variables(re.sub('\|', sub_insertion_point, result))
 		
 	return ''
 
@@ -384,15 +512,26 @@ class Snippet(Tag):
 		return glue.join([begin.replace(r'\$', str(i + 1)) + content + end for i in range(self.count)])
 	
 		
-make_map('block_elements')
-make_map('inline_elements')
-make_map('empty_elements')
+# create default profiles
+#setup_profile('xhtml');
+#setup_profile('html', {'self_closing_tag': False});
+#setup_profile('xml', {'self_closing_tag': True, 'tag_nl': True});
+#setup_profile('plain', {'tag_nl': False, 'indent': False, 'place_cursor': False});
 
-			
-if __name__ == '__main__':
-	print(parse_into_tree('ul+').to_string(True))
-	print(parse_into_tree('span+em').to_string(True))
-	print(parse_into_tree('tmatch', 'xml').to_string(True))
-	print(parse_into_tree('d', 'css').to_string(True))
-	print(parse_into_tree('cc:ie6>p+blockquote#sample$.so.many.classes*2').to_string(True))
+# init settings
+# first we need to expand some strings into hashes
+#stparser.create_maps(zen_settings)
+#if hasattr(globals(), 'my_zen_settings'):
+#	# we need to extend default settings with user's
+#	stparser.create_maps(my_zen_settings)
+#	stparser.extend(zen_settings, my_zen_settings)
 
+# now we need to parse final set of settings
+# stparser.parse(zen_settings)
+
+#if __name__ == '__main__':
+#	print(parse_into_tree('ul+').to_string(True))
+#	print(parse_into_tree('span+em').to_string(True))
+#	print(parse_into_tree('tmatch', 'xml').to_string(True))
+#	print(parse_into_tree('d', 'css').to_string(True))
+#	print(parse_into_tree('cc:ie6>p+blockquote#sample$.so.many.classes*2').to_string(True))
