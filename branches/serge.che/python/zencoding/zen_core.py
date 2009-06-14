@@ -306,6 +306,7 @@ def expand_abbr(abbr, doc_type = 'html'):
 		
 	return ''
 
+
 class Tag(object):
 	def __init__(self, name, count = 1, doc_type = 'html'):
 		"""
