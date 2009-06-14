@@ -8,18 +8,18 @@ var zen_settings = {
 	 * Variables that can be placed inside snippets or abbreviations as ${variable}
 	 * ${child} variable is reserved, don't use it 
 	 */
-	variables: {
-		lang: 'en',
-		locale: 'en-US',
-		charset: 'UTF-8',
-		profile: 'xhtml',
+	'variables': {
+		'lang': 'en',
+		'locale': 'en-US',
+		'charset': 'UTF-8',
+		'profile': 'xhtml',
 		
 		/** Inner element indentation */
-		indentation: '\t'     // TODO take from Aptana settings
+		'indentation': '\t'     // TODO take from Aptana settings
 	},
 	
-	css: {
-		snippets: {
+	'css': {
+		'snippets': {
 			"@i": "@import url(|);",
 			"@m": "@media print {\n\t|\n}",
 			"@f": "@font-face {\n\tfont-family:|;\n\tsrc:url(|);\n}",
@@ -493,8 +493,8 @@ var zen_settings = {
 		}
 	},
 	
-	html: {
-		snippets: {
+	'html': {
+		'snippets': {
 			'cc:ie6': '<!--[if lte IE 6]>\n\t${child}|\n<![endif]-->',
 			'cc:ie': '<!--[if IE]>\n\t${child}|\n<![endif]-->',
 			'cc:noie': '<!--[if !IE]><!-->\n\t${child}|\n<!--<![endif]-->',
@@ -553,7 +553,7 @@ var zen_settings = {
 					'</html>'
 		},
 		
-		abbreviations: {
+		'abbreviations': {
 			'a': '<a href=""></a>',
 			'a:link': '<a href="http://|"></a>',
 			'a:mail': '<a href="mailto:|"></a>',
@@ -679,15 +679,16 @@ var zen_settings = {
 
 		},
 		
-		element_types: {
-			empty: "area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,keygen,command",
-			block_level: "address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,link,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,h1,h2,h3,h4,h5,h6",
-			inline_level: "a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var"
+		'element_types': {
+			'empty': 'area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,keygen,command',
+			'block_level': 'address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,link,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,h1,h2,h3,h4,h5,h6',
+			'inline_level': 'a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var'
 		}
 	},
 	
-	xsl: {
-		abbreviations: {
+	'xsl': {
+		'extends': 'html', 
+		'abbreviations': {
 			'tm': '<xsl:template match="" mode=""></xsl:template>',
 			'tmatch': 'tm',
 			'tn': '<xsl:template name=""></xsl:template>',

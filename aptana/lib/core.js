@@ -117,14 +117,13 @@
 	 * Get the type of the partition based on the current offset	 * @param {Number} offset	 * @return {String}	 */	function getPartition(offset){		var class_name = String(editors.activeEditor.textEditor.getClass());		if (class_name == 'class org.eclipse.wst.xsl.ui.internal.editor.XSLEditor')			return 'text/xsl';					try {				var fileContext = editors.activeEditor.textEditor.getFileContext();				if (fileContext !== null && fileContext !== undefined) {				var partition = fileContext.getPartitionAtOffset(offset);				return String(partition.getType());			}		} catch(e) {					}			return null;	}
 	
 	/**
-	 * Проверяет, является ли аббревиатура сниппетом
+	 * Check if passed abbreviation is snippet
 	 * @param {String} abbr
 	 * @param {String} type
 	 * @return {Boolean}
 	 */
 	function isShippet(abbr, type) {
-		var res = zen_settings[type || 'html'];
-		return res.snippets && zen_settings[type || 'html'].snippets[abbr] ? true : false;
+		return getSnippet(type, abbr) ? true : false;
 	}
 	
 	/**
@@ -175,9 +174,9 @@
 		name = name.toLowerCase();
 		type = type || 'html';
 		
-		var abbr = zen_settings[type].abbreviations[name];
+		var abbr = getAbbreviation(type, name);
 		if (abbr && abbr.type == TYPE_REFERENCE)
-			abbr = zen_settings[type].abbreviations[abbr.value];
+			abbr = getAbbreviation(type, abbr.value);
 		
 		this.name = (abbr) ? abbr.value.name : name;
 		this.count = count || 1;
@@ -343,7 +342,7 @@
 		this.name = name;
 		this.count = count || 1;
 		this.children = [];
-		this._res = zen_settings[type || 'html'];
+		this.value = getSnippet(type, name);
 	}
 	
 	Snippet.prototype = {
@@ -366,7 +365,7 @@
 			var content = '', 
 				profile = (profile_name in profiles) ? profiles[profile_name] : profiles['plain'],
 				result = [],
-				data = this._res.snippets[this.name],
+				data = this.value,
 				begin = '',
 				end = '',
 				child_padding = '',
@@ -377,7 +376,7 @@
 					var nl = getNewline();
 					data = data.replace(/\n/g, nl);
 					// нужно узнать, какой отступ должен быть у потомков
-					var lines = data.split(nl);
+					var lines = data.split(nl), m;
 					for (var j = 0; j < lines.length; j++) {
 						if (lines[j].indexOf(child_token) != -1) {
 							child_padding =  (m = lines[j].match(/(^\s+)/)) ? m[1] : '';
@@ -413,6 +412,54 @@
 			
 			return result.join((profile.tag_nl !== false) ? getNewline() : '');
 		}
+	}
+	
+	/**
+	 * Returns abbreviation value from data set
+	 * @param {String} type Resource type (html, css, ...)
+	 * @param {String} abbr Abbreviation name
+	 * @return {Object|null}
+	 */
+	function getAbbreviation(type, abbr) {
+		return getSettingsResource(type, abbr, 'abbreviations');
+	}
+	
+	/**
+	 * Returns snippet value from data set
+	 * @param {String} type Resource type (html, css, ...)
+	 * @param {String} snippet_name Snippet name
+	 * @return {Object|null}
+	 */
+	function getSnippet(type, snippet_name) {
+		return getSettingsResource(type, snippet_name, 'snippets');
+	}
+	
+	/**
+	 * Returns resurce value from data set with respect of inheritance
+	 * @param {String} type Resource type (html, css, ...)
+	 * @param {String} abbr Abbreviation name
+	 * @param {String} res_name Resource name ('snippets' or 'abbreviation')
+	 * @return {Object|null}
+	 */
+	function getSettingsResource(type, abbr, res_name) {
+		var resource = zen_settings[type];
+		
+		if (resource[res_name] && abbr in resource[res_name])
+			return resource[res_name][abbr];
+		else if ('extends' in resource) {
+			// find abbreviation in ancestors
+			for (var i = 0; i < resource['extends'].length; i++) {
+				var type = resource['extends'][i];
+				if (
+					zen_settings[type] && 
+					zen_settings[type][res_name] && 
+					zen_settings[type][res_name][abbr]
+				)
+					return zen_settings[type][res_name][abbr];
+			}
+		}
+		
+		return null;
 	}
 	
 	// create default profiles
@@ -501,7 +548,8 @@
 			
 			// replace expandos
 			abbr = abbr.replace(/([a-z][\w\:\-]*)\+$/i, function(str){
-				return (res.abbreviations[str]) ? res.abbreviations[str].value : str;
+				var a = getAbbreviation(type, str);
+				return a ? a.value : str;
 			});
 			
 			abbr = abbr.replace(re, function(str, operator, tag_name, id, class_name, multiplier){
@@ -648,6 +696,12 @@
 					for (var p in settings) {
 						if (p == 'abbreviations')
 							parseAbbreviations(settings[p]);
+						else if (p == 'extends') {
+							var ar = settings[p].split(',');
+							for (var i = 0; i < ar.length; i++) 
+								ar[i] = trim(ar[i]);
+							settings[p] = ar;
+						}
 						else if (typeof(settings[p]) == 'object')
 							arguments.callee(settings[p]);
 					}
