@@ -24,11 +24,4 @@
 	<natures>
 		<nature>org.python.pydev.pythonNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>python/zencoding/zen_settings.js</name>
-			<type>1</type>
-			<location>/Users/Sergey/Projects/zen-coding/aptana/zen_settings.js</location>
-		</link>
-	</linkedResources>
 </projectDescription>
