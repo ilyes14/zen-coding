@@ -6,7 +6,7 @@ Created on Apr 17, 2009
 
 @author: Sergey Chikuyonok (http://chikuyonok.ru)
 '''
-from zencoding.settings import zen_settings
+from zencoding.zen_settings import zen_settings
 import re
 import stparser
 
@@ -90,7 +90,7 @@ def create_profile(options):
 	@param options: Profile options
 	@type options: dict
 	"""
-	for k, v in default_profile:
+	for k, v in default_profile.items():
 		options.setdefault(k, v)
 	
 	return options
@@ -123,7 +123,7 @@ def pad_string(text, pad):
 	pad_str = ''
 	result = ''
 	if (type(pad) is int):
-		pad_str = zen_settings['indentation'] * pad
+		pad_str = zen_settings['variables']['indentation'] * pad
 	else:
 		pad_str = pad
 		
@@ -175,40 +175,40 @@ def replace_variables(text):
 	"""
 	return re.sub(r'\$\{([\w\-]+)\}', lambda s, p1: p1 in zen_settings['variables'] and zen_settings['variables'][p1] or s, text)
 
-def get_abbreviation(type, abbr):
+def get_abbreviation(res_type, abbr):
 	"""
 	Returns abbreviation value from data set
-	@param type: Resource type (html, css, ...)
-	@type type: str
+	@param res_type: Resource type (html, css, ...)
+	@type res_type: str
 	@param abbr: Abbreviation name
 	@type abbr: str
 	@return dict, None
 	"""
-	return get_settings_resource(type, abbr, 'abbreviations')
+	return get_settings_resource(res_type, abbr, 'abbreviations')
 
-def get_snippet(type, snippet_name):
+def get_snippet(res_type, snippet_name):
 	"""
 	Returns snippet value from data set
-	@param type: Resource type (html, css, ...)
-	@type type: str
+	@param res_type: Resource type (html, css, ...)
+	@type res_type: str
 	@param snippet_name: Snippet name
 	@type snippet_name: str
 	@return dict, None
 	"""
-	return getSettingsResource(type, snippet_name, 'snippets');
+	return get_settings_resource(res_type, snippet_name, 'snippets');
 
-def get_settings_resource(type, abbr, res_name):
+def get_settings_resource(res_type, abbr, res_name):
 	"""
 	Returns resurce value from data set with respect of inheritance
-	@param type: Resource type (html, css, ...)
-	@type type: str
+	@param res_type: Resource type (html, css, ...)
+	@type res_type: str
 	@param abbr: Abbreviation name
 	@type abbr: str
 	@param res_name: Resource name ('snippets' or 'abbreviation')
 	@type res_name: str
 	@return dict, None
 	"""
-	resource = zen_settings[type];
+	resource = zen_settings[res_type];
 	
 	if (res_name in resource and abbr in resource[res_name]):
 		return resource[res_name][abbr]
@@ -216,7 +216,7 @@ def get_settings_resource(type, abbr, res_name):
 #		find abbreviation in ancestors
 		for k, v in resource['extends']:
 			if v in zen_settings and  res_name in zen_settings[v] and abbr in zen_settings[v][res_name]:
-				return zen_settings[type][res_name][abbr]
+				return zen_settings[res_type][res_name][abbr]
 	return None;
 
 
@@ -232,19 +232,16 @@ def parse_into_tree(abbr, doc_type = 'html'):
 	root = Tag('', 1, doc_type)
 	parent = root
 	last = None
+	res = zen_settings[doc_type]
 	token = re.compile(r'([\+>])?([a-z][a-z0-9:\!\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?', re.IGNORECASE)
 	
 	def expando_replace(m):
-		ex = m.group(1)
-		if 'expandos' in zen_settings[doc_type] and ex in zen_settings[doc_type]['expandos']:
-			return zen_settings[doc_type]['expandos'][ex]
-		else:
-			return ex
+		ex = m.group(0)
+		a = get_abbreviation(doc_type, ex)
+		return a and a.value or ex
 		
-	# заменяем разворачиваемые элементы
-	abbr = re.sub(r'([a-z][a-z0-9]*)\+$', expando_replace, abbr)
-	
 	def token_expander(operator, tag_name, id_attr, class_name, multiplier):
+		
 		multiplier = multiplier and int(multiplier) or 1
 		current = is_snippet(tag_name, doc_type) and Snippet(tag_name, multiplier, doc_type) or Tag(tag_name, multiplier, doc_type)
 		
@@ -260,6 +257,9 @@ def parse_into_tree(abbr, doc_type = 'html'):
 		token_expander.parent.add_child(current)
 		token_expander.last = current;
 		return '';
+		
+	# заменяем разворачиваемые элементы
+	abbr = re.sub(r'([a-z][a-z0-9]*)\+$', expando_replace, abbr)
 	
 	token_expander.parent = root
 	token_expander.last = None
@@ -290,7 +290,7 @@ def find_abbr_in_line(line, index = 0):
 		
 	return line[start_index:index], start_index
 
-def expand_abbr(abbr, doc_type = 'html'):
+def expand_abbreviation(abbr, doc_type = 'html', profile_name = 'plain'):
 	"""
 	Разворачивает аббревиатуру
 	@param abbr: Аббревиатура
@@ -299,7 +299,7 @@ def expand_abbr(abbr, doc_type = 'html'):
 	"""
 	tree = parse_into_tree(abbr, doc_type)
 	if tree:
-		result = tree.to_string(True)
+		result = tree.to_string(profile_name)
 		if result:
 			result = re.sub('\|', insertion_point, result, 1)
 			return  replace_variables(re.sub('\|', sub_insertion_point, result))
@@ -318,35 +318,22 @@ class Tag(object):
 		@type doc_type: str
 		"""
 		name = name.lower()
-		self.name = Tag.get_real_name(name, doc_type)
+		
+		abbr = get_abbreviation(doc_type, name)
+		if abbr and abbr.type == stparser.TYPE_REFERENCE:
+			abbr = get_abbreviation(doc_type, abbr.value)
+		
+		self.name = abbr and abbr.value['name'] or name
 		self.count = count
 		self.children = []
 		self.attributes = []
+		self.__abbr = abbr
 		self.__res = zen_settings[doc_type]
 		
-		if self.__res.has_key('default_attributes'):
-			if name in self.__res['default_attributes']:
-				def_attrs = self.__res['default_attributes'][name]				if not isinstance(def_attrs, list):
-					def_attrs = [def_attrs]
-									for attr in def_attrs:
-					for k,v in attr.items():						self.add_attribute(k, v)
-				
-	@staticmethod
-	def get_real_name(name, doc_type = 'html'):
-		"""
-		Возвращает настоящее имя тэга
-		@param name: Имя, которое нужно проверить
-		@type name: str
-		@param doc_type: Тип документа (xsl, html)
-		@type doc_type: str
-		@return: str 
-		"""
-		real_name = name
-		if zen_settings[doc_type].has_key('aliases'):
-			aliases = zen_settings[doc_type]['aliases']						if name in aliases: # аббревиатура: bq -> blockquote				real_name = aliases[name]			elif ':' in name:				# проверим, есть ли группирующий селектор				group_name = name.split(':', 1)[0] + ':*'				if group_name in aliases:					real_name = aliases[group_name]
+		if self.__abbr and 'attributes' in self.__abbr.value:
+			for a in self.__abbr.value['attributes']:
+				self.add_attribute(a['name'], a['value'])
 		
-		return real_name
-			
 	def add_attribute(self, name, value):
 		"""
 		Добавляет атрибут
@@ -377,21 +364,23 @@ class Tag(object):
 		Проверяет, является ли текущий элемент пустым
 		@return: bool
 		"""
-		return self.__has_element('empty_elements')
+		
+		return (self.__abbr and self.__abbr.value['is_empty']) or \
+			self.name in get_elements_collection(self.__res, 'empty')
 	
 	def is_inline(self):
 		"""
 		Проверяет, является ли текущий элемент строчным
 		@return: bool
 		"""
-		return self.__has_element('inline_elements')
+		return self.name in get_elements_collection(self.__res, 'inline_level')
 	
 	def is_block(self):
 		"""
 		Проверяет, является ли текущий элемент блочным
 		@return: bool
 		"""
-		return self.__has_element('block_elements', True)
+		return self.name in get_elements_collection(self.__res, 'block_level')
 	
 	def has_block_children(self):
 		"""
@@ -404,65 +393,87 @@ class Tag(object):
 				return True
 		return False
 	
-	def output_children(self, format = False):
+	def output_children(self, profile_name):
 		"""
 		Выводит всех потомков в виде строки
-		@param format: Нужно ли форматировать вывод
+		@type profile_name: str
 		@return: str
 		"""
 		content = ''
+		profile = profile_name in profiles and profiles[profile_name] or profiles['plain']
 		for tag in self.children:
-				content += tag.to_string(format, True)
-				if format and tag.is_block() and self.children.index(tag) != len(self.children) - 1:
-					content += get_newline()
+				content += tag.to_string(profile_name)
+				
+				if self.children.index(tag) != len(self.children) - 1 and \
+					(profile['tag_nl'] == True or \
+					(profile['tag_nl'] == 'decide' and tag.is_block())):
+						content += get_newline()
 		return content
 		
 	
-	def to_string(self, format = False, indent = False):
+	def to_string(self, profile_name):
 		"""
 		Преобразует тэг в строку. Если будет передан аргумент 
 		<code>format</code> — вывод будет отформатирован согласно настройкам
 		в <code>zen_settings</code>. Также в этом случае будет ставится 
 		символ «|», означающий место вставки курсора. Курсор будет ставится
 		в пустых атрибутах и элементах без потомков
-		@param format: Форматировать вывод
-		@type format: bool
-		@param indent: Добавлять отступ
-		@type indent: bool
+		@type profile_name: string
 		@return: str
 		"""
-		cursor = format and '|' or ''
-		content = ''
-		start_tag = ''
-		end_tag = ''
 		
+		profile = profile = profile_name in profiles and profiles[profile_name] or profiles['plain']
+		attrs = '' 
+		content = '' 
+		start_tag = '' 
+		end_tag = ''
+		attr_quote = profile['attr_quotes'] == 'single' and "'" or '"'
+		cursor = profile['place_cursor'] and '|' or ''
+		self_closing = ''
+		
+		if profile['self_closing_tag'] == 'xhtml':
+			self_closing = ' /'
+		elif profile['self_closing_tag'] == True:
+			self_closing = '/'
+			
 		# делаем строку атрибутов
-		attrs = ''.join([' %s="%s"' % (p['name'], p['value'] and p['value'] or cursor) for p in self.attributes])
+		for a in self.attributes:
+			if profile['attr_case'] == 'upper':
+				attr_name = a['name'].upper()
+			else:
+				attr_name = a['name'].lower()
+				
+			attrs += ' %s=%s%s%s' % (attr_name, attr_quote, a['value'] or cursor, attr_quote)
 		
 		# выводим потомков
 		if not self.is_empty():
-			content = self.output_children(format)
+			content = self.output_children(profile_name)
 			
 		if self.name:
+			tag_name = profile['tag_case'] == 'upper' and self.name.upper() or self.name.lower()
 			if self.is_empty():
-				start_tag = '<%s />' % (self.name + attrs,)
+				start_tag = '<%s%s%s>' % (tag_name, attrs, self_closing)
 			else:
-				start_tag, end_tag = '<%s>' % (self.name + attrs,), '</%s>' % self.name
+				start_tag, end_tag = '<%s%s>' % (tag_name, attrs), '</%s>' % tag_name
 				
 		# форматируем вывод
-		if format:
-			if self.name and self.has_block_children():
-				start_tag += get_newline() + zen_settings['indentation']
-				end_tag = get_newline() + end_tag;
-			
-			if content:
-				content = pad_string(content, indent and 1 or 0)
-			else:
-				start_tag += cursor
-		
 		glue = ''
-		if format and self.is_block():
-			glue = get_newline()
+		if profile['tag_nl'] != False:
+			if self.name and (profile['tag_nl'] == True or self.has_block_children()):
+				if not self.is_empty():
+					start_tag += get_newline() + zen_settings['variables']['indentation']
+					end_tag = get_newline() + end_tag
+				
+		
+			if self.name:
+				if content:
+					content = pad_string(content, profile['indent'] and 1 or 0)
+				else:
+					start_tag += cursor
+		
+			if profile['tag_nl'] == True or self.is_block():
+				glue = get_newline()
+		
 		
 		result = [start_tag.replace('$', str(i + 1)) + content + end_tag for i in range(self.count)]
 		return glue.join(result)
@@ -472,6 +483,7 @@ class Snippet(Tag):
 		self.name = name
 		self.count = count
 		self.children = []
+		self.value = get_snippet(doc_type, name)
 		self.__res = zen_settings[doc_type]
 		
 	def add_attribute(self, name = '', value = ''):
@@ -480,17 +492,20 @@ class Snippet(Tag):
 	def is_block(self):
 		return True
 	
-	def to_string(self, format = False, indent = False):
-		data = self.__res['snippets'][self.name]
+	def to_string(self, profile_name):
+		content = ''
+		profile = profile_name in profiles and profiles[profile_name] or profiles['plain']
+		result = []
+		data = self.value
 		begin = ''
 		end = ''
-		content = ''
+		glue = ''
 		child_padding = ''
 		child_token = '${child}'
 		child_indent = re.compile(r'(^\s+)')
 		
 		if data:
-			if format:
+			if profile['tag_nl'] != False:
 				data = data.replace(r'\n', get_newline())
 				# нужно узнать, какой отступ должен быть у потомков
 				for line in data.split(get_newline()):
@@ -498,37 +513,38 @@ class Snippet(Tag):
 						m = child_indent.match(line)
 						child_padding = m and m.group(1) or ''
 						break
+					
+				glue = get_newline()
 			
 			if child_token in data:
 				begin, end = data.split(child_token, 1)
 			else:
 				begin = data
 				
-			content = self.output_children(format)
+			content = self.output_children(profile_name)
 			
 			if child_padding:
 				content = pad_string(content, child_padding)
 		
-		glue = format and get_newline() or ''	
 		return glue.join([begin.replace(r'\$', str(i + 1)) + content + end for i in range(self.count)])
 	
 		
 # create default profiles
-#setup_profile('xhtml');
-#setup_profile('html', {'self_closing_tag': False});
-#setup_profile('xml', {'self_closing_tag': True, 'tag_nl': True});
-#setup_profile('plain', {'tag_nl': False, 'indent': False, 'place_cursor': False});
+setup_profile('xhtml');
+setup_profile('html', {'self_closing_tag': False});
+setup_profile('xml', {'self_closing_tag': True, 'tag_nl': True});
+setup_profile('plain', {'tag_nl': False, 'indent': False, 'place_cursor': False});
 
 # init settings
 # first we need to expand some strings into hashes
-#stparser.create_maps(zen_settings)
-#if hasattr(globals(), 'my_zen_settings'):
+stparser.create_maps(zen_settings)
+if hasattr(globals(), 'my_zen_settings'):
 #	# we need to extend default settings with user's
-#	stparser.create_maps(my_zen_settings)
-#	stparser.extend(zen_settings, my_zen_settings)
+	stparser.create_maps(my_zen_settings)
+	stparser.extend(zen_settings, my_zen_settings)
 
 # now we need to parse final set of settings
-# stparser.parse(zen_settings)
+stparser.parse(zen_settings)
 
 #if __name__ == '__main__':
 #	print(parse_into_tree('ul+').to_string(True))
