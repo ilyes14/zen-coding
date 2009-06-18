@@ -267,6 +267,7 @@
 				end_tag = '',
 				cursor = profile.place_cursor ? '|' : '',
 				self_closing = '',
+				attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
 				a,
 				attr_name;
 
@@ -279,7 +280,7 @@
 			for (var i = 0; i < this.attributes.length; i++) {
 				a = this.attributes[i];
 				attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : a.name.toLowerCase();
-				attrs += ' ' + attr_name + '="' + (a.value || cursor) + '"';
+				attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
 			}
 			
 			// выводим потомков
@@ -309,7 +310,7 @@
 					this.name && 
 					(
 						profile.tag_nl === true || 
-						(profile.tag_nl == 'decide' && this.hasBlockChildren()) 
+						this.hasBlockChildren() 
 					)
 				) {
 					start_tag += getNewline() + zen_settings.variables.indentation;

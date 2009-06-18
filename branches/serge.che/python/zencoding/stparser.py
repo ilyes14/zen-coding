@@ -63,10 +63,10 @@ def _make_abbreviation(key, tag_name, attrs, is_empty=False):
 	
 	if attrs:
 		result['attributes'] = [];
-		for m in re.search(re_attrs, attrs):
+		for m in re.findall(re_attrs, attrs):
 			result['attributes'].append({
-				'name': m.group(1),
-				'value': m.group(3)
+				'name': m[0],
+				'value': m[2]
 			})
 			
 	return Entry(TYPE_ABBREVIATION, key, result)
@@ -76,7 +76,7 @@ def _parse_abbreviations(obj):
 	Parses all abbreviations inside dictionary
  	@param obj: dict
 	"""
-	for key, value in obj:
+	for key, value in obj.items():
 		key = key.strip()
 		if key[-1] == '+':
 #			this is expando, leave 'value' as is
@@ -95,7 +95,7 @@ def parse(settings):
 	in zen coding (for example, expanding abbreviation)
  	@type settings: dict
 	"""
-	for p, value in settings:
+	for p, value in settings.items():
 		if p == 'abbreviations':
 			_parse_abbreviations(value)
 		elif p == 'extends':
@@ -111,7 +111,7 @@ def extend(parent, child):
 	@type parent: dict
 	@type child: dict
 	"""
-	for p, value in child:
+	for p, value in child.items():
 		if type(value) == types.DictType:
 			extend(parent[p], value)
 		else:
@@ -123,10 +123,10 @@ def create_maps(obj):
 	Create hash maps on certain string properties of zen settings
 	@type obj: dict
 	"""
-	for p,value in obj:
+	for p, value in obj.items():
 		if p == 'element_types':
-			for k,v in value: 
-				value[k] = [el.strip() for k2,el in v.split(',')]
+			for k, v in value.items(): 
+				value[k] = [el.strip() for el in v.split(',')]
 		elif type(value) == types.DictType:
 			create_maps(value)
 
