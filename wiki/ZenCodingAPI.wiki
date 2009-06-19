@@ -1,5 +1,5 @@
 #summary Brief description of Zen Coding API
-_This document in early development stage and can be changed ar any time_
+_This document in early development stage and can be changed at any time_
 
 ==Profiles==
 Profiles are set of properties that defines how expaned abbreviations should output. There are number of predefined profiles in Zen Coding: _plain_, _html_, _xhtml_, _xml_. 
