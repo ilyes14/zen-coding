@@ -141,7 +141,7 @@
 	 * @return {Object}
 	 */
 	function getElementsCollection(resource, type) {
-		if (resource.element_types)
+		if (resource && resource.element_types)
 			return resource.element_types[type] || {}
 		else
 			return {};
@@ -441,20 +441,23 @@
 	function getSettingsResource(type, abbr, res_name) {
 		var resource = zen_settings[type];
 		
-		if (resource[res_name] && abbr in resource[res_name])
-			return resource[res_name][abbr];
-		else if ('extends' in resource) {
-			// find abbreviation in ancestors
-			for (var i = 0; i < resource['extends'].length; i++) {
-				var type = resource['extends'][i];
-				if (
-					zen_settings[type] && 
-					zen_settings[type][res_name] && 
-					zen_settings[type][res_name][abbr]
-				)
-					return zen_settings[type][res_name][abbr];
+		if (resource) {
+			if (res_name in resource && abbr in resource[res_name])
+				return resource[res_name][abbr];
+			else if ('extends' in resource) {
+				// find abbreviation in ancestors
+				for (var i = 0; i < resource['extends'].length; i++) {
+					var type = resource['extends'][i];
+					if (
+						zen_settings[type] && 
+						zen_settings[type][res_name] && 
+						zen_settings[type][res_name][abbr]
+					)
+						return zen_settings[type][res_name][abbr];
+				}
 			}
 		}
+		
 		
 		return null;
 	}

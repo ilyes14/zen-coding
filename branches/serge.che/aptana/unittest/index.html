@@ -9,7 +9,7 @@
 
 		<script src="../zen_settings.js" type="text/javascript"></script>
 		<script src="../my_zen_settings.js" type="text/javascript"></script>
-		<script src="../lib/core.js" type="text/javascript"></script>
+		<script src="../lib/zen_coding.js" type="text/javascript"></script>
 	</head>
 	<body>
 		<div id="content">
@@ -95,6 +95,11 @@
 				 "test inheritance": function(){ with (this) {
 					assertEqual('<a href=""></a>', expandAbbr('a', 'xsl'));
 					assertEqual('<div id="demo"></div>', expandAbbr('demo', 'xsl'));
+				 }},
+				 
+				 "test non-existed types": function(){ with (this) {
+					assertEqual('<a></a>', expandAbbr('a', 'foo'));
+					assertEqual('<bq><p></p></bq>', expandAbbr('bq>p', 'foo'));
 				 }}
 				 
 			});
