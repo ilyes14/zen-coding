@@ -56,7 +56,7 @@ def has_deep_key(obj, key):
 		
 	last_obj = obj
 	for v in key:
-		if v not in last_obj:
+		if not last_obj.has_key(v):
 			return False
 		last_obj = last_obj[v]
 	
@@ -208,15 +208,16 @@ def get_settings_resource(res_type, abbr, res_name):
 	@type res_name: str
 	@return dict, None
 	"""
-	resource = zen_settings[res_type];
 	
-	if (res_name in resource and abbr in resource[res_name]):
-		return resource[res_name][abbr]
-	elif 'extends' in resource:
-#		find abbreviation in ancestors
-		for k, v in resource['extends']:
-			if v in zen_settings and  res_name in zen_settings[v] and abbr in zen_settings[v][res_name]:
-				return zen_settings[res_type][res_name][abbr]
+	if zen_settings.has_key(res_type):
+		resource = zen_settings[res_type];
+		if (has_deep_key(resource, [res_name, abbr])):
+			return resource[res_name][abbr]
+		elif 'extends' in resource:
+	#		find abbreviation in ancestors
+			for v in resource['extends']:
+				if has_deep_key(zen_settings, [v, res_name, abbr]):
+					return zen_settings[v][res_name][abbr]
 	return None;
 
 
@@ -232,7 +233,7 @@ def parse_into_tree(abbr, doc_type = 'html'):
 	root = Tag('', 1, doc_type)
 	parent = root
 	last = None
-	res = zen_settings[doc_type]
+	res = zen_settings.has_key(doc_type) and zen_settings[doc_type] or {}
 	token = re.compile(r'([\+>])?([a-z][a-z0-9:\!\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?', re.IGNORECASE)
 	
 	def expando_replace(m):
@@ -328,7 +329,7 @@ class Tag(object):
 		self.children = []
 		self.attributes = []
 		self.__abbr = abbr
-		self.__res = zen_settings[doc_type]
+		self.__res = zen_settings.has_key(doc_type) and zen_settings[doc_type] or {}
 		
 		if self.__abbr and 'attributes' in self.__abbr.value:
 			for a in self.__abbr.value['attributes']:
