@@ -52,8 +52,7 @@
 	 * @return {String}
 	 */
 	function getNewline() {
-//		return editors.activeEditor.lineDelimiter;
-		return '\n';
+		return zen_coding.getNewline();
 	}
 	
 	/**
@@ -112,9 +111,6 @@
 			
 		return result;
 	}
-	
-	/**
-	 * Get the type of the partition based on the current offset	 * @param {Number} offset	 * @return {String}	 */	function getPartition(offset){		var class_name = String(editors.activeEditor.textEditor.getClass());		if (class_name == 'class org.eclipse.wst.xsl.ui.internal.editor.XSLEditor')			return 'text/xsl';					try {				var fileContext = editors.activeEditor.textEditor.getFileContext();				if (fileContext !== null && fileContext !== undefined) {				var partition = fileContext.getPartitionAtOffset(offset);				return String(partition.getType());			}		} catch(e) {					}			return null;	}
 	
 	/**
 	 * Check if passed abbreviation is snippet
@@ -256,6 +252,7 @@
 		 * Transforms tag into string using profile
 		 * @param {String} profile Profile name
 		 * @return {String}
+		 * TODO Function is too large, need refactoring
 		 */
 		toString: function(profile_name) {
 			
@@ -268,7 +265,6 @@
 				cursor = profile.place_cursor ? '|' : '',
 				self_closing = '',
 				attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
-				a,
 				attr_name;
 
 			if (profile.self_closing_tag == 'xhtml')
@@ -278,7 +274,7 @@
 				
 			// делаем строку атрибутов
 			for (var i = 0; i < this.attributes.length; i++) {
-				a = this.attributes[i];
+				var a = this.attributes[i];
 				attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : a.name.toLowerCase();
 				attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
 			}
@@ -471,28 +467,6 @@
 	
 	
 	return {
-		/**
-		 * Ищет аббревиатуру в текущем редакторе и возвращает ее
-		 * @return {String|null}
-		 * TODO move to Eclipse specific file
-		 */
-		findAbbreviation: function() {
-			/** Текущий редактор */
-			var editor = editors.activeEditor;
-			
-			if (editor.selectionRange.startingOffset != editor.selectionRange.endingOffset) {
-				// пользователь сам выделил нужную аббревиатуру
-				return editor.source.substring(editor.selectionRange.startingOffset, editor.selectionRange.endingOffset);
-			}
-			
-			// будем искать аббревиатуру с текущей позиции каретки
-			var original_offset = editor.currentOffset,
-				cur_line = editor.getLineAtOffset(original_offset),
-				line_offset = editor.getOffsetAtLine(cur_line);
-			
-			return this.extractAbbreviation(editor.source.substring(line_offset, original_offset));
-		},
-		
 		expandAbbreviation: function(abbr, type, profile) {
 			var tree = this.parseIntoTree(abbr, type || 'html');
 			return replaceVariables(tree ? tree.toString(profile) : '');
@@ -586,27 +560,10 @@
 		 * @return {String}
 		 */
 		padString: padString,
-		getNewline: getNewline,
-		
-		/**
-		 * Ищет новую точку вставки каретки		 * @param {Number} Инкремент поиска: -1 — ищем влево, 1 — ищем вправо		 * @param {Number} Начальное смещение относительно текущей позиции курсора		 * @return {Number} Вернет -1, если не была найдена новая позиция		 */		findNewEditPoint: function(inc, offset) {			inc = inc || 1;
-			offset = offset || 0;			var editor = editors.activeEditor,				cur_point = editor.currentOffset + offset,				max_len = editor.sourceLength,				next_point = -1;						function ch(ix) {				return editor.source.charAt(ix);			}							while (cur_point < max_len && cur_point > 0) {				cur_point += inc;				var cur_char = ch(cur_point),					next_char = ch(cur_point + 1),					prev_char = ch(cur_point - 1);									switch (cur_char) {					case '"':					case '\'':						if (next_char == cur_char && prev_char == '=') {							// пустой атрибут							next_point = cur_point + 1;						}						break;					case '>':						if (next_char == '<') {							// между тэгами							next_point = cur_point + 1;						}						break;				}								if (next_point != -1)					break;			}						return next_point;		},
-		
-		/**
-		 * Возвращает тип текущего редактора (css или html)		 * @return {String|null}
-		 * TODO move to Eclipse-specific file		 */		getEditorType: function() {			var content_types = {				'text/html':  'html',				'text/xml' :  'html',				'text/css' :  'css',				'text/xsl' :  'xsl'			};						return content_types[getPartition(editors.activeEditor.currentOffset)];		},
-		
-		/**
-		 * Возвращает отступ текущей строки у редактора
-		 * @return {String}
-		 */
-		getCurrentLinePadding: function() {
-			var editor = editors.activeEditor,
-				cur_line_num = editor.getLineAtOffset(editor.selectionRange.startingOffset),
-				end_offset = editor.getOffsetAtLine(cur_line_num + 1) + getNewline().length,
-				cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), end_offset);			return (cur_line.match(/^(\s+)/) || [''])[0];		},
-		
 		setupProfile: setupProfile,
+		getNewline: function(){
+			return '\n';
+		},
 		
 		settings_parser: (function(){
 			/**
