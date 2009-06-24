@@ -147,7 +147,9 @@ function expandTab() {
 		start_offset = editor.selectionRange.startingOffset,
 		end_offset = editor.selectionRange.endingOffset,
 		start_line = editor.getLineAtOffset(start_offset),
-		end_line = editor.getLineAtOffset(end_offset);
+		end_line = editor.getLineAtOffset(end_offset),
+		
+		indent = zen_settings.variables.indentation;
 		
 	var start_line_offset = editor.getOffsetAtLine(start_line),
 			end_line_offset = editor.getOffsetAtLine(end_line + 1) - zen_coding.getNewline().length;
@@ -155,13 +157,13 @@ function expandTab() {
 	if (start_line != end_line) {
 		// выделили несколько строк, отбиваем их
 		content = editor.source.substring(start_line_offset, end_line_offset);
-		var new_content = zen_settings.indentation + zen_coding.padString(content, 1);
+		var new_content = indent + zen_coding.padString(content, 1);
 		
 		editor.applyEdit(start_line_offset, content.length, new_content);
-		editor.selectAndReveal(start_line_offset, zen_settings.indentation.length + content.length + end_line - start_line);
+		editor.selectAndReveal(start_line_offset, indent.length + content.length + end_line - start_line);
 	} else {
 		// выделение на одной строке, заменяем его на отступ
-		editor.applyEdit(start_offset, end_offset - start_offset, zen_settings.indentation);
+		editor.applyEdit(start_offset, end_offset - start_offset, indent);
 		editor.currentOffset++;
 	}
 }
