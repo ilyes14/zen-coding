@@ -121,11 +121,6 @@ display:table-footer-group;                 d:tbfg
 display:table-row;                          d:tbr
 display:table-row-group;                    d:tbrg
 display:table-cell;                         d:tbc
-display:ruby;                               d:rb
-display:ruby-base;                          d:rbb
-display:ruby-base-group;                    d:rbbg
-display:ruby-text;                          d:rbt
-display:ruby-text-group;                    d:rbtg
 }}}
 
 {{{
