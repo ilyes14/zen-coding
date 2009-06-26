@@ -266,6 +266,11 @@ Based on HTML 5 specification draft.
 <address></address>
 }}}
 
+===`div`===
+{{{
+<div></div>
+}}}
+
 ==Grouping Content==
 
 ===`p`===
@@ -700,6 +705,11 @@ Based on HTML 5 specification draft.
 <fieldset></fieldset>
 }}}
 
+===`legend, leg`===
+{{{
+<legend></legend>
+}}}
+
 ===`label`===
 {{{
 <label for=""></label>
@@ -909,18 +919,6 @@ Based on HTML 5 specification draft.
 ===`menu:toolbar, menu:t`===
 {{{
 <menu type="toolbar"></menu>
-}}}
-
-==Miscellaneous Elements==
-
-===`legend, leg`===
-{{{
-<legend></legend>
-}}}
-
-===`div`===
-{{{
-<div></div>
 }}}
 
 ==Conditional Comments==
