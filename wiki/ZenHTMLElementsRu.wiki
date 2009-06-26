@@ -266,6 +266,11 @@
 <address></address>
 }}}
 
+===`div`===
+{{{
+<div></div>
+}}}
+
 ==Группировка содержимого==
 
 ===`p`===
@@ -700,6 +705,11 @@
 <fieldset></fieldset>
 }}}
 
+===`legend, leg`===
+{{{
+<legend></legend>
+}}}
+
 ===`label`===
 {{{
 <label for=""></label>
@@ -909,18 +919,6 @@
 ===`menu:toolbar, menu:t`===
 {{{
 <menu type="toolbar"></menu>
-}}}
-
-==Различные элементы==
-
-===`legend, leg`===
-{{{
-<legend></legend>
-}}}
-
-===`div`===
-{{{
-<div></div>
 }}}
 
 ==Условные комментарии==
