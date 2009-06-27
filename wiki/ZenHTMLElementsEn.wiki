@@ -820,7 +820,7 @@ Based on HTML 5 specification draft.
 <input type="image" src="" alt="">
 }}}
 
-===`input:reset, input:r`===
+===`input:reset`===
 {{{
 <input type="reset" value="">
 }}}
