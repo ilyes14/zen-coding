@@ -370,8 +370,8 @@ border-fit:space;                           bdf:sp
 }}}
 
 {{{
-border-length:;                             bdl
-border-length:auto;                         bdl:a
+border-length:;                             bdlt
+border-length:auto;                         bdlt:a
 }}}
 
 {{{
