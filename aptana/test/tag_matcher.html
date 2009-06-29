@@ -1,2 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">	<head>		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />		<title>Document</title>		<script type="text/javascript" src="../lib/htmlparser.js"></script>
-		<script type="text/javascript" src="../Select Tag.js"></script>	</head>	<body>		<script type="text/javascript">			var html = '<div>Lorem ipsum dolor <span>sit amet, <span>consec</span>tetur</span> adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>';			var range = getTagRange(html, 37)			console.log(range);			console.log(html.substring(range[0], range[1]));		</script>	</body></html>
+		<script type="text/javascript" src="../Select Tag.js"></script>	</head>			<body>		<div>
+			<div>
+				<p>item 1</p>				<!-- Here goes comment -->
+				<p>item 2</p>				<br />
+				<p>item 3</p>
+			</div>
+		</div>		<script type="text/javascript">			var html = '<div>Lorem ipsum dolor <span>sit amet, <span>consec</span>tetur</span> adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</div>';			var range = getPairRange(html, 37)			console.log(range);			console.log(html.substring(range[0], range[1]));		</script>	</body></html>

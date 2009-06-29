@@ -568,6 +568,70 @@
 			return '\n';
 		},
 		
+		/**
+		 * Returns range for matched tag pair inside document
+		 * @requires HTMLParser
+		 * @param {String} html Full xHTML document
+		 * @param {Number} cursor_pos Cursor position inside document
+		 * @return {Object} Pair of indicies (<code>start</code> and <code>end</code>). 
+		 * Returns 'null' if match wasn't found 
+		 */
+		getPairRange: function(html, cursor_pos) {
+			var tags = {},
+				ranges = [],
+				result;
+				
+			function inRange(start, end) {
+				return cursor_pos > start && cursor_pos < end;
+			} 
+			
+			var handler = {
+				start: function(name, attrs, unary, ix_start, ix_end) {
+					if (unary && inRange(ix_start, ix_end)) {
+						// this is the exact range for cursor position, stop searching
+						result = {start: ix_start, end: ix_end};
+						handler.stop = true;
+					} else {
+						if (!tags.hasOwnProperty(name))
+							tags[name] = [];
+							
+						tags[name].push(ix_start);
+					}
+				},
+				
+				end: function(name, ix_start, ix_end) {
+					if (tags.hasOwnProperty(name)) {
+						var start = tags[name].pop();
+						if (inRange(start, ix_end))
+							ranges.push({start: start, end: ix_end});
+					}
+				},
+				
+				comment: function(data, ix_start, ix_end) {
+					if (inRange(ix_start, ix_end)) {
+						// this is the exact range for cursor position, stop searching
+						result = {start: ix_start, end: ix_end};
+						handler.stop = true;
+					}
+				}
+			};
+			
+			// scan document
+			try {
+				HTMLParser(html, handler);
+			} catch(e) {}
+			
+			if (!result && ranges.length) {
+				// because we have overlaped ranges only, we have to sort array by 
+				// length: the shorter range length, the most probable match
+				result = ranges.sort(function(a, b){
+					return (a.end - a.start) - (b.end - b.start);
+				})[0];
+			}
+			
+			return result;
+		},
+		
 		settings_parser: (function(){
 			/**
 			 * Unified object for parsed data
@@ -703,13 +767,15 @@
 	
 })();
 
-// first we need to expand some strings into hashes
-zen_coding.settings_parser.createMaps(zen_settings);
-if ('my_zen_settings' in this) {
-	// we need to extend default settings with user's
-	zen_coding.settings_parser.createMaps(my_zen_settings);
-	zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
+if ('settings' in zen_coding) {
+	// first we need to expand some strings into hashes
+	zen_coding.settings_parser.createMaps(zen_settings);
+	if ('my_zen_settings' in this) {
+		// we need to extend default settings with user's
+		zen_coding.settings_parser.createMaps(my_zen_settings);
+		zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
+	}
+	
+	// now we need to parse final set of settings
+	zen_coding.settings_parser.parse(zen_settings);
 }
-
-// now we need to parse final set of settings
-zen_coding.settings_parser.parse(zen_settings);
