@@ -30,7 +30,7 @@ def make_map(elems):
 empty = make_map("area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed");
 
 # Block Elements - HTML 4.01
-block = make_map("address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul");
+block = make_map("address,applet,blockquote,button,center,dd,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,isindex,li,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul");
 
 # Inline Elements - HTML 4.01
 inline = make_map("a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,select,small,span,strike,strong,sub,sup,textarea,tt,u,var");
@@ -111,7 +111,7 @@ def parse(html, handler):
 		
 #		Make sure we're not in a script or style element
 		if not len(stack) or stack[-1] not in special:
-#			Comment
+#			comment
 			if html.find('<!--') == 0:
 				index = html.find('-->')
 				

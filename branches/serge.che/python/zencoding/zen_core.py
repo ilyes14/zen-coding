@@ -307,6 +307,68 @@ def expand_abbreviation(abbr, doc_type = 'html', profile_name = 'plain'):
 		
 	return ''
 
+def get_pair_range(text, cursor_pos):
+	"""
+	Returns range that indicates starting and ending pair tags nearest 
+	to cursor position.
+	@param text: Full document
+	@type text: str
+	@param cursor_pos: Caret position inside document
+	@type cursor_pos: int
+	@return: list of start and end indices. If pair wasn't found, returns (-1, -1)
+	"""
+	
+	import htmlparser
+	
+	tags = {}
+	ranges = []
+	result = [-1, -1]
+	
+	handler = {'stop': False}
+	
+	def in_range(start, end):
+		return cursor_pos > start and cursor_pos <= end
+	
+	def start_h(name, attrs, unary, ix_start, ix_end):
+		if unary and in_range(ix_start, ix_end):
+			result[0] = ix_start
+			result[1] = ix_end
+			handler['stop'] = True
+		else:
+			if name not in tags:
+				tags[name] = []
+			
+			tags[name].append(ix_start)
+			
+	def end_h(name, ix_start, ix_end):
+		if name in tags:
+			start = tags[name].pop()
+			if in_range(start, ix_end):
+				ranges.append([start, ix_end])
+	
+	def comment_h(data, ix_start, ix_end):
+		if in_range(ix_start, ix_end):
+			result[0] = ix_start
+			result[1] = ix_end
+			handler['stop'] = True
+			
+	handler['start'] = start_h
+	handler['end'] = end_h
+	handler['comment'] = comment_h
+	
+	try:
+		htmlparser.parse(text, handler)
+	except RuntimeError:
+		pass
+	
+	if result[0] == -1 and len(ranges):
+#		because we have overlaped ranges only, we have to sort array by 
+#		length: the shorter range length, the most probable match
+		ranges.sort(lambda a, b: (a[1] - a[0]) - (b[1] - b[0]))
+		result = ranges[0]
+		
+	return result
+
 
 class Tag(object):
 	def __init__(self, name, count = 1, doc_type = 'html'):
