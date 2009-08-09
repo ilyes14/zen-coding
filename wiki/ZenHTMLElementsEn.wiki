@@ -251,6 +251,11 @@ Based on HTML 5 specification draft.
 <h6></h6>
 }}}
 
+===`hgroup, hgr`===
+{{{
+<hgroup></hgroup>
+}}}
+
 ===`header, hdr`===
 {{{
 <header></header>
