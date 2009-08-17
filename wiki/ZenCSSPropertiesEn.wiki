@@ -1,6 +1,6 @@
 #summary CSS-properties and its aliases for Zen CSS plugins
 
-=CSS properties=
+=Zen CSS properties=
 
 Based on CSS 3 draft specification
 
