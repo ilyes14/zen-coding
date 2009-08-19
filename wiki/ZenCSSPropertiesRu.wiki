@@ -265,6 +265,7 @@ min-height:;                                mih
 {{{
 outline:;                                   o
 outline:none;                               o:n
+outline:1px solid #000;                     o+
 }}}
 
 {{{
