@@ -727,92 +727,92 @@
 
 ===`input:hidden, input:h`===
 {{{
-<input type="hidden" name="">
+<input type="hidden">
 }}}
 
 ===`input:text, input:t`===
 {{{
-<input type="text" name="" id="">
+<input type="text" id="">
 }}}
 
 ===`input:search`===
 {{{
-<input type="search" name="" id="">
+<input type="search" id="">
 }}}
 
 ===`input:email`===
 {{{
-<input type="email" name="" id="">
+<input type="email" id="">
 }}}
 
 ===`input:url`===
 {{{
-<input type="url" name="" id="">
+<input type="url" id="">
 }}}
 
 ===`input:password, input:p`===
 {{{
-<input type="password" name="" id="">
+<input type="password" id="">
 }}}
 
 ===`input:datetime`===
 {{{
-<input type="datetime" name="" id="">
+<input type="datetime" id="">
 }}}
 
 ===`input:datetime-local`===
 {{{
-<input type="datetime-local" name="" id="">
+<input type="datetime-local" id="">
 }}}
 
 ===`input:date`===
 {{{
-<input type="date" name="" id="">
+<input type="date" id="">
 }}}
 
 ===`input:month`===
 {{{
-<input type="month" name="" id="">
+<input type="month" id="">
 }}}
 
 ===`input:week`===
 {{{
-<input type="week" name="" id="">
+<input type="week" id="">
 }}}
 
 ===`input:time`===
 {{{
-<input type="time" name="" id="">
+<input type="time" id="">
 }}}
 
 ===`input:number`===
 {{{
-<input type="number" name="" id="">
+<input type="number" id="">
 }}}
 
 ===`input:range`===
 {{{
-<input type="range" name="" id="">
+<input type="range" id="">
 }}}
 
 ===`input:color`===
 {{{
-<input type="color" name="" id="">
+<input type="color" id="">
 }}}
 
 ===`input:checkbox, input:c`===
 {{{
-<input type="checkbox" name="" id="">
+<input type="checkbox" id="">
 }}}
 
 ===`input:radio, input:r`===
 {{{
-<input type="radio" name="" id="">
+<input type="radio" id="">
 }}}
 
 ===`input:file, input:f`===
 {{{
-<input type="file" name="" id="">
+<input type="file" id="">
 }}}
 
 ===`input:submit, input:s`===
@@ -842,12 +842,12 @@
 
 ===`select`===
 {{{
-<select name="" id=""></select>
+<select id=""></select>
 }}}
 
 ===`select+`===
 {{{
-<select name="" id="">
+<select id="">
     <option value=""></option>
 </select>
 }}}
@@ -860,13 +860,13 @@
 ===`optgroup+, optg+`===
 {{{
 <optgroup>
-    <option value=""></option>
+    <option></option>
 </optgroup>
 }}}
 
 ===`option, opt`===
 {{{
-<option value=""></option>
+<option></option>
 }}}
 
 ==Интерактивные элементы==
@@ -883,7 +883,7 @@
 
 ===`textarea, tarea`===
 {{{
-<textarea name="" id="" cols="30" rows="10"></textarea>
+<textarea id="" cols="30" rows="10"></textarea>
 }}}
 
 ===`keygen, kg`===
