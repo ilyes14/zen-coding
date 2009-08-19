@@ -489,7 +489,7 @@ border-bottom-left-radius:;                 bdblrz
 background:;                                                                                    bg
 background:none;                                                                                bg:n
 background:#FFF url() 0 0 no-repeat;                                                            bg+
-filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='x.png',sizingMethod='crop');     bg:ie
+filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='',sizingMethod='crop');     bg:ie
 }}}
 
 {{{
