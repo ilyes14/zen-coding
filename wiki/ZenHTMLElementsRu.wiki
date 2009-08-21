@@ -727,77 +727,77 @@
 
 ===`input:hidden, input:h`===
 {{{
-<input type="hidden">
+<input type="hidden" value="">
 }}}
 
 ===`input:text, input:t`===
 {{{
-<input type="text" id="">
+<input type="text" value="" id="">
 }}}
 
 ===`input:search`===
 {{{
-<input type="search" id="">
+<input type="search" value="" id="">
 }}}
 
 ===`input:email`===
 {{{
-<input type="email" id="">
+<input type="email" value="" id="">
 }}}
 
 ===`input:url`===
 {{{
-<input type="url" id="">
+<input type="url" value="" id="">
 }}}
 
 ===`input:password, input:p`===
 {{{
-<input type="password" id="">
+<input type="password" value="" id="">
 }}}
 
 ===`input:datetime`===
 {{{
-<input type="datetime" id="">
+<input type="datetime" value="" id="">
 }}}
 
 ===`input:datetime-local`===
 {{{
-<input type="datetime-local" id="">
+<input type="datetime-local" value="" id="">
 }}}
 
 ===`input:date`===
 {{{
-<input type="date" id="">
+<input type="date" value="" id="">
 }}}
 
 ===`input:month`===
 {{{
-<input type="month" id="">
+<input type="month" value="" id="">
 }}}
 
 ===`input:week`===
 {{{
-<input type="week" id="">
+<input type="week" value="" id="">
 }}}
 
 ===`input:time`===
 {{{
-<input type="time" id="">
+<input type="time" value="" id="">
 }}}
 
 ===`input:number`===
 {{{
-<input type="number" id="">
+<input type="number" value="" id="">
 }}}
 
 ===`input:range`===
 {{{
-<input type="range" id="">
+<input type="range" value="" id="">
 }}}
 
 ===`input:color`===
 {{{
-<input type="color" id="">
+<input type="color" value="" id="">
 }}}
 
 ===`input:checkbox, input:c`===
