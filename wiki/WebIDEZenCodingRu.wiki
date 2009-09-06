@@ -6,7 +6,7 @@
 
 *MacOS:* ~/Library/Preferences/WebIDE10/templates
 
-*Windows:* C:\Users\YouName\.WebIde10\config\templates\
+*Windows:* C:\Users\youname\.WebIde10\config\templates\
 
 Запускаем WebIDE
 
