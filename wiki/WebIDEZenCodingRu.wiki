@@ -1,0 +1,21 @@
+#summary One-sentence summary of this page.
+
+= Как установить WebIDE Zen Coding =
+
+Переносим файл zen_coding.xml в папку:
+
+*MacOS:* ~/Library/Preferences/WebIDE10/templates
+
+*Windows:* C:\Users\YouName\.WebIde10\config\templates\
+
+Запускаем WebIDE
+
+Для просмотра доступных сокращений используем ctrl+о (cmd+j)
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
