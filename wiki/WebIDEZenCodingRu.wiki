@@ -1,4 +1,4 @@
-#Инструкция по установке Zen Coding для WebIDE.
+#Как установить WebIDE Zen Coding.
 
 = Как установить WebIDE Zen Coding =
 
