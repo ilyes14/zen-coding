@@ -1,4 +1,4 @@
-#summary Как установить WebIDE Zen Coding.
+#summary Как установить WebIDE Zen Coding
 #labels Phase-Deploy
 
 = Как установить WebIDE Zen Coding =
