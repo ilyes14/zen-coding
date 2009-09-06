@@ -3,7 +3,7 @@
 
 = How to install Zen HTML and Zen CSS to WebIDE =
 
-Copy file zen_html.xml and zen_css.xml to a folder:
+Copy files zen_html.xml and zen_css.xml to a folder:
 
 *MacOS:* ~/Library/Preferences/WebIDE10/templates
 
@@ -13,7 +13,7 @@ Run WebIDE
 
 = How to install Zen HTML and Zen CSS to IntelliJ IDEA=
 
-Copy file zen_html.xml and zen_css.xml to a folder:
+Copy files zen_html.xml and zen_css.xml to a folder:
 
 *MacOS:* ~/Library/Preferences/IntelliJIdea80/templates
 
