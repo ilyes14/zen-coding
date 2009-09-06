@@ -22,4 +22,4 @@ Copy files zen_html.xml and zen_css.xml to a folder:
 Run WebIDE
 
 
-*To view the available abbreviations use Ctrl + J (cmd + J)*
+*To view the available live templates use Ctrl + J (cmd + J)*
