@@ -11,4 +11,4 @@ Copy file zen_coding.xml to a folder:
 
 Run WebIDE
 
-To view the available live templates use Ctrl + J (cmd + J)
+*To view the available live templates use Ctrl + J (cmd + J)*
