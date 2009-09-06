@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#Инструкция по установке Zen Coding для WebIDE.
 
 = Как установить WebIDE Zen Coding =
 
