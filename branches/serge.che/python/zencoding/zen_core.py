@@ -234,7 +234,7 @@ def parse_into_tree(abbr, doc_type = 'html'):
 	parent = root
 	last = None
 	res = zen_settings.has_key(doc_type) and zen_settings[doc_type] or {}
-	token = re.compile(r'([\+>])?([a-z][a-z0-9:\!\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?', re.IGNORECASE)
+	token = re.compile(r'([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?', re.IGNORECASE)
 	
 	def expando_replace(m):
 		ex = m.group(0)

@@ -56,12 +56,18 @@ class Test(unittest.TestCase):
 		self.assertEqual('<input type="checkbox" name="" id="" />', expandAbbr('input:c'))
 		self.assertEqual('<some:elem></some:elem>', expandAbbr('some:elem'))
 		self.assertEqual('<li id="id1" class="class1"></li><li id="id2" class="class2"></li><li id="id3" class="class3"></li>', expandAbbr('li#id$.class$*3'))
-	 	
+		
 	def testXSL(self):
- 		self.assertEqual('<xsl:template match="" mode=""></xsl:template>', expandAbbr('tmatch', 'xsl'))
+		self.assertEqual('<xsl:template match="" mode=""></xsl:template>', expandAbbr('tmatch', 'xsl'))
 		self.assertEqual('<xsl:choose><xsl:when test=""></xsl:when><xsl:otherwise></xsl:otherwise></xsl:choose>', expandAbbr('choose+', 'xsl'))
 		self.assertEqual('<xsl:variable><div></div><p></p></xsl:variable>', expandAbbr('xsl:variable>div+p', 'xsl'))
 		self.assertEqual('<xsl:variable name=""><div></div><p></p></xsl:variable>', expandAbbr('var>div+p', 'xsl'))
+		
+	def testCSS(self):
+		self.assertEqual('@import url();', expandAbbr('@i', 'css'))
+		self.assertEqual('!important', expandAbbr('!', 'css'))
+		self.assertEqual('position:static;', expandAbbr('pos:s', 'css'))
+		self.assertEqual('text-indent:-9999px;', expandAbbr('ti:-', 'css'))
 	
 	def testInheritance(self):
 		self.assertEqual('<a href=""></a>', expandAbbr('a', 'xsl'))
