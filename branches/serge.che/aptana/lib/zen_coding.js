@@ -249,7 +249,7 @@
 		},
 		
 		/**
-		 * Transforms tag into string using profile
+		 * Transforms and formats tag into string using profile
 		 * @param {String} profile Profile name
 		 * @return {String}
 		 * TODO Function is too large, need refactoring
@@ -272,20 +272,25 @@
 			else if (profile.self_closing_tag === true)
 				self_closing = '/';
 				
-			// делаем строку атрибутов
+			function allowNewline(tag) {
+				return (profile.tag_nl === true || (profile.tag_nl == 'decide' && tag.isBlock()))
+			}
+				
+			// make attribute string
 			for (var i = 0; i < this.attributes.length; i++) {
 				var a = this.attributes[i];
 				attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : a.name.toLowerCase();
 				attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
 			}
 			
-			// выводим потомков
+			// output children
 			if (!this.isEmpty())
 				for (var j = 0; j < this.children.length; j++) {
+//					
 					content += this.children[j].toString(profile_name);
 					if (
 						(j != this.children.length - 1) &&
-						(profile.tag_nl === true || (profile.tag_nl == 'decide' && this.children[j].isBlock()))
+						( allowNewline(this.children[j]) || allowNewline(this.children[j + 1]) )
 					)
 						content += getNewline();
 				}
@@ -300,7 +305,7 @@
 				}
 			}
 			
-			// форматируем вывод
+			// formatting output
 			if (profile.tag_nl !== false) {
 				if (
 					this.name && 
@@ -309,14 +314,19 @@
 						this.hasBlockChildren() 
 					)
 				) {
-					start_tag += getNewline() + zen_settings.variables.indentation;
-					end_tag = getNewline() + end_tag;
+					if (end_tag) { // non-empty tag: add indentation
+						start_tag += getNewline() + zen_settings.variables.indentation;
+						end_tag = getNewline() + end_tag;
+					} else { // empty tag
+						
+					}
+						
 				}
 				
 				if (this.name) {
 					if (content)
 						content = padString(content, profile.indent ? 1 : 0);
-					else
+					else if (!this.isEmpty())
 						start_tag += cursor;
 				}
 					
@@ -327,7 +337,7 @@
 				result.push(start_tag.replace(/\$/g, i + 1) + content + end_tag);
 			
 			var glue = '';
-			if (profile.tag_nl === true || (profile.tag_nl == 'decide' && this.isBlock()))
+			if (allowNewline(this))
 				glue = getNewline();
 				
 			return result.join(glue);
@@ -519,7 +529,7 @@
 				parent = root,
 				last = null,
 				res = zen_settings[type],
-				re = /([\+>])?([a-z][a-z0-9:\!\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?/ig;
+				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?/ig;
 			
 			if (!abbr)
 				return null;
@@ -579,7 +589,7 @@
 		getPairRange: function(html, cursor_pos) {
 			var tags = {},
 				ranges = [],
-				result;
+				result = null;
 				
 			function inRange(start, end) {
 				return cursor_pos > start && cursor_pos < end;
@@ -590,7 +600,7 @@
 					if (unary && inRange(ix_start, ix_end)) {
 						// this is the exact range for cursor position, stop searching
 						result = {start: ix_start, end: ix_end};
-						handler.stop = true;
+						this.stop = true;
 					} else {
 						if (!tags.hasOwnProperty(name))
 							tags[name] = [];
@@ -611,7 +621,7 @@
 					if (inRange(ix_start, ix_end)) {
 						// this is the exact range for cursor position, stop searching
 						result = {start: ix_start, end: ix_end};
-						handler.stop = true;
+						this.stop = true;
 					}
 				}
 			};
@@ -632,6 +642,32 @@
 			return result;
 		},
 		
+		/**
+		 * Check if cursor is placed inside xHTML tag
+		 * @param {String} html Contents of the document
+		 * @param {Number} cursor_pos Current caret position inside tag
+		 * @return {Boolean}
+		 */
+		isInsideTag: function(html, cursor_pos) {
+			var re_tag = /^<\/?\w[\w\:\-]*.*?>/;
+			
+			// search left to find opening brace
+			var pos = cursor_pos;
+			while (pos > -1) {
+				if (html.charAt(pos) == '<') 
+					break;
+				pos--;
+			}
+			
+			if (pos != -1) {
+				var m = re_tag.exec(html.substring(pos));
+				if (m && cursor_pos > pos && cursor_pos < pos + m[0].length)
+					return true;
+			}
+			
+			return false;
+		},
+		
 		settings_parser: (function(){
 			/**
 			 * Unified object for parsed data
@@ -645,7 +681,8 @@
 			}
 			
 			/** Regular expression for XML tag matching */
-			var re_tag = /^<([\w\-]+(?:\:\w+)?)((?:\s+[\w\-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
+//			var re_tag = /^<([\w\-]+(?:\:\w+)?)((?:\s+[\w\-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
+			var re_tag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/,
 				
 				re_attrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g;
 			
@@ -703,7 +740,7 @@
 						// this is expando, leave 'value' as is
 						obj[key] = makeExpando(key, value);
 					} else if (m = re_tag.exec(value)) {
-						obj[key] = makeAbbreviation(key, m[1], m[2], m[3] == '/');
+						obj[key] = makeAbbreviation(key, m[1], m[2], m[4] == '/');
 					} else {
 						// assume it's reference to another abbreviation
 						obj[key] = entry(TYPE_REFERENCE, key, value);
