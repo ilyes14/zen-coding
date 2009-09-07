@@ -67,7 +67,7 @@ zen_coding.getNewLine = function() {
  * @return {String|null}
  */
 function findAbbreviation() {
-	/** Текущий редактор */
+	/** Current editor */
 	var editor = editors.activeEditor;
 	
 	if (editor.selectionRange.startingOffset != editor.selectionRange.endingOffset) {
@@ -239,4 +239,54 @@ function mainExpandAbbreviation(editor_type, profile_name) {
 
 function printMessage(message) {
 	out.println(message);
+}
+
+/**
+ * getLexemeList
+ *
+ * @return {LexemeList}
+ */
+function getLexemeList() {
+	var result = null;
+	var fileContext = getFileContext();
+	
+	if (fileContext !== null && fileContext !== undefined) {
+		result = fileContext.getLexemeList();
+	}
+	
+	return result;
+}
+
+/**
+ * getFileContext
+ * 
+ * @return {FileContext}
+ */
+function getFileContext() {
+	var result = null;
+	
+	try	{
+		result = editors.activeEditor.textEditor.getFileContext();
+	} catch(e) {}
+	
+	return result;
+}
+
+/**
+ * Return lexeme from position
+ * @param {Number} pos Position where to get lexeme
+ * @return {Object}
+ */
+function getLexemeFromPosition(pos){
+	var lexemeList = getLexemeList(), lx;
+	if (lexemeList != null && lexemeList.size() > 0){
+		for (var i = 0; i < lexemeList.size(); i++){
+			lx = lexemeList.get(i);
+			if(lx.getStartingOffset() <= pos && lx.getEndingOffset() >= pos){
+				return lx;
+			}
+		}
+	}
+
+	return null;
 }
