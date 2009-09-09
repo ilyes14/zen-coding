@@ -52,8 +52,7 @@
 	 * @return {String}
 	 */
 	function getNewline() {
-//		return editors.activeEditor.lineDelimiter;
-		return '\n';
+		return zen_coding.getNewline();
 	}
 	
 	/**
@@ -114,9 +113,6 @@
 	}
 	
 	/**
-	 * Get the type of the partition based on the current offset	 * @param {Number} offset	 * @return {String}	 */	function getPartition(offset){		var class_name = String(editors.activeEditor.textEditor.getClass());		if (class_name == 'class org.eclipse.wst.xsl.ui.internal.editor.XSLEditor')			return 'text/xsl';					try {				var fileContext = editors.activeEditor.textEditor.getFileContext();				if (fileContext !== null && fileContext !== undefined) {				var partition = fileContext.getPartitionAtOffset(offset);				return String(partition.getType());			}		} catch(e) {					}			return null;	}
-	
-	/**
 	 * Check if passed abbreviation is snippet
 	 * @param {String} abbr
 	 * @param {String} type
@@ -145,7 +141,7 @@
 	 * @return {Object}
 	 */
 	function getElementsCollection(resource, type) {
-		if (resource.element_types)
+		if (resource && resource.element_types)
 			return resource.element_types[type] || {}
 		else
 			return {};
@@ -253,9 +249,10 @@
 		},
 		
 		/**
-		 * Transforms tag into string using profile
+		 * Transforms and formats tag into string using profile
 		 * @param {String} profile Profile name
 		 * @return {String}
+		 * TODO Function is too large, need refactoring
 		 */
 		toString: function(profile_name) {
 			
@@ -267,7 +264,7 @@
 				end_tag = '',
 				cursor = profile.place_cursor ? '|' : '',
 				self_closing = '',
-				a,
+				attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
 				attr_name;
 
 			if (profile.self_closing_tag == 'xhtml')
@@ -275,20 +272,25 @@
 			else if (profile.self_closing_tag === true)
 				self_closing = '/';
 				
-			// делаем строку атрибутов
+			function allowNewline(tag) {
+				return (profile.tag_nl === true || (profile.tag_nl == 'decide' && tag.isBlock()))
+			}
+				
+			// make attribute string
 			for (var i = 0; i < this.attributes.length; i++) {
-				a = this.attributes[i];
+				var a = this.attributes[i];
 				attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : a.name.toLowerCase();
-				attrs += ' ' + attr_name + '="' + (a.value || cursor) + '"';
+				attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
 			}
 			
-			// выводим потомков
+			// output children
 			if (!this.isEmpty())
 				for (var j = 0; j < this.children.length; j++) {
+//					
 					content += this.children[j].toString(profile_name);
 					if (
 						(j != this.children.length - 1) &&
-						(profile.tag_nl === true || (profile.tag_nl == 'decide' && this.children[j].isBlock()))
+						( allowNewline(this.children[j]) || allowNewline(this.children[j + 1]) )
 					)
 						content += getNewline();
 				}
@@ -303,23 +305,28 @@
 				}
 			}
 			
-			// форматируем вывод
+			// formatting output
 			if (profile.tag_nl !== false) {
 				if (
 					this.name && 
 					(
 						profile.tag_nl === true || 
-						(profile.tag_nl == 'decide' && this.hasBlockChildren()) 
+						this.hasBlockChildren() 
 					)
 				) {
-					start_tag += getNewline() + zen_settings.variables.indentation;
-					end_tag = getNewline() + end_tag;
+					if (end_tag) { // non-empty tag: add indentation
+						start_tag += getNewline() + zen_settings.variables.indentation;
+						end_tag = getNewline() + end_tag;
+					} else { // empty tag
+						
+					}
+						
 				}
 				
 				if (this.name) {
 					if (content)
 						content = padString(content, profile.indent ? 1 : 0);
-					else
+					else if (!this.isEmpty())
 						start_tag += cursor;
 				}
 					
@@ -330,7 +337,7 @@
 				result.push(start_tag.replace(/\$/g, i + 1) + content + end_tag);
 			
 			var glue = '';
-			if (profile.tag_nl === true || (profile.tag_nl == 'decide' && this.isBlock()))
+			if (allowNewline(this))
 				glue = getNewline();
 				
 			return result.join(glue);
@@ -444,20 +451,23 @@
 	function getSettingsResource(type, abbr, res_name) {
 		var resource = zen_settings[type];
 		
-		if (resource[res_name] && abbr in resource[res_name])
-			return resource[res_name][abbr];
-		else if ('extends' in resource) {
-			// find abbreviation in ancestors
-			for (var i = 0; i < resource['extends'].length; i++) {
-				var type = resource['extends'][i];
-				if (
-					zen_settings[type] && 
-					zen_settings[type][res_name] && 
-					zen_settings[type][res_name][abbr]
-				)
-					return zen_settings[type][res_name][abbr];
+		if (resource) {
+			if (res_name in resource && abbr in resource[res_name])
+				return resource[res_name][abbr];
+			else if ('extends' in resource) {
+				// find abbreviation in ancestors
+				for (var i = 0; i < resource['extends'].length; i++) {
+					var type = resource['extends'][i];
+					if (
+						zen_settings[type] && 
+						zen_settings[type][res_name] && 
+						zen_settings[type][res_name][abbr]
+					)
+						return zen_settings[type][res_name][abbr];
+				}
 			}
 		}
+		
 		
 		return null;
 	}
@@ -470,28 +480,6 @@
 	
 	
 	return {
-		/**
-		 * Ищет аббревиатуру в текущем редакторе и возвращает ее
-		 * @return {String|null}
-		 * TODO move to Eclipse specific file
-		 */
-		findAbbreviation: function() {
-			/** Текущий редактор */
-			var editor = editors.activeEditor;
-			
-			if (editor.selectionRange.startingOffset != editor.selectionRange.endingOffset) {
-				// пользователь сам выделил нужную аббревиатуру
-				return editor.source.substring(editor.selectionRange.startingOffset, editor.selectionRange.endingOffset);
-			}
-			
-			// будем искать аббревиатуру с текущей позиции каретки
-			var original_offset = editor.currentOffset,
-				cur_line = editor.getLineAtOffset(original_offset),
-				line_offset = editor.getOffsetAtLine(cur_line);
-			
-			return this.extractAbbreviation(editor.source.substring(line_offset, original_offset));
-		},
-		
 		expandAbbreviation: function(abbr, type, profile) {
 			var tree = this.parseIntoTree(abbr, type || 'html');
 			return replaceVariables(tree ? tree.toString(profile) : '');
@@ -541,7 +529,7 @@
 				parent = root,
 				last = null,
 				res = zen_settings[type],
-				re = /([\+>])?([a-z][a-z0-9:\!\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?/ig;
+				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?/ig;
 			
 			if (!abbr)
 				return null;
@@ -585,27 +573,100 @@
 		 * @return {String}
 		 */
 		padString: padString,
-		getNewline: getNewline,
-		
-		/**
-		 * Ищет новую точку вставки каретки		 * @param {Number} Инкремент поиска: -1 — ищем влево, 1 — ищем вправо		 * @param {Number} Начальное смещение относительно текущей позиции курсора		 * @return {Number} Вернет -1, если не была найдена новая позиция		 */		findNewEditPoint: function(inc, offset) {			inc = inc || 1;
-			offset = offset || 0;			var editor = editors.activeEditor,				cur_point = editor.currentOffset + offset,				max_len = editor.sourceLength,				next_point = -1;						function ch(ix) {				return editor.source.charAt(ix);			}							while (cur_point < max_len && cur_point > 0) {				cur_point += inc;				var cur_char = ch(cur_point),					next_char = ch(cur_point + 1),					prev_char = ch(cur_point - 1);									switch (cur_char) {					case '"':					case '\'':						if (next_char == cur_char && prev_char == '=') {							// пустой атрибут							next_point = cur_point + 1;						}						break;					case '>':						if (next_char == '<') {							// между тэгами							next_point = cur_point + 1;						}						break;				}								if (next_point != -1)					break;			}						return next_point;		},
-		
-		/**
-		 * Возвращает тип текущего редактора (css или html)		 * @return {String|null}
-		 * TODO move to Eclipse-specific file		 */		getEditorType: function() {			var content_types = {				'text/html':  'html',				'text/xml' :  'html',				'text/css' :  'css',				'text/xsl' :  'xsl'			};						return content_types[getPartition(editors.activeEditor.currentOffset)];		},
-		
-		/**
-		 * Возвращает отступ текущей строки у редактора
-		 * @return {String}
-		 */
-		getCurrentLinePadding: function() {
-			var editor = editors.activeEditor,
-				cur_line_num = editor.getLineAtOffset(editor.selectionRange.startingOffset),
-				end_offset = editor.getOffsetAtLine(cur_line_num + 1) + getNewline().length,
-				cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), end_offset);			return (cur_line.match(/^(\s+)/) || [''])[0];		},
-		
 		setupProfile: setupProfile,
+		getNewline: function(){
+			return '\n';
+		},
+		
+		/**
+		 * Returns range for matched tag pair inside document
+		 * @requires HTMLParser
+		 * @param {String} html Full xHTML document
+		 * @param {Number} cursor_pos Cursor position inside document
+		 * @return {Object} Pair of indicies (<code>start</code> and <code>end</code>). 
+		 * Returns 'null' if match wasn't found 
+		 */
+		getPairRange: function(html, cursor_pos) {
+			var tags = {},
+				ranges = [],
+				result = null;
+				
+			function inRange(start, end) {
+				return cursor_pos > start && cursor_pos < end;
+			} 
+			
+			var handler = {
+				start: function(name, attrs, unary, ix_start, ix_end) {
+					if (unary && inRange(ix_start, ix_end)) {
+						// this is the exact range for cursor position, stop searching
+						result = {start: ix_start, end: ix_end};
+						this.stop = true;
+					} else {
+						if (!tags.hasOwnProperty(name))
+							tags[name] = [];
+							
+						tags[name].push(ix_start);
+					}
+				},
+				
+				end: function(name, ix_start, ix_end) {
+					if (tags.hasOwnProperty(name)) {
+						var start = tags[name].pop();
+						if (inRange(start, ix_end))
+							ranges.push({start: start, end: ix_end});
+					}
+				},
+				
+				comment: function(data, ix_start, ix_end) {
+					if (inRange(ix_start, ix_end)) {
+						// this is the exact range for cursor position, stop searching
+						result = {start: ix_start, end: ix_end};
+						this.stop = true;
+					}
+				}
+			};
+			
+			// scan document
+			try {
+				HTMLParser(html, handler);
+			} catch(e) {}
+			
+			if (!result && ranges.length) {
+				// because we have overlaped ranges only, we have to sort array by 
+				// length: the shorter range length, the most probable match
+				result = ranges.sort(function(a, b){
+					return (a.end - a.start) - (b.end - b.start);
+				})[0];
+			}
+			
+			return result;
+		},
+		
+		/**
+		 * Check if cursor is placed inside xHTML tag
+		 * @param {String} html Contents of the document
+		 * @param {Number} cursor_pos Current caret position inside tag
+		 * @return {Boolean}
+		 */
+		isInsideTag: function(html, cursor_pos) {
+			var re_tag = /^<\/?\w[\w\:\-]*.*?>/;
+			
+			// search left to find opening brace
+			var pos = cursor_pos;
+			while (pos > -1) {
+				if (html.charAt(pos) == '<') 
+					break;
+				pos--;
+			}
+			
+			if (pos != -1) {
+				var m = re_tag.exec(html.substring(pos));
+				if (m && cursor_pos > pos && cursor_pos < pos + m[0].length)
+					return true;
+			}
+			
+			return false;
+		},
 		
 		settings_parser: (function(){
 			/**
@@ -620,7 +681,8 @@
 			}
 			
 			/** Regular expression for XML tag matching */
-			var re_tag = /^<([\w\-]+(?:\:\w+)?)((?:\s+[\w\-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
+//			var re_tag = /^<([\w\-]+(?:\:\w+)?)((?:\s+[\w\-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
+			var re_tag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/,
 				
 				re_attrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g;
 			
@@ -678,7 +740,7 @@
 						// this is expando, leave 'value' as is
 						obj[key] = makeExpando(key, value);
 					} else if (m = re_tag.exec(value)) {
-						obj[key] = makeAbbreviation(key, m[1], m[2], m[3] == '/');
+						obj[key] = makeAbbreviation(key, m[1], m[2], m[4] == '/');
 					} else {
 						// assume it's reference to another abbreviation
 						obj[key] = entry(TYPE_REFERENCE, key, value);
@@ -742,13 +804,15 @@
 	
 })();
 
-// first we need to expand some strings into hashes
-zen_coding.settings_parser.createMaps(zen_settings);
-if ('my_zen_settings' in this) {
-	// we need to extend default settings with user's
-	zen_coding.settings_parser.createMaps(my_zen_settings);
-	zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
+if ('zen_settings' in this) {
+	// first we need to expand some strings into hashes
+	zen_coding.settings_parser.createMaps(zen_settings);
+	if ('my_zen_settings' in this) {
+		// we need to extend default settings with user's
+		zen_coding.settings_parser.createMaps(my_zen_settings);
+		zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
+	}
+	
+	// now we need to parse final set of settings
+	zen_coding.settings_parser.parse(zen_settings);
 }
-
-// now we need to parse final set of settings
-zen_coding.settings_parser.parse(zen_settings);
