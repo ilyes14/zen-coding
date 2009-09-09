@@ -22,7 +22,7 @@
 
 
 	// Special Elements (can contain anything)
-	// serge.che: parsing data inside <scipt> elements is a "feature" 
+	// serge.che: parsing data inside <script> elements is a "feature" 
 //	var special = makeMap("script,style");
 	var special = makeMap("style");
 	
@@ -32,7 +32,16 @@
 			full_tag: match[0],
 			start: ix,
 			end: ix + match[0].length,
-			unary: Boolean(match[3])
+			unary: Boolean(match[3]),
+			type: 'tag'
+		};
+	}
+	
+	function comment(start, end) {
+		return {
+			start: start,
+			end: end,
+			type: 'comment'
 		};
 	}
 	
@@ -75,6 +84,10 @@
 						opening_tag = tmp_tag;
 						break;
 					}
+				} else if (check_str.indexOf('<!--') == 0) { // found comment
+					var end_ix = check_str.search('-->') + ix + 3;
+					if (ix < start_ix && end_ix >= start_ix)
+						return saveMatch( comment(ix, end_ix) );
 				}
 			}
 		}

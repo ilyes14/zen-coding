@@ -21,7 +21,7 @@
 			<div id="sample"></div>
 		</div>
 		<script type="text/javascript">
-			var xhtml_string = '<p><strong>Hello</strong> world <br /> to all <img src="/path/to/image.png" alt="" /> my friends</p>';
+			var xhtml_string = '<p><strong>Hello</strong> world <br /> to all <img src="/path/to/image.png" alt="" /> my <!-- enemies --> friends</p>';
 			
 			new Test.Unit.Runner({
 				"test XHTML": function(){ with (this) {
@@ -29,7 +29,8 @@
 					assertEnumEqual([3, 25], HTMLPairMatcher(xhtml_string, 8));
 					assertEnumEqual([32, 38], HTMLPairMatcher(xhtml_string, 36));
 					assertEnumEqual([46, 85], HTMLPairMatcher(xhtml_string, 70));
-					assertEnumEqual([3, 96], HTMLPairMatcher(xhtml_string, 43));
+					assertEnumEqual([3, 113], HTMLPairMatcher(xhtml_string, 43));
+					assertEnumEqual([89, 105], HTMLPairMatcher(xhtml_string, 99));
 				 }}
 			});
 		</script>
