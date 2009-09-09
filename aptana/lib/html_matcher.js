@@ -27,13 +27,15 @@
 	var special = makeMap("style");
 	
 	function tag(match, ix) {
+		var name = match[1].toLowerCase();
 		return  {
-			name: match[1].toLowerCase(),
+			name: name,
 			full_tag: match[0],
 			start: ix,
 			end: ix + match[0].length,
-			unary: Boolean(match[3]),
-			type: 'tag'
+			unary: Boolean(match[3]) || (name in empty),
+			type: 'tag',
+			close_self: (name in close_self)
 		};
 	}
 	
