@@ -20,11 +20,6 @@
 	// (and which close themselves)
 	var close_self = makeMap("colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr");
 
-
-	// Special Elements (can contain anything)
-	// serge.che: parsing data inside <script> elements is a "feature" 
-//	var special = makeMap("script,style");
-	var special = makeMap("style");
 	
 	function tag(match, ix) {
 		var name = match[1].toLowerCase();
@@ -60,7 +55,8 @@
 			range = null,
 			html_len = html.length,
 			m,
-			ix;
+			ix,
+			tmp_tag;
 			
 		forward_stack.last = backward_stack.last = function() {
 			return this[this.length - 1];
@@ -72,13 +68,16 @@
 			if (html.charAt(ix) == '<') {
 				var check_str = html.substring(ix, html_len);
 				
-				if ( (m = check_str.match(end_tag)) ) // found closing tag
-					backward_stack.push( tag(m, ix) );
-				
-				else if ( (m = check_str.match(start_tag)) ) { // found opening tag
-					var tmp_tag = tag(m, ix);
+				if ( (m = check_str.match(end_tag)) ) { // found closing tag
+					tmp_tag = tag(m, ix);
+					if (tmp_tag.start < start_ix && tmp_tag.end > start_ix) // direct hit on searched closing tag
+						closing_tag = tmp_tag;
+					else
+						backward_stack.push(tmp_tag);
+				} else if ( (m = check_str.match(start_tag)) ) { // found opening tag
+					tmp_tag = tag(m, ix);
 					if (tmp_tag.unary) {
-						if (tmp_tag.start < start_ix && tmp_tag.end >= start_ix) // exact match
+						if (tmp_tag.start < start_ix && tmp_tag.end > start_ix) // exact match
 							return saveMatch(tmp_tag, null, start_ix);
 					} else if (backward_stack.last() && backward_stack.last().name == tmp_tag.name) {
 						backward_stack.pop();
@@ -98,21 +97,24 @@
 			return saveMatch(null);
 		
 		// find closing tag
-		ix = start_ix;
-		for (var ix = start_ix; ix < html_len; ix++) {
-			if (html.charAt(ix) == '<') {
-				var check_str = html.substring(ix, html_len);
-				
-				if ( (m = check_str.match(start_tag)) ) // found opening tag
-					forward_stack.push( tag(m, ix) );
-				
-				else if ( (m = check_str.match(end_tag)) ) { // found closing tag
-					var tmp_tag = tag(m, ix);
-					if (forward_stack.last() && forward_stack.last().name == tmp_tag.name)
-						forward_stack.pop();
-					else { // found matched closing tag
-						closing_tag = tmp_tag;
-						break;
+		if (!closing_tag) {
+			ix = start_ix;
+			for (var ix = start_ix; ix < html_len; ix++) {
+				if (html.charAt(ix) == '<') {
+					var check_str = html.substring(ix, html_len);
+					
+					if ( (m = check_str.match(start_tag)) ) { // found opening tag
+						tmp_tag = tag(m, ix);
+						if (!tmp_tag.unary)
+							forward_stack.push( tmp_tag );
+					} else if ( (m = check_str.match(end_tag)) ) { // found closing tag
+						var tmp_tag = tag(m, ix);
+						if (forward_stack.last() && forward_stack.last().name == tmp_tag.name)
+							forward_stack.pop();
+						else { // found matched closing tag
+							closing_tag = tmp_tag;
+							break;
+						}
 					}
 				}
 			}
@@ -148,8 +150,8 @@
 			last.end_ix = opening_tag.end;
 		} else if (opening_tag && closing_tag) { // complete element
 			if ( 
-				(opening_tag.start < ix && opening_tag.end >= ix)
-				|| (closing_tag.start < ix && closing_tag.end >= ix)
+				(opening_tag.start < ix && opening_tag.end > ix)
+				|| (closing_tag.start <= ix && closing_tag.end > ix)
 			) {
 				last.start_ix = opening_tag.start;
 				last.end_ix = closing_tag.end;

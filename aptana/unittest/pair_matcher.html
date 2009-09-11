@@ -22,16 +22,25 @@
 		</div>
 		<script type="text/javascript">
 			var xhtml_string = '<p><strong>Hello</strong> world <br /> to all <img src="/path/to/image.png" alt="" /> my <!-- enemies --> friends</p>';
+			var xhtml_string2 = '<span><span><br /><img src="" alt="" /><span></span></span></span><strong><em>hello</em></strong> world';
 			var html_string = '<p><b>Hello</b> world <br> to all <img src="/path/to/image.png" alt=""> my friends<p>Another paragraph';
 			
 			new Test.Unit.Runner({
 				"test XHTML": function(){ with (this) {
+					
 					assertEnumEqual([11, 16], HTMLPairMatcher(xhtml_string, 12));
 					assertEnumEqual([3, 25], HTMLPairMatcher(xhtml_string, 8));
 					assertEnumEqual([32, 38], HTMLPairMatcher(xhtml_string, 36));
 					assertEnumEqual([46, 85], HTMLPairMatcher(xhtml_string, 70));
 					assertEnumEqual([3, 113], HTMLPairMatcher(xhtml_string, 43));
 					assertEnumEqual([89, 105], HTMLPairMatcher(xhtml_string, 99));
+					
+					assertEnumEqual([12, 52], HTMLPairMatcher(xhtml_string2, 39));
+					assertEnumEqual([6, 59], HTMLPairMatcher(xhtml_string2, 52));
+					assertEnumEqual([6, 59], HTMLPairMatcher(xhtml_string2, 57));
+					assertEnumEqual([0, 66], HTMLPairMatcher(xhtml_string2, 3));
+					assertEnumEqual([39, 52], HTMLPairMatcher(xhtml_string2, 45));
+					assertEnumEqual([66, 97], HTMLPairMatcher(xhtml_string2, 95));
 				 }},
 				"test HTML": function(){ with (this) {
 					assertEnumEqual([22, 26], HTMLPairMatcher(html_string, 25));
