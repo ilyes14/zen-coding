@@ -25,9 +25,10 @@
 			var xhtml_string2 = '<span><span><br /><img src="" alt="" /><span></span></span></span><strong><em>hello</em></strong> world';
 			var html_string = '<p><b>Hello</b> world <br> to all <img src="/path/to/image.png" alt=""> my friends<p>Another paragraph';
 			
+			var xsl_string = '<xsl:if test="@output"><xsl:value-of select="one" /></xsl:if> <xsl:value-of select="two" />';
+			
 			new Test.Unit.Runner({
 				"test XHTML": function(){ with (this) {
-					
 					assertEnumEqual([11, 16], HTMLPairMatcher(xhtml_string, 12));
 					assertEnumEqual([3, 25], HTMLPairMatcher(xhtml_string, 8));
 					assertEnumEqual([32, 38], HTMLPairMatcher(xhtml_string, 36));
@@ -41,6 +42,10 @@
 					assertEnumEqual([0, 66], HTMLPairMatcher(xhtml_string2, 3));
 					assertEnumEqual([39, 52], HTMLPairMatcher(xhtml_string2, 45));
 					assertEnumEqual([66, 97], HTMLPairMatcher(xhtml_string2, 95));
+
+					assertEnumEqual([23, 52], HTMLPairMatcher(xsl_string, 32));
+					assertEnumEqual([62, 91], HTMLPairMatcher(xsl_string, 76));
+					
 				 }},
 				"test HTML": function(){ with (this) {
 					assertEnumEqual([22, 26], HTMLPairMatcher(html_string, 25));

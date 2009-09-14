@@ -3,8 +3,8 @@
  * @link http://chikuyonok.ru
  */(function(){
 	// Regular Expressions for parsing tags and attributes
-	var start_tag = /^<([\w\:]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
-		end_tag = /^<\/([\w\:]+)[^>]*>/,
+	var start_tag = /^<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
+		end_tag = /^<\/([\w\:\-]+)[^>]*>/,
 		attr = /([\w\-:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
 		
 	// Empty Elements - HTML 4.01
@@ -76,6 +76,7 @@
 						backward_stack.push(tmp_tag);
 				} else if ( (m = check_str.match(start_tag)) ) { // found opening tag
 					tmp_tag = tag(m, ix);
+					
 					if (tmp_tag.unary) {
 						if (tmp_tag.start < start_ix && tmp_tag.end > start_ix) // exact match
 							return saveMatch(tmp_tag, null, start_ix);
