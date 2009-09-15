@@ -56,6 +56,25 @@
 	}
 	
 	/**
+	 * Split text into lines. Set <code>remove_empty</code> to true to filter
+	 * empty lines
+	 * @param {String} text
+	 * @param {Boolean} [remove_empty]
+	 * @return {Array}
+	 */
+	function splitByLines(text, remove_empty) {
+		var lines = text.split('\n');
+		if (remove_empty) {
+			for (var i = lines.length; i >= 0; i--) {
+				if (!trim(lines[i]))
+					lines.splice(i, 1);
+			}
+		}
+		
+		return lines;
+	}
+	
+	/**
 	 * Trim whitespace from string
 	 * @param {String} text
 	 * @return {String}
@@ -180,6 +199,8 @@
 		this.attributes = [];
 		this._abbr = abbr;
 		this._res = zen_settings[type];
+		this._content = '';
+		this.repeat_by_lines = false;
 		
 		// add default attributes
 		if (this._abbr && this._abbr.value.attributes) {
@@ -249,6 +270,22 @@
 		},
 		
 		/**
+		 * Set textual content for tag
+		 * @param {String} str Tag's content
+		 */
+		setContent: function(str) {
+			this._content = str;
+		},
+		
+		/**
+		 * Returns tag's textual content
+		 * @return {String}
+		 */
+		getContent: function() {
+			return this._content;
+		},
+		
+		/**
 		 * Transforms and formats tag into string using profile
 		 * @param {String} profile Profile name
 		 * @return {String}
@@ -295,6 +332,7 @@
 						content += getNewline();
 				}
 			
+			// define opening and closing tags
 			if (this.name) {
 				var tag_name = (profile.tag_case == 'upper') ? this.name.toUpperCase() : this.name.toLowerCase();
 				if (this.isEmpty()) {
@@ -331,10 +369,27 @@
 				}
 					
 			}
-					
-			// выводим тэг нужное количество раз
-			for (var i = 0; i < this.count; i++) 
-				result.push(start_tag.replace(/\$/g, i + 1) + content + end_tag);
+			
+			var cur_content = '';
+			if (this.repeat_by_lines) {
+				console.log('repeat by lines');
+				var lines = splitByLines(this.getContent(), true);
+				for (var j = 0; j < lines.length; j++) {
+					cur_content = padString(lines[j], profile.indent ? 1 : 0);
+					if (content)
+						cur_content += getNewline();
+					result.push(start_tag.replace(/\$/g, j + 1) + cur_content + content + end_tag);
+				}
+			}
+			
+			// repeat tag output
+			if (!result.length) {
+				if (this.getContent()) 
+					content = padString(this.getContent(), profile.indent ? 1 : 0) + content;
+				
+				for (var i = 0; i < this.count; i++) 
+					result.push(start_tag.replace(/\$/g, i + 1) + content + end_tag);
+			}
 			
 			var glue = '';
 			if (allowNewline(this))
@@ -518,9 +573,9 @@
 		},
 		
 		/**
-		 * Преобразует аббревиатуру в дерево элементов
-		 * @param {String} abbr Аббревиатура
-		 * @param {String} type Тип документа (xsl, html)
+		 * Parses abbreviation into a node set
+		 * @param {String} abbr Abbreviation
+		 * @param {String} type Document type (xsl, html, etc.)
 		 * @return {Tag}
 		 */
 		parseIntoTree: function(abbr, type) {
@@ -561,8 +616,10 @@
 				return '';
 			});
 			
+			root.last = last;
+			
 			// empty 'abbr' string means that abbreviation was successfully expanded,
-			// if not—abbreviation wasn't valid 
+			// if not — abbreviation wasn't valid 
 			return (!abbr) ? root : null;
 		},
 		
@@ -640,6 +697,25 @@
 			}
 			
 			return result;
+		},
+		
+		/**
+		 * Wraps passed text with abbreviation. Text will be placed inside last
+		 * expanded element
+		 * @param {String} abbr Abbreviation
+		 * @param {String} text Text to wrap
+		 * @param {String} [type] Document type (html, xml, etc.). Default is 'html'
+		 * @param {String} [profile] Output profile's name. Default is 'plain'
+		 * @return {String}
+		 */
+		wrapWithAbbreviation: function(abbr, text, type, profile) {
+			var tree = this.parseIntoTree(abbr, type || 'html');
+			if (tree) {
+				tree.last.setContent(text);
+				return tree.toString(profile);
+			} else {
+				return null;
+			}
 		},
 		
 		/**
