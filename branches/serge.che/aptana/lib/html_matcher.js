@@ -62,10 +62,26 @@
 			return this[this.length - 1];
 		}
 		
+		function hasMatch(str, start) {
+			if (arguments.length == 1)
+				start = ix;
+			return html.substr(start, str.length) == str;
+		}
+		
+		function searchCommentStart(from) {
+			while (from--) {
+				if (html.charAt(from) == '<' && hasMatch('<!--', from))
+					break;
+			}
+			
+			return from;
+		}
+		
 		// find opening tag
 		ix = start_ix;
-		while (ix--) {
-			if (html.charAt(ix) == '<') {
+		while (ix-- && ix >= 0) {
+			var ch = html.charAt(ix);
+			if (ch == '<') {
 				var check_str = html.substring(ix, html_len);
 				
 				if ( (m = check_str.match(end_tag)) ) { // found closing tag
@@ -86,11 +102,14 @@
 						opening_tag = tmp_tag;
 						break;
 					}
-				} else if (check_str.indexOf('<!--') == 0) { // found comment
+				} else if (check_str.indexOf('<!--') == 0) { // found comment start
 					var end_ix = check_str.search('-->') + ix + 3;
 					if (ix < start_ix && end_ix >= start_ix)
 						return saveMatch( comment(ix, end_ix) );
 				}
+			} else if (ch == '-' && hasMatch('-->')) { // found comment end
+				// search left until comment start is reached
+				ix = searchCommentStart(ix);
 			}
 		}
 		
@@ -99,9 +118,9 @@
 		
 		// find closing tag
 		if (!closing_tag) {
-			ix = start_ix;
-			for (var ix = start_ix; ix < html_len; ix++) {
-				if (html.charAt(ix) == '<') {
+			for (ix = start_ix; ix < html_len; ix++) {
+				var ch = html.charAt(ix);
+				if (ch == '<') {
 					var check_str = html.substring(ix, html_len);
 					
 					if ( (m = check_str.match(start_tag)) ) { // found opening tag
@@ -116,6 +135,14 @@
 							closing_tag = tmp_tag;
 							break;
 						}
+					} else if (hasMatch('<!--')) { // found comment
+						ix += check_str.search('-->') + 3;
+					}
+				} else if (ch == '-' && hasMatch('-->')) {
+					// looks like cursor was inside comment with invalid HTML
+					if (!forward_stack.last() || forward_stack.last().type != 'comment') {
+						var end_ix = ix + 3;
+						return saveMatch(comment( searchCommentStart(ix), end_ix ));
 					}
 				}
 			}
