@@ -63,7 +63,9 @@
 	 * @return {Array}
 	 */
 	function splitByLines(text, remove_empty) {
-		var lines = text.split(/\r|\n/g);
+		var nl = getNewline(), 
+			lines = text.split(new RegExp('\\r?\\n|\\n\\r|\\r|' + nl));
+			
 		if (remove_empty) {
 			for (var i = lines.length; i >= 0; i--) {
 				if (!trim(lines[i]))
@@ -112,7 +114,7 @@
 	 * @param {String|Number} pad Количество отступов или сам отступ
 	 * @return {String}
 	 */
-	function padString(text, pad) {
+	function padString(text, pad, verbose) {
 		var pad_str = '', result = '';
 		if (typeof(pad) == 'number')
 			for (var i = 0; i < pad; i++) 
@@ -120,9 +122,8 @@
 		else
 			pad_str = pad;
 		
-		// бьем текст на строки и отбиваем все, кроме первой, строки
-		var nl = getNewline(), 
-			lines = text.split(new RegExp('\\r?\\n|' + nl));
+		var lines = splitByLines(text),
+			nl = getNewline();
 			
 		result += lines[0];
 		for (var j = 1; j < lines.length; j++) 
@@ -272,12 +273,20 @@
 		},
 		
 		/**
+		 * This function tests if current tags' content contains xHTML tags. 
+		 * This function is mostly used for output formatting
+		 */
+		hasTagsInContent: function() {
+			return this.getContent() && re_tag.test(this.getContent());
+		},
+		
+		/**
 		 * Проверяет, есть ли блочные потомки у текущего тэга. 
 		 * Используется для форматирования
 		 * @return {Boolean}
 		 */
 		hasBlockChildren: function() {
-			if (this.getContent() && re_tag.test(this.getContent()) && this.isBlock()) {
+			if (this.hasTagsInContent() && this.isBlock()) {
 				return true;
 			}
 			
@@ -405,7 +414,8 @@
 			// repeat tag output
 			if (!result.length) {
 				if (this.getContent()) {
-					content = padString(this.getContent(), profile.indent ? 1 : 0) + content;
+					var pad = (this.hasTagsInContent() && this.isBlock()) ? 1 : 0;
+					content = padString(this.getContent(), pad) + content;
 				}
 				
 				for (var i = 0; i < this.count; i++) 
@@ -746,6 +756,8 @@
 			}
 		},
 		
+		splitByLines: splitByLines,
+		
 		/**
 		 * Check if cursor is placed inside xHTML tag
 		 * @param {String} html Contents of the document
@@ -785,9 +797,7 @@
 			}
 			
 			/** Regular expression for XML tag matching */
-//			var re_tag = /^<([\w\-]+(?:\:\w+)?)((?:\s+[\w\-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
 			var re_tag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/,
-				
 				re_attrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g;
 			
 			/**
@@ -797,9 +807,6 @@
 			 * @return {Object}
 			 */
 			function makeExpando(key, value) {
-//				if (key.substr(-1) == '+') 
-//					key = key.substring(0, key.length - 2);	
-				
 				return entry(TYPE_EXPANDO, key, value);
 			}
 			
