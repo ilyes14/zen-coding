@@ -56,6 +56,7 @@ class Test(unittest.TestCase):
 		self.assertEqual('<input type="checkbox" name="" id="" />', expandAbbr('input:c'))
 		self.assertEqual('<some:elem></some:elem>', expandAbbr('some:elem'))
 		self.assertEqual('<li id="id1" class="class1"></li><li id="id2" class="class2"></li><li id="id3" class="class3"></li>', expandAbbr('li#id$.class$*3'))
+		self.assertEqual('<select name="" id="test"></select>', expandAbbr('select#test'));
 		
 	def testXSL(self):
 		self.assertEqual('<xsl:template match="" mode=""></xsl:template>', expandAbbr('tmatch', 'xsl'))

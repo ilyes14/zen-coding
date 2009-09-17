@@ -85,6 +85,7 @@
 				 	assertEqual('<input type="checkbox" name="" id="" />', expandAbbr('input:c'));
 				 	assertEqual('<some:elem></some:elem>', expandAbbr('some:elem'));
 				 	assertEqual('<li id="id1" class="class1"></li><li id="id2" class="class2"></li><li id="id3" class="class3"></li>', expandAbbr('li#id$.class$*3'));
+				 	assertEqual('<select name="" id="test"></select>', expandAbbr('select#test'));
 				 }},
 				 
 				 "test XSL": function(){ with (this) {
