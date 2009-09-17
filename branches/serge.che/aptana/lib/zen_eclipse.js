@@ -58,7 +58,7 @@ if (!('zen_coding' in this))
  * Возвращает символ перевода строки, используемый в редакторе
  * @return {String}
  */
-zen_coding.getNewLine = function() {
+zen_coding.getNewline = function() {
 	return editors.activeEditor.lineDelimiter;
 }
 
@@ -140,6 +140,22 @@ function getCurrentLinePadding() {
 		end_offset = editor.getOffsetAtLine(cur_line_num + 1) + zen_coding.getNewline().length,
 		cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), end_offset);
 	return (cur_line.match(/^(\s+)/) || [''])[0];
+}
+
+/**
+ * Unindent content, thus preparing text for tag wrapping
+ * @param {String} text
+ * @return {String}
+ */
+function unindent(text) {
+	var pad = getCurrentLinePadding();
+	var lines = zen_coding.splitByLines(text);
+	for (var i = 0; i < lines.length; i++) {
+		if (lines[i].search(pad) == 0)
+			lines[i] = lines[i].substr(pad.length);
+	}
+	
+	return lines.join(zen_coding.getNewline());
 }
 
 function expandTab() {
@@ -267,7 +283,7 @@ function mainWrapWithAbbreviation(editor_type, profile_name) {
 	}
 	
 	var content = editor.source.substring(start_offset, end_offset),
-		result = zen_coding.wrapWithAbbreviation(abbr, content, editor_type, profile_name);
+		result = zen_coding.wrapWithAbbreviation(abbr, unindent(content), editor_type, profile_name);
 	
 	if (result) {
 		editor.currentOffset = end_offset;
