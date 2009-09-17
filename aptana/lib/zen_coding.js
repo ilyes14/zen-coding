@@ -197,6 +197,7 @@
 		this.count = count || 1;
 		this.children = [];
 		this.attributes = [];
+		this._attr_hash = {};
 		this._abbr = abbr;
 		this._res = zen_settings[type];
 		this._content = '';
@@ -228,7 +229,22 @@
 		 * @param {String} value Значение атрибута
 		 */
 		addAttribute: function(name, value) {
-			this.attributes.push({name: name, value: value});
+			var a;
+			if (name in this._attr_hash) {
+				// attribute already exists, decide what to do
+				a = this._attr_hash[name];
+				if (name == 'class') {
+					// 'class' is a magic attribute
+					a.value += ((a.value) ? ' ' : '') + value;
+				} else {
+					a.value = value;
+				}
+			} else {
+				a = {name: name, value: value};
+				this._attr_hash[name] = a
+				this.attributes.push(a);
+			}
+			
 		},
 		
 		/**
