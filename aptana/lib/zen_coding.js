@@ -63,7 +63,7 @@
 	 * @return {Array}
 	 */
 	function splitByLines(text, remove_empty) {
-		var lines = text.split('\n');
+		var lines = text.split(/\r|\n/g);
 		if (remove_empty) {
 			for (var i = lines.length; i >= 0; i--) {
 				if (!trim(lines[i]))
@@ -277,6 +277,10 @@
 		 * @return {Boolean}
 		 */
 		hasBlockChildren: function() {
+			if (this.getContent() && re_tag.test(this.getContent()) && this.isBlock()) {
+				return true;
+			}
+			
 			for (var i = 0; i < this.children.length; i++) {
 				if (this.children[i].isBlock())
 					return true;
@@ -386,12 +390,12 @@
 					
 			}
 			
+			// repeat tag by lines count
 			var cur_content = '';
 			if (this.repeat_by_lines) {
-				console.log('repeat by lines');
-				var lines = splitByLines(this.getContent(), true);
+				var lines = splitByLines( trim(this.getContent()) , true);
 				for (var j = 0; j < lines.length; j++) {
-					cur_content = padString(lines[j], profile.indent ? 1 : 0);
+					cur_content = trim(lines[j]);
 					if (content)
 						cur_content += getNewline();
 					result.push(start_tag.replace(/\$/g, j + 1) + cur_content + content + end_tag);
@@ -400,8 +404,9 @@
 			
 			// repeat tag output
 			if (!result.length) {
-				if (this.getContent()) 
+				if (this.getContent()) {
 					content = padString(this.getContent(), profile.indent ? 1 : 0) + content;
+				}
 				
 				for (var i = 0; i < this.count; i++) 
 					result.push(start_tag.replace(/\$/g, i + 1) + content + end_tag);
@@ -725,9 +730,16 @@
 		 * @return {String}
 		 */
 		wrapWithAbbreviation: function(abbr, text, type, profile) {
+			var multiply = false;
+			if (abbr.charAt(abbr.length - 1) == '*') {
+				abbr = abbr.substring(0, abbr.length - 1);
+				multiply = true;
+			}
+			
 			var tree = this.parseIntoTree(abbr, type || 'html');
 			if (tree) {
 				tree.last.setContent(text);
+				tree.last.repeat_by_lines = multiply;
 				return tree.toString(profile);
 			} else {
 				return null;
