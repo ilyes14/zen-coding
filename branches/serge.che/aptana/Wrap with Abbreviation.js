@@ -17,6 +17,7 @@ try {
 } catch(e){}
 
 include('lib/zen_coding.js');
+include('lib/html_matcher.js');
 include('lib/zen_eclipse.js');
 
 function main() {
@@ -24,16 +25,10 @@ function main() {
 	try {
 		editor_type = getEditorType();
 		if (!editor_type) {
-			if (use_tab)
-				expandTab();
-			else
-				printMessage('"Expand abbreviation" doesn\'t work in this editor.');
+			printMessage('"Expand abbreviation" doesn\'t work in this editor.');
 			return;
 		}
-	} catch(e) {
-		if (use_tab) 
-			expandTab();
-	}
+	} catch(e) {}
 	
-	mainExpandAbbreviation(editor_type, guessProfileName());
+	mainWrapWithAbbreviation(editor_type, guessProfileName());
 }
