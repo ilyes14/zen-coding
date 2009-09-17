@@ -169,33 +169,33 @@ function expandTab() {
 }
 
 /**
- * Заменяет аббревиатуру на ее значение. Отчкой отсчета считается текущая 
- * позиция каретки в редакторе. Многострочное содержимое будет автоматически
- * отбито нужным количеством отступов
- * @param {String} abbr Аббревиатура
- * @param {String} content Содержимое
+ * Replaces current editor's substring with new content. Multiline content
+ * will be automatically padded
+ * 
+ * @param {String} editor_str Current editor's substring
+ * @param {String} content New content
  */
-function replaceAbbreviationWithContent(abbr, content) {
+function replaceEditorContent(editor_str, content) {
 	var editor = editors.activeEditor;
 	
 	if (!content)
 		return;
 		
-	// заменяем переводы строк на те, что используются в редакторе
+	// set newlines according to editor's settings
 	content = content.replace(/\n/g, zen_coding.getNewline());
 	
-	// ставим отступ у текущей строки
+	// add padding for current line
 	content = zen_coding.padString(content, getCurrentLinePadding()); 
 	
-	// получаем позицию, куда нужно поставить курсор
-	var start_pos = editor.selectionRange.endingOffset - abbr.length;
+	// get char index where we need to place cursor
+	var start_pos = editor.selectionRange.endingOffset - editor_str.length;
 	var cursor_pos = content.indexOf('|');
 	content = content.replace(/\|/g, '');
 	
-	// заменяем аббревиатуру на текст
-	editor.applyEdit(start_pos, abbr.length, content);
+	// replace content in editor
+	editor.applyEdit(start_pos, editor_str.length, content);
 	
-	// ставим курсор
+	// place cursor
 	if (cursor_pos != -1)
 		editor.currentOffset = start_pos + cursor_pos;
 }
@@ -229,11 +229,49 @@ function mainExpandAbbreviation(editor_type, profile_name) {
 		
 	if (start_line == end_line && (abbr = findAbbreviation())) {
 		content = zen_coding.expandAbbreviation(abbr, editor_type, profile_name);
-		replaceAbbreviationWithContent(abbr, content);
+		replaceEditorContent(abbr, content);
 	} else if (use_tab) {
 		// аббревиатуры раскрываются с помощью таба, но сама аббревиатура 
 		// не найдена, будем делать отступ
 		expandTab();
+	}
+}
+
+/**
+ * Wraps content with abbreviation
+ * @param {String} editor_type
+ * @param {String} profile_name
+ */
+function mainWrapWithAbbreviation(editor_type, profile_name) {
+	profile_name = profile_name || 'xhtml';
+	
+	var editor = editors.activeEditor,
+		start_offset = editor.selectionRange.startingOffset,
+		end_offset = editor.selectionRange.endingOffset,
+	
+		abbr = prompt('Enter abbreviation');
+		
+	if (!abbr)
+		return null; 
+	
+	if (start_offset == end_offset) {
+		// no selection, find tag pair
+		var range = HTMLPairMatcher(editor.source, Math.max(start_offset, end_offset));
+		
+		if (!range || range[0] == -1) // nothing to wrap
+			return null;
+		
+		var last = HTMLPairMatcher.last_match;
+		start_offset = last.opening_tag.start;
+		end_offset = last.closing_tag ? last.closing_tag.end : last.opening_tag.end;
+	}
+	
+	var content = editor.source.substring(start_offset, end_offset),
+		result = zen_coding.wrapWithAbbreviation(abbr, content, editor_type, profile_name);
+	
+	if (result) {
+		editor.currentOffset = end_offset;
+		replaceEditorContent(content, result);
 	}
 }
 
