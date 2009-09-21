@@ -170,12 +170,13 @@
 	/**
 	 * Replace variables like ${var} in string
 	 * @param {String} str
+	 * @param {Object} [vars] Variable set (default is <code>zen_settings.variables</code>) 
 	 * @return {String}
 	 */
-	function replaceVariables(str) {
-		var re_variable = /\$\{([\w\-]+)\}/g;
+	function replaceVariables(str, vars) {
+		vars = vars || zen_settings.variables;
 		return str.replace(/\$\{([\w\-]+)\}/g, function(str, p1){
-			return (p1 in zen_settings.variables) ? zen_settings.variables[p1] : str;
+			return (p1 in vars) ? vars[p1] : str;
 		});
 	}
 	
@@ -430,11 +431,14 @@
 		}
 	};
 	
+	// TODO inherit from Tag
 	function Snippet(name, count, type) {
 		/** @type {String} */
 		this.name = name;
 		this.count = count || 1;
 		this.children = [];
+		this._content = '';
+		this.attributes = {'id': '|', 'class': '|'};
 		this.value = getSnippet(type, name);
 	}
 	
@@ -447,11 +451,28 @@
 			this.children.push(tag);
 		},
 		
-		addAttribute: function(){
+		addAttribute: function(name, value){
+			this.attributes[name] = value;
 		},
 		
 		isBlock: function() {
 			return true; 
+		},
+		
+		/**
+		 * Set textual content for snippet
+		 * @param {String} str Tag's content
+		 */
+		setContent: function(str) {
+			this._content = str;
+		},
+		
+		/**
+		 * Returns snippet's textual content
+		 * @return {String}
+		 */
+		getContent: function() {
+			return this._content;
 		},
 		
 		toString: function(profile_name) {
@@ -499,9 +520,18 @@
 				content = padString(content, child_padding);
 			
 			
+			// substitute attributes
+			begin = replaceVariables(begin, this.attributes);
+			end = replaceVariables(end, this.attributes);
+				
+			if (this.getContent()) {
+				content = padString(this.getContent(), 1) + content;
+			}
+			
 			// выводим тэг нужное количество раз
 			for (var i = 0; i < this.count; i++) 
-				result.push(begin.replace(/\$(?!\{)/g, i + 1) + content + end);
+				result.push(begin + content + end);
+//				result.push(begin.replace(/\$(?!\{)/g, i + 1) + content + end);
 			
 			return result.join((profile.tag_nl !== false) ? getNewline() : '');
 		}
@@ -572,9 +602,9 @@
 		},
 		
 		/**
-		 * Извлекает аббревиатуру из строки
+		 * Extracts abbreviations from text stream, starting from the end
 		 * @param {String} str
-		 * @return {String} Аббревиатура или пустая строка
+		 * @return {String} Abbreviation or empty string
 		 */
 		extractAbbreviation: function(str) {
 			var cur_offset = str.length,
