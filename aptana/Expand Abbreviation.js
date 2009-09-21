@@ -22,7 +22,7 @@ include('lib/zen_eclipse.js');
 function main() {
 	var editor_type;
 	try {
-		editor_type = getEditorType();
+		editor_type = getEditorType() || 'html';
 		if (!editor_type) {
 			if (use_tab)
 				expandTab();

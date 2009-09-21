@@ -131,7 +131,7 @@ function findNewEditPoint(inc, offset) {
 }
 
 /**
- * Возвращает отступ текущей строки у редактора
+ * Returns padding of current editor's line
  * @return {String}
  */
 function getCurrentLinePadding() {
