@@ -390,6 +390,7 @@ class Tag(object):
 		self.count = count
 		self.children = []
 		self.attributes = []
+		self.__attr_hash = {}
 		self.__abbr = abbr
 		self.__res = zen_settings.has_key(doc_type) and zen_settings[doc_type] or {}
 		
@@ -399,13 +400,28 @@ class Tag(object):
 		
 	def add_attribute(self, name, value):
 		"""
-		Добавляет атрибут
-		@param name: Название атрибута
+		Add attribute to tag. If the attribute with the same name already exists,
+		it will be overwritten, but if it's name is 'class', it will be merged
+		with the existed one
+		@param name: Attribute nama
 		@type name: str
-		@param value: Значение атрибута
+		@param value: Attribute value
 		@type value: str
 		"""
-		self.attributes.append({'name': name, 'value': value})
+		if name in self.__attr_hash:
+#			attribue already exists
+			a = self.__attr_hash[name]
+			if name == 'class':
+#				'class' is a magic attribute
+				if a['value']:
+					value = ' ' + value
+				a['value'] += value
+			else:
+				a['value'] = value
+		else:
+			a = {'name': name, 'value': value}
+			self.__attr_hash[name] = a
+			self.attributes.append(a)
 		
 	def add_child(self, tag):
 		"""
