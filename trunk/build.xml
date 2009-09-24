@@ -4,13 +4,13 @@
 	<property name="textmate" value="${basedir}/plugins/TextMate"/>
 	<property name="textmate_bundle_name" value="Zen Coding.tmbundle"/>
 	<property name="textmate_bundle_path" value="${textmate}/${textmate_bundle_name}"/>
-	
+
 	<property name="aptana_path" value="${basedir}/aptana"/>
-	
-	<target name="main" depends="build_textmate">
+
+	<target name="main" depends="build_textmate, install_tm_bundle">
 		<echo>Done</echo>
 	</target>
-	
+
 	<target name="build_textmate">
 		<concat destfile="${textmate_bundle_path}/Commands/Expand Abbreviation.tmCommand">
 			<filelist>
@@ -19,7 +19,7 @@
 				<file name="${textmate}/tm_footer" />
 			</filelist>
 		</concat>
-		
+
 		<copy todir="${textmate_bundle_path}/Support/zencoding">
 			<filelist dir="${src}">
 				<file name="settings.py"/>
@@ -27,14 +27,14 @@
 			</filelist>
 		</copy>
 	</target>
-	
+
 	<target name="install_tm_bundle" depends="build_textmate">
 		<property name="tm_bundle_path" value="${user.home}/Library/Application Support/TextMate/Bundles/${textmate_bundle_name}"/>
 		<mkdir dir="${tm_bundle_path}"/>
 		<copydir dest="${tm_bundle_path}" src="${textmate_bundle_path}"/>
 		<exec command="osascript -e 'tell app &quot;TextMate&quot; to reload bundles'"/>
 	</target>
-	
+
 	<target name="install_aptana">
 		<property name="aptana_scripts" value="${user.home}/Projects/EclipseMonkey/scripts"/>
 		<copy todir="${aptana_scripts}/lib">
@@ -42,7 +42,7 @@
 				<include name="*.js"/>
 			</fileset>
 		</copy>
-		
+
 		<copy todir="${aptana_scripts}">
 			<fileset dir="${aptana_path}">
 				<include name="*.js"/>
@@ -50,4 +50,3 @@
 		</copy>
 	</target>
 </project>
- 
