@@ -1,0 +1,31 @@
+#summary Как установить и использовать Zen Coding для TopStyle 4.0
+= Установка =
+== Автоматическая установка ==
+ * Закройте TopStyle.
+ * Запустите файл install.cmd<br>*ВНИМАНИЕ:* в процессе установки все ваши правила автозамены будут полностью переписаны правилами Zen CSS! Ваши старые правила будут сохранены в файле с расширением ".bak".
+
+== Ручная установка ==
+ * Закройте TopStyle.
+ * Скопируйте файлы из папки templates в папку <br>*Windows XP:*	\Documents and Settings\%USERNAME%\Application Data\Bradsoft.com\TopStyle\4.0<br>*Windows Vista, 7:* 	\Users\%USERNAME%\AppData\Roaming\Bradsoft.com\TopStyle\4.0
+Если вы не хотите, чтобы ваша автозамена была переписана правилами Zen CSS не копируйте файл autorepl.dat!
+
+== Установка шортката для Zen Coding ==
+К сожалению, единственный способ назначить шорткат плагину в TopStyle - это добавить его в меню Quick Insert.
+Чтобы сделать это:
+ # Откройте Clip library (View->Panels->Clip library) 
+ # Кликните правой кнопкой мыши на пустом месте в Clip Library и выберите "Configure Quick Insert"
+ # Выберите HTML Toolbar в выпадающем списке слева. 
+ # Добавьте 'Zen HTML' в Quick Insert.
+Теперь Zen HTML доступен из редактора по сочетанию Ctrl-Q.
+
+= <br> =
+= Работа с плагином =
+== Использование Zen CSS ==
+ # Наберите сокращеную команду [http://code.google.com/p/zen-coding/wiki/ZenCSSPropertiesRu].
+ # Нажмите Space или Tab.
+*Примечание:* в TopStyle не работают сокращенные команды, содержащие символы "@" и ":".
+
+== Использование Zen HTML ==
+ # Наберите макрокомманду [http://code.google.com/p/zen-coding/wiki/ZenHTMLSelectorsRu].
+ # Выделите ее.
+ # Если вы добавили Zen Coding в меню Quick Insert, нажмите Ctrl-Q и выберите из списка Zen HTML.<br>В противном случае, выберите в HTML Toolbar таб Zen Coding и кликните на иконке Zen HTML.
