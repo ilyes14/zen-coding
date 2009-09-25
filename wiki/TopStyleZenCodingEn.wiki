@@ -1,0 +1,31 @@
+#summary How to install and use Zen Coding for TopStyle 4.0
+= Installation =
+== Automatic installation ==
+ * Close TopStyle
+ * Run install.cmd<br>*WARNING:* All your auto replacement rules will be overwritten by Zen CSS rules during installation!
+
+== Manual installation ==
+ * Close TopStyle
+ * Copy files from "templates" folder to:<br>*Windows XP:*	\Documents and Settings\%USERNAME%\Application Data\Bradsoft.com\TopStyle\4.0<br>*Windows Vista, 7:* 	\Users\%USERNAME%\AppData\Roaming\Bradsoft.com\TopStyle\4.0
+*WARNING:* All your auto replacement rules will be overwritten by Zen CSS rules during installation!
+
+== How to define shortcut to Zen Coding ==
+Unfortunately, the only way to define hotkey for Zen Coding plugin is to add it to Quick Insert menu.
+To do this:
+ # Open Clip library (View->Panels->Clip library) 
+ # Right-click on the white space in the library and select "Configure Quick Insert"
+ # Select HTML Toolbar from the dropdown on the left
+ # Add "Zen HTML" to Quick Insert panel.
+Now you can use Ctrl-Q for quick access Zen Coding.
+
+= <br> =
+= Using plugin =
+== Using Zen CSS ==
+ # Type Zen CSS alias [http://code.google.com/p/zen-coding/wiki/ZenCSSPropertiesRu].
+ # Press SPACE or TAB.
+*Known Issue:* You cannot use aliases that contains symbols "@" or ":".
+
+== Using Zen HTML ==
+ # Type Zen HTML alias [http://code.google.com/p/zen-coding/wiki/ZenHTMLSelectorsRu].
+ # Select it.
+ # If you added Zen Coding to Quick Insert menu press Ctrl-Q and then select Zen HTML from the list.<br>If not, open Zen Coding tab in HTML Toolbar and click on the Zen HTML icon.
