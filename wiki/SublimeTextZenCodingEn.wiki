@@ -1,0 +1,20 @@
+=Sublime Zen=
+
+==How to install Zen Coding for SublimeText==
+
+  * Look in Download section for ZenCoding.sublime-package file
+  * Download the file and double click
+  * Restart Sublime.
+
+==Known Issues==
+  * Some css triggers starting with @ do not work yet
+
+==Features==
+
+  * `As you type` expansion/insertion of Zen abbreviations (ctrl+alt+enter)
+  * Zen Mnemonic Panel: 2 columns, abbreviations on the left, snips on the right
+  * Tab triggered expansion of Zen abbreviations
+
+http://blogdata.akalias.net/zencoding-nodeselect.gif
+
+For more info see: http://www.sublimetext.com/forum/viewtopic.php?f=2&t=580
