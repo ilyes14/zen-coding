@@ -6,6 +6,10 @@
   * Download the file and double click
   * Restart Sublime.
 
+==Support==
+
+For more info see: http://www.sublimetext.com/forum/viewtopic.php?f=2&t=580
+
 ==Known Issues==
   * Some css triggers starting with @ do not work yet
 
@@ -15,6 +19,6 @@
   * Zen Mnemonic Panel: 2 columns, abbreviations on the left, snips on the right
   * Tab triggered expansion of Zen abbreviations
 
-http://blogdata.akalias.net/zencoding-nodeselect.gif
+==A Thousand Words==
 
-For more info see: http://www.sublimetext.com/forum/viewtopic.php?f=2&t=580
+http://blogdata.akalias.net/zencoding-nodeselect.gif
