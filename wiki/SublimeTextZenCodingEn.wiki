@@ -19,7 +19,7 @@ For more info see: http://www.sublimetext.com/forum/viewtopic.php?f=2&t=580
 
   * As you type expansion/insertion of Zen abbreviations (ctrl+alt+enter)
   * Zen Mnemonic Panel: 2 columns, abbreviations on the left, snips on the right (f1)
-  * Tab triggered expansion of Zen abbreviations (abbr, tab)
+  * Tab triggered expansion of Zen abbreviations CSS+HTML (abbr, tab)
 
 ==A Thousand Words==
 
