@@ -3,9 +3,9 @@
 
 ==How to install Zen Coding for SublimeText==
 
-  * Look in Download section for latest zip archive and download
-  * Rename zip file to ZenCoding.sublime-package and double click
-  * Restart Sublime.
+  * Look in Downloads section for latest Sublime.Zen.Coding.x.x.zip archive
+  * Extract contained ZenCoding.sublime-package file and double click
+  * Follow instructions to restart Sublime.
 
 ==Support==
 
