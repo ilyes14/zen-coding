@@ -12,7 +12,8 @@
 For more info see: http://www.sublimetext.com/forum/viewtopic.php?f=2&t=580
 
 ==Known Issues==
-  * Some css triggers starting with @ do not work yet
+  * xml:lang='ru' hard coded
+  * No user_zen_settings dict auto mergeable for user customization
 
 ==Features==
 
