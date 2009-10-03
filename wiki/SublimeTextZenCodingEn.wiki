@@ -22,6 +22,8 @@ For more info see: http://www.sublimetext.com/forum/viewtopic.php?f=2&t=580
 
 ==A Thousand Words==
 
+===Zen Coding===
 http://blogdata.akalias.net/zencoding-nodeselect.gif
 
+===Zen Mnemonic===
 http://blogdata.akalias.net/zencoding-mnemonic.gif
