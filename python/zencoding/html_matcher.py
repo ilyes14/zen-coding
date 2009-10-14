@@ -20,8 +20,8 @@ attr = r'([\w\-:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:\'((?:\\.|[^\'])*)\')|(
 
 "Last matched HTML pair"
 last_match = {
-	'opening_tag': None,
-	'closing_tag': None,
+	'opening_tag': None, # Tag() or Comment() object
+	'closing_tag': None, # Tag() or Comment() object
 	'start_ix': -1,
 	'end_ix': -1
 }
