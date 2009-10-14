@@ -570,7 +570,7 @@ var zen_settings = {
 			'link:rss': '<link rel="alternate" type="application/rss+xml" title="RSS" href="|rss.xml" />',
 			'link:atom': '<link rel="alternate" type="application/atom+xml" title="Atom" href="atom.xml" />',
 			'meta:utf': '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />',
-			'meta:win': '<meta http-equiv="Content-Type" content="text/html;charset=Win-1251" />',
+			'meta:win': '<meta http-equiv="Content-Type" content="text/html;charset=windows-1251" />',
 			'meta:compat': '<meta http-equiv="X-UA-Compatible" content="IE=7" />',
 			'style': '<style type="text/css"></style>',
 			'script': '<script type="text/javascript"></script>',

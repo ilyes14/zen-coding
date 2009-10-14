@@ -415,7 +415,7 @@
 			// repeat tag output
 			if (!result.length) {
 				if (this.getContent()) {
-					var pad = (this.hasTagsInContent() && this.isBlock()) ? 1 : 0;
+					var pad = (profile.tag_nl === true || (this.hasTagsInContent() && this.isBlock())) ? 1 : 0;
 					content = padString(this.getContent(), pad) + content;
 				}
 				
