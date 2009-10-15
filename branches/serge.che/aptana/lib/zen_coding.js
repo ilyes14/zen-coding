@@ -11,7 +11,9 @@
 		TYPE_EXPANDO = 'zen-expando',
 	
 		/** Reference to another abbreviation or tag */
-		TYPE_REFERENCE = 'zen-reference';
+		TYPE_REFERENCE = 'zen-reference',
+		
+		content_placeholder = '{%::zen-content::%}';
 		
 	var default_profile = {
 		tag_case: 'lower',
@@ -316,6 +318,24 @@
 		},
 		
 		/**
+		 * Search for deepest and latest child of current element
+		 * @return {Tag|null} Returns null if there's no children
+		 */
+		findDeepestChild: function() {
+			if (!this.children.length)
+				return null;
+				
+			var deepest_child = this;
+			while (true) {
+				deepest_child = deepest_child.children[ deepest_child.children.length - 1 ];
+				if (!deepest_child.children.length)
+					break;
+			}
+			
+			return deepest_child;
+		},
+		
+		/**
 		 * Transforms and formats tag into string using profile
 		 * @param {String} profile Profile name
 		 * @return {String}
@@ -350,8 +370,13 @@
 				attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
 			}
 			
+			var deepest_child = this.findDeepestChild();
+			
 			// output children
-			if (!this.isEmpty())
+			if (!this.isEmpty()) {
+				if (deepest_child && this.repeat_by_lines)
+					deepest_child.setContent(content_placeholder);
+				
 				for (var j = 0; j < this.children.length; j++) {
 //					
 					content += this.children[j].toString(profile_name);
@@ -361,6 +386,7 @@
 					)
 						content += getNewline();
 				}
+			}
 			
 			// define opening and closing tags
 			if (this.name) {
@@ -405,10 +431,12 @@
 			if (this.repeat_by_lines) {
 				var lines = splitByLines( trim(this.getContent()) , true);
 				for (var j = 0; j < lines.length; j++) {
-					cur_content = trim(lines[j]);
-					if (content)
+					cur_content = deepest_child ? '' : content_placeholder;
+					if (content && !deepest_child)
 						cur_content += getNewline();
-					result.push(start_tag.replace(/\$/g, j + 1) + cur_content + content + end_tag);
+						
+					var elem_str = start_tag.replace(/\$/g, j + 1) + cur_content + content + end_tag;
+					result.push(elem_str.replace(content_placeholder, trim(lines[j])));
 				}
 			}
 			
@@ -438,6 +466,7 @@
 		this.count = count || 1;
 		this.children = [];
 		this._content = '';
+		this.repeat_by_lines = false;
 		this.attributes = {'id': '|', 'class': '|'};
 		this.value = getSnippet(type, name);
 	}
@@ -475,6 +504,24 @@
 			return this._content;
 		},
 		
+		/**
+		 * Search for deepest and latest child of current element
+		 * @return {Tag|null} Returns null if there's no children
+		 */
+		findDeepestChild: function() {
+			if (!this.children.length)
+				return null;
+				
+			var deepest_child = this;
+			while (true) {
+				deepest_child = deepest_child.children[ deepest_child.children.length - 1 ];
+				if (!deepest_child.children.length)
+					break;
+			}
+			
+			return deepest_child;
+		},
+		
 		toString: function(profile_name) {
 			var content = '', 
 				profile = (profile_name in profiles) ? profiles[profile_name] : profiles['plain'],
@@ -489,7 +536,7 @@
 				if (profile.tag_nl !== false) {
 					var nl = getNewline();
 					data = data.replace(/\n/g, nl);
-					// нужно узнать, какой отступ должен быть у потомков
+					// figuring out indentation for children
 					var lines = data.split(nl), m;
 					for (var j = 0; j < lines.length; j++) {
 						if (lines[j].indexOf(child_token) != -1) {
@@ -644,8 +691,9 @@
 			var root = new Tag('', 1, type),
 				parent = root,
 				last = null,
+				multiply_elem = null,
 				res = zen_settings[type],
-				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?/ig;
+				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?/ig;
 			
 			if (!abbr)
 				return null;
@@ -656,7 +704,8 @@
 				return a ? a.value : str;
 			});
 			
-			abbr = abbr.replace(re, function(str, operator, tag_name, id, class_name, multiplier){
+			abbr = abbr.replace(re, function(str, operator, tag_name, id, class_name, has_multiplier, multiplier){
+				var multiply_by_lines = (has_multiplier && !multiplier);
 				multiplier = multiplier ? parseInt(multiplier) : 1;
 				
 				var current = isShippet(tag_name, type) ? new Snippet(tag_name, multiplier, type) : new Tag(tag_name, multiplier, type);
@@ -674,10 +723,15 @@
 				parent.addChild(current);
 				
 				last = current;
+				
+				if (multiply_by_lines)
+					multiply_elem = current;
+				
 				return '';
 			});
 			
 			root.last = last;
+			root.multiply_elem = multiply_elem;
 			
 			// empty 'abbr' string means that abbreviation was successfully expanded,
 			// if not — abbreviation wasn't valid 
@@ -770,16 +824,11 @@
 		 * @return {String}
 		 */
 		wrapWithAbbreviation: function(abbr, text, type, profile) {
-			var multiply = false;
-			if (abbr.charAt(abbr.length - 1) == '*') {
-				abbr = abbr.substring(0, abbr.length - 1);
-				multiply = true;
-			}
-			
 			var tree = this.parseIntoTree(abbr, type || 'html');
 			if (tree) {
-				tree.last.setContent(text);
-				tree.last.repeat_by_lines = multiply;
+				var repeat_elem = tree.multiply_elem || tree.last;
+				repeat_elem.setContent(text);
+				repeat_elem.repeat_by_lines = !!tree.multiply_elem;
 				return tree.toString(profile);
 			} else {
 				return null;
