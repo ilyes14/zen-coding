@@ -1,23 +1,41 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 '''
+Core Zen Coding library. Contains various text manupulation functions:
+
+== Expand abbreviation
+Expands abbreviation like ul#nav>li*5>a into a XHTML string.
+=== How to use
+First, you have to extract current string (where cursor is) from your test 
+editor and use <code>find_abbr_in_line()</code> method to extract abbreviation. 
+If abbreviation was found, this method will return it as well as position index
+of abbreviation inside current line. If abbreation wasn't 
+found, method returns empty string. With abbreviation found, you should call
+<code>parse_into_tree()</code> method to transform abbreviation into a tag tree. 
+This method returns <code>Tag</code> object on success, None on failure. Then
+simply call <code>to_string()</code> method of returned <code>Tag</code> object
+to transoform tree into a XHTML string
+
+You can setup output profile using <code>setup_profile()</code> method 
+(see <code>default_profile</code> definition for available options) 
+
+ 
 Created on Apr 17, 2009
 
 @author: Sergey Chikuyonok (http://chikuyonok.ru)
 '''
-from zencoding.zen_settings import zen_settings
+from zen_settings import zen_settings
 import re
 import stparser
 
 newline = '\n'
-"Символ перевода строки"
+"Newline symbol"
 
 insertion_point = '|'
-"Символ, указывающий, куда нужно поставить курсор"
+"Symbol which refers to cursor position"
 
 sub_insertion_point = ''
-"Символ, указывающий, куда нужно поставить курсор (для редакторов, которые позволяют указать несколько символов)"
+"Symbol which refers to cursor position (for editors which support multiple placeholders)"
 
 re_tag = re.compile(r'<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:\'[^\']*\')|[^>\s]+))?)*\s*(\/?)>$')
 
@@ -65,8 +83,8 @@ def has_deep_key(obj, key):
 
 def is_allowed_char(ch):
 	"""
-	Проверяет, является ли символ допустимым в аббревиатуре
-	@param ch: Символ, который нужно проверить
+	Test if passed symbol is allowed in abbreviation
+	@param ch: Symbol to test
 	@type ch: str
 	@return: bool
 	"""
@@ -74,8 +92,8 @@ def is_allowed_char(ch):
 
 def make_map(prop):
 	"""
-	Вспомогательная функция, которая преобразовывает строковое свойство настроек в словарь
-	@param prop: Названия ключа в словаре <code>zen_settings['html']</code>
+	Helper function that transforms string into dictionary for faster search
+	@param prop: Key name in <code>zen_settings['html']</code> dictionary
 	@type prop: str
 	"""
 	obj = {}
@@ -106,17 +124,18 @@ def setup_profile(name, options = {}):
 
 def get_newline():
 	"""
-	Возвращает символ перевода строки, используемый в редакторе
+	Returns newline symbol which is used in editor. This function must be 
+	redefined to return current editor's settings 
 	@return: str
 	"""
 	return newline
 
 def pad_string(text, pad):
 	"""
-	Отбивает текст отступами
-	@param text: Текст, который нужно отбить
+	Indents string with space characters (whitespace or tab)
+	@param text: Text to indent
 	@type text: str
-	@param pad: Количество отступов или сам отступ
+	@param pad: Indentation level (number) or indentation itself (string)
 	@type pad: int, str
 	@return: str
 	"""
@@ -137,18 +156,15 @@ def pad_string(text, pad):
 
 def is_snippet(abbr, doc_type = 'html'):
 	"""
-	Check is passed abbreviation is snippet
-	Проверяет, является ли аббревиатура сниппетом
+	Check is passed abbreviation is a snippet
 	@return bool
 	"""
 	return get_snippet(doc_type, abbr) and True or False
 
 def is_ends_with_tag(text):
 	"""
-	Проверяет, закачивается ли строка полноценным тэгом. В основном 
-	используется для проверки принадлежности символа '>' аббревиатуре 
-	или тэгу
-	@param text: Текст, который нужно проверить
+	Test is string ends with XHTML tag. This function used for testing if '<'
+	symbol belogs to tag or abbreviation 
 	@type text: str
 	@return: bool
 	"""
@@ -223,10 +239,11 @@ def get_settings_resource(res_type, abbr, res_name):
 
 def parse_into_tree(abbr, doc_type = 'html'):
 	"""
-	Преобразует аббревиатуру в дерево элементов
-	@param abbr: Аббревиатура
+	Transforms abbreviation into a simple element's tree
+	@param abbr: Abbreviation to transform
 	@type abbr: str
-	@param doc_type: Тип документа (xsl, html)
+	@param doc_type: Document type (xsl, html), a key of dictionary where to
+	search abbreviation settings
 	@type doc_type: str
 	@return: Tag
 	"""
@@ -259,7 +276,7 @@ def parse_into_tree(abbr, doc_type = 'html'):
 		token_expander.last = current;
 		return '';
 		
-	# заменяем разворачиваемые элементы
+	# replace expandos
 	abbr = re.sub(r'([a-z][a-z0-9]*)\+$', expando_replace, abbr)
 	
 	token_expander.parent = root
@@ -267,17 +284,19 @@ def parse_into_tree(abbr, doc_type = 'html'):
 	
 	
 	abbr = re.sub(token, lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5)), abbr)
-	# если в abbr пустая строка — значит, вся аббревиатура без проблем 
-	# была преобразована в дерево, если нет, то аббревиатура была не валидной
+	# empty 'abbr' variable means that abbreviation was expanded successfully, 
+	# non-empty variable means there was a syntax error
 	return not abbr and root or None;
 
 def find_abbr_in_line(line, index = 0):
 	"""
-	Ищет аббревиатуру в строке и возвращает ее
-	@param line: Строка, в которой нужно искать
+	Search for abbreviation inside line of code and returns it
+	@param line: Line of code
 	@type line: str
-	@param index: Позиция каретки в строке
+	
+	@param index: Caret position inside line (where to start searching)
 	@type index: int
+	
 	@return: str
 	"""
 	start_index = 0
@@ -293,8 +312,8 @@ def find_abbr_in_line(line, index = 0):
 
 def expand_abbreviation(abbr, doc_type = 'html', profile_name = 'plain'):
 	"""
-	Разворачивает аббревиатуру
-	@param abbr: Аббревиатура
+	Expands abbreviation into a XHTML tag string
+	
 	@type abbr: str
 	@return: str
 	"""
@@ -311,11 +330,14 @@ def get_pair_range(text, cursor_pos):
 	"""
 	Returns range that indicates starting and ending pair tags nearest 
 	to cursor position.
+	
 	@param text: Full document
 	@type text: str
+	
 	@param cursor_pos: Caret position inside document
 	@type cursor_pos: int
-	@return: list of start and end indices. If pair wasn't found, returns (-1, -1)
+	
+	@return: list of start and end indexes. If pair wasn't found, returns (-1, -1)
 	"""
 	
 	import htmlparser
@@ -373,11 +395,11 @@ def get_pair_range(text, cursor_pos):
 class Tag(object):
 	def __init__(self, name, count = 1, doc_type = 'html'):
 		"""
-		@param name: Имя тэга
+		@param name: Tag name
 		@type name: str
-		@param count:  Сколько раз вывести тэг
+		@param count:  How many times this tag must be outputted
 		@type count: int
-		@param doc_type: Тип документа (xsl, html)
+		@param doc_type: Document type (xsl, html)
 		@type doc_type: str
 		"""
 		name = name.lower()
@@ -425,7 +447,7 @@ class Tag(object):
 		
 	def add_child(self, tag):
 		"""
-		Добавляет нового потомка
+		Add new child
 		@param tag: Потомок
 		@type tag: Tag
 		"""
@@ -440,7 +462,8 @@ class Tag(object):
 	
 	def is_empty(self):
 		"""
-		Проверяет, является ли текущий элемент пустым
+		Test if current XHTML element is an empty (must not contain any children) 
+		element
 		@return: bool
 		"""
 		
@@ -449,22 +472,22 @@ class Tag(object):
 	
 	def is_inline(self):
 		"""
-		Проверяет, является ли текущий элемент строчным
+		Test if current XHTML element is an inline element
 		@return: bool
 		"""
 		return self.name in get_elements_collection(self.__res, 'inline_level')
 	
 	def is_block(self):
 		"""
-		Проверяет, является ли текущий элемент блочным
+		Test if current element is a block-level element
 		@return: bool
 		"""
 		return self.name in get_elements_collection(self.__res, 'block_level')
 	
 	def has_block_children(self):
 		"""
-		Проверяет, есть ли блочные потомки у текущего тэга. 
-		Используется для форматирования
+		Test if current tag contains block-level elements. Used for output 
+		formatting
 		@return: bool
 		"""
 		for tag in self.children:
@@ -474,7 +497,7 @@ class Tag(object):
 	
 	def output_children(self, profile_name):
 		"""
-		Выводит всех потомков в виде строки
+		Output all children as a string
 		@type profile_name: str
 		@return: str
 		"""
@@ -492,16 +515,12 @@ class Tag(object):
 	
 	def to_string(self, profile_name):
 		"""
-		Преобразует тэг в строку. Если будет передан аргумент 
-		<code>format</code> — вывод будет отформатирован согласно настройкам
-		в <code>zen_settings</code>. Также в этом случае будет ставится 
-		символ «|», означающий место вставки курсора. Курсор будет ставится
-		в пустых атрибутах и элементах без потомков
+		Transforms tag into a string using <code>profile_name</code> settings
 		@type profile_name: string
 		@return: str
 		"""
 		
-		profile = profile = profile_name in profiles and profiles[profile_name] or profiles['plain']
+		profile = profile_name in profiles and profiles[profile_name] or profiles['plain']
 		attrs = '' 
 		content = '' 
 		start_tag = '' 
@@ -515,7 +534,7 @@ class Tag(object):
 		elif profile['self_closing_tag'] == True:
 			self_closing = '/'
 			
-		# делаем строку атрибутов
+		# make attribute string
 		for a in self.attributes:
 			if profile['attr_case'] == 'upper':
 				attr_name = a['name'].upper()
@@ -524,7 +543,7 @@ class Tag(object):
 				
 			attrs += ' %s=%s%s%s' % (attr_name, attr_quote, a['value'] or cursor, attr_quote)
 		
-		# выводим потомков
+		# output children
 		if not self.is_empty():
 			content = self.output_children(profile_name)
 			
@@ -535,7 +554,7 @@ class Tag(object):
 			else:
 				start_tag, end_tag = '<%s%s>' % (tag_name, attrs), '</%s>' % tag_name
 				
-		# форматируем вывод
+		# output formatting
 		glue = ''
 		if profile['tag_nl'] != False:
 			if self.name and (profile['tag_nl'] == True or self.has_block_children()):
@@ -618,9 +637,10 @@ setup_profile('plain', {'tag_nl': False, 'indent': False, 'place_cursor': False}
 # first we need to expand some strings into hashes
 stparser.create_maps(zen_settings)
 if hasattr(globals(), 'my_zen_settings'):
+	my_settings = globals()['my_zen_settings']
 #	# we need to extend default settings with user's
-	stparser.create_maps(my_zen_settings)
-	stparser.extend(zen_settings, my_zen_settings)
+	stparser.create_maps(my_settings)
+	stparser.extend(zen_settings, my_settings)
 
 # now we need to parse final set of settings
 stparser.parse(zen_settings)
