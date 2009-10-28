@@ -34,8 +34,10 @@ newline = '\n'
 insertion_point = '|'
 "Symbol which refers to cursor position"
 
-sub_insertion_point = ''
+sub_insertion_point = '|'
 "Symbol which refers to cursor position (for editors which support multiple placeholders)"
+
+content_placeholder = '{%::zen-content::%}'
 
 re_tag = re.compile(r'<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:\'[^\']*\')|[^>\s]+))?)*\s*(\/?)>$')
 
@@ -90,6 +92,18 @@ def is_allowed_char(ch):
 	"""
 	return ch.isalnum() or ch in "#.>+*:$-_!@"
 
+def split_by_lines(text, remove_empty=False):
+	"""
+	Split text into lines. Set <code>remove_empty</code> to true to filter out
+	empty lines
+	@param text: str
+	@param remove_empty: bool
+	@return list
+	"""
+	lines = text.splitlines()
+	
+	return remove_empty and [line for line in lines if line.strip()] or lines
+
 def make_map(prop):
 	"""
 	Helper function that transforms string into dictionary for faster search
@@ -129,6 +143,18 @@ def get_newline():
 	@return: str
 	"""
 	return newline
+
+def string_to_hash(text):
+	"""
+	Helper function that transforms string into hash
+	@return: dict
+	"""
+	obj = {}
+	items = text.split(",")
+	for i in items:
+		obj[i] = True
+		
+	return obj
 
 def pad_string(text, pad):
 	"""
@@ -183,7 +209,7 @@ def get_elements_collection(resource, type):
 	else:
 		return {}
 	
-def replace_variables(text):
+def replace_variables(text, vars=zen_settings['variables']):
 	"""
 	Replace variables like ${var} in string
 	@param text: str
@@ -237,7 +263,7 @@ def get_settings_resource(res_type, abbr, res_name):
 	return None;
 
 
-def parse_into_tree(abbr, doc_type = 'html'):
+def parse_into_tree(abbr, doc_type='html'):
 	"""
 	Transforms abbreviation into a simple element's tree
 	@param abbr: Abbreviation to transform
@@ -248,18 +274,20 @@ def parse_into_tree(abbr, doc_type = 'html'):
 	@return: Tag
 	"""
 	root = Tag('', 1, doc_type)
-	parent = root
-	last = None
-	res = zen_settings.has_key(doc_type) and zen_settings[doc_type] or {}
-	token = re.compile(r'([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?', re.IGNORECASE)
+	multiply_elem = None
+	token = re.compile(r'([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?', re.IGNORECASE)
+	
+	if not abbr:
+		return None
 	
 	def expando_replace(m):
 		ex = m.group(0)
 		a = get_abbreviation(doc_type, ex)
 		return a and a.value or ex
 		
-	def token_expander(operator, tag_name, id_attr, class_name, multiplier):
+	def token_expander(operator, tag_name, id_attr, class_name, has_multiplier, multiplier):
 		
+		multiply_by_lines = (has_multiplier and not multiplier)
 		multiplier = multiplier and int(multiplier) or 1
 		current = is_snippet(tag_name, doc_type) and Snippet(tag_name, multiplier, doc_type) or Tag(tag_name, multiplier, doc_type)
 		
@@ -268,13 +296,17 @@ def parse_into_tree(abbr, doc_type = 'html'):
 		if class_name:
 			current.add_attribute('class', class_name[1:].replace('.', ' '))
 			
-		# двигаемся вглубь дерева
+		# dive into tree
 		if operator == '>' and token_expander.last:
 			token_expander.parent = token_expander.last;
 			
 		token_expander.parent.add_child(current)
-		token_expander.last = current;
-		return '';
+		token_expander.last = current
+		
+		if multiply_by_lines:
+			root.multiply_elem = current
+		
+		return ''
 		
 	# replace expandos
 	abbr = re.sub(r'([a-z][a-z0-9]*)\+$', expando_replace, abbr)
@@ -283,7 +315,10 @@ def parse_into_tree(abbr, doc_type = 'html'):
 	token_expander.last = None
 	
 	
-	abbr = re.sub(token, lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5)), abbr)
+	abbr = re.sub(token, lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6)), abbr)
+	
+	root.last = token_expander.last
+	
 	# empty 'abbr' variable means that abbreviation was expanded successfully, 
 	# non-empty variable means there was a syntax error
 	return not abbr and root or None;
@@ -322,78 +357,55 @@ def expand_abbreviation(abbr, doc_type = 'html', profile_name = 'plain'):
 		result = tree.to_string(profile_name)
 		if result:
 			result = re.sub('\|', insertion_point, result, 1)
-			return  replace_variables(re.sub('\|', sub_insertion_point, result))
+			return replace_variables(re.sub('\|', sub_insertion_point, result))
 		
 	return ''
 
-def get_pair_range(text, cursor_pos):
-	"""
-	Returns range that indicates starting and ending pair tags nearest 
-	to cursor position.
+def is_inside_tag(html, cursor_pos):
+	re_tag = re.compile(r'^<\/?\w[\w\:\-]*.*?>')
 	
-	@param text: Full document
+	# search left to find opening brace
+	pos = cursor_pos
+	while pos > -1:
+		if html[pos] == '<': break
+		pos -= 1
+	
+	
+	if pos != -1:
+		m = re_tag.match(html[pos:]);
+		if m and cursor_pos > pos and cursor_pos < pos + len(m.group(0)):
+			return True
+
+	return False
+
+def wrap_with_abbreviation(abbr, text, doc_type='html', profile='plain'):
+	"""
+	Wraps passed text with abbreviation. Text will be placed inside last
+	expanded element
+	@param abbr: Abbreviation
+	@type abbr: str
+	
+	@param text: Text to wrap
 	@type text: str
 	
-	@param cursor_pos: Caret position inside document
-	@type cursor_pos: int
+	@param doc_type: Document type (html, xml, etc.)
+	@type doc_type: str
 	
-	@return: list of start and end indexes. If pair wasn't found, returns (-1, -1)
+	@param profile: Output profile's name.
+	@type profile: str
+	@return {String}
 	"""
-	
-	import htmlparser
-	
-	tags = {}
-	ranges = []
-	result = [-1, -1]
-	
-	handler = {'stop': False}
-	
-	def in_range(start, end):
-		return cursor_pos > start and cursor_pos <= end
-	
-	def start_h(name, attrs, unary, ix_start, ix_end):
-		if unary and in_range(ix_start, ix_end):
-			result[0] = ix_start
-			result[1] = ix_end
-			handler['stop'] = True
-		else:
-			if name not in tags:
-				tags[name] = []
-			
-			tags[name].append(ix_start)
-			
-	def end_h(name, ix_start, ix_end):
-		if name in tags:
-			start = tags[name].pop()
-			if in_range(start, ix_end):
-				ranges.append([start, ix_end])
-	
-	def comment_h(data, ix_start, ix_end):
-		if in_range(ix_start, ix_end):
-			result[0] = ix_start
-			result[1] = ix_end
-			handler['stop'] = True
-			
-	handler['start'] = start_h
-	handler['end'] = end_h
-	handler['comment'] = comment_h
-	
-	try:
-		htmlparser.parse(text, handler)
-	except RuntimeError:
-		pass
-	
-	if result[0] == -1 and len(ranges):
-#		because we have overlaped ranges only, we have to sort array by 
-#		length: the shorter range length, the most probable match
-		ranges.sort(lambda a, b: (a[1] - a[0]) - (b[1] - b[0]))
-		result = ranges[0]
-		
-	return result
-
+	tree = parse_into_tree(abbr, doc_type)
+	if tree:
+		repeat_elem = tree.multiply_elem or tree.last
+		repeat_elem.set_content(text)
+		repeat_elem.repeat_by_lines = bool(tree.multiply_elem)
+		return tree.to_string(profile)
+	else:
+		return None
 
 class Tag(object):
-	def __init__(self, name, count = 1, doc_type = 'html'):
+	def __init__(self, name, count=1, doc_type='html'):
 		"""
 		@param name: Tag name
 		@type name: str
@@ -412,14 +424,24 @@ class Tag(object):
 		self.count = count
 		self.children = []
 		self.attributes = []
+		self.multiply_elem = None
 		self.__attr_hash = {}
 		self.__abbr = abbr
+		self.__content = ''
+		self.repeat_by_lines = False
 		self.__res = zen_settings.has_key(doc_type) and zen_settings[doc_type] or {}
 		
+		# add default attributes
 		if self.__abbr and 'attributes' in self.__abbr.value:
 			for a in self.__abbr.value['attributes']:
 				self.add_attribute(a['name'], a['value'])
 		
+	def get_content(self):
+		return self.__content
+	
+	def set_content(self, value):
+		self.__content = value
+
 	def add_attribute(self, name, value):
 		"""
 		Add attribute to tag. If the attribute with the same name already exists,
@@ -484,16 +506,50 @@ class Tag(object):
 		"""
 		return self.name in get_elements_collection(self.__res, 'block_level')
 	
+	def has_tags_in_content(self):
+		"""
+		This function tests if current tags' content contains XHTML tags. 
+	 	This function is mostly used for output formatting
+		"""
+		return self.get_content() and re_tag.search(self.get_content())
+	
+	
 	def has_block_children(self):
 		"""
 		Test if current tag contains block-level elements. Used for output 
 		formatting
 		@return: bool
 		"""
+		if self.has_tags_in_content() and self.is_block():
+			return True
+		
 		for tag in self.children:
 			if tag.is_block():
 				return True
 		return False
+	
+	def set_content(self, content):
+		self.__content = content
+		
+	def get_content(self):
+		return self.__content
+	
+	def find_deepest_child(self):
+		"""
+		Search for deepest and latest child of current element.
+		Returns None if there's no children
+	 	@return Tag or None 
+		"""
+		if not self.children:
+			return None
+			
+		deepest_child = self
+		while True:
+			deepest_child = deepest_child.children[-1]
+			if not deepest_child.children:
+				break
+		
+		return deepest_child
 	
 	def output_children(self, profile_name):
 		"""
@@ -520,7 +576,11 @@ class Tag(object):
 		@return: str
 		"""
 		
-		profile = profile_name in profiles and profiles[profile_name] or profiles['plain']
+		if profile_name not in profiles:
+			profile_name = 'plain'
+			
+		result = []
+		profile = profiles[profile_name]
 		attrs = '' 
 		content = '' 
 		start_tag = '' 
@@ -534,6 +594,9 @@ class Tag(object):
 		elif profile['self_closing_tag'] == True:
 			self_closing = '/'
 			
+		def allow_newline(tag):
+			return (profile['tag_nl'] is True) or (profile['tag_nl'] == 'decide' and tag.is_block())
+			
 		# make attribute string
 		for a in self.attributes:
 			if profile['attr_case'] == 'upper':
@@ -543,10 +606,21 @@ class Tag(object):
 				
 			attrs += ' %s=%s%s%s' % (attr_name, attr_quote, a['value'] or cursor, attr_quote)
 		
+		deepest_child = self.find_deepest_child()
+		
 		# output children
 		if not self.is_empty():
-			content = self.output_children(profile_name)
+			if deepest_child and self.repeat_by_lines:
+				deepest_child.set_content(content_placeholder)
 			
+			for i, child in enumerate(self.children):
+				content += child.to_string(profile_name)
+				
+				if child != self.children[-1] and \
+					(allow_newline(child) or allow_newline(self.children[i + 1])):
+					content += get_newline()
+		
+		# define opening and closing tags
 		if self.name:
 			tag_name = profile['tag_case'] == 'upper' and self.name.upper() or self.name.lower()
 			if self.is_empty():
@@ -555,7 +629,6 @@ class Tag(object):
 				start_tag, end_tag = '<%s%s>' % (tag_name, attrs), '</%s>' % tag_name
 				
 		# output formatting
-		glue = ''
 		if profile['tag_nl'] != False:
 			if self.name and (profile['tag_nl'] == True or self.has_block_children()):
 				if not self.is_empty():
@@ -566,26 +639,47 @@ class Tag(object):
 			if self.name:
 				if content:
 					content = pad_string(content, profile['indent'] and 1 or 0)
-				else:
+				elif not self.is_empty():
 					start_tag += cursor
 		
-			if profile['tag_nl'] == True or self.is_block():
-				glue = get_newline()
+		# repeat tag by lines count
+		cur_content = ''
+		if self.repeat_by_lines:
+			lines = split_by_lines(self.get_content().strip(), True)
+			for j, line in enumerate(lines):
+				if deepest_child: cur_content = ''
+				else: cur_content = content_placeholder
+				
+				if content and not deepest_child:
+					cur_content += get_newline()
+					
+				elem_str = start_tag.replace('$', str(j + 1)) + cur_content + content + end_tag
+				result.append(elem_str.replace(content_placeholder, line.strip()))
 		
+		# repeat tag output
+		if not result:
+			if self.get_content():
+				pad = (profile['tag_nl'] is True or (self.has_tags_in_content() and self.is_block())) and 1 or 0
+				content = pad_string(self.get_content(), pad) + content
+			
+			for i in range(self.count):
+				result.append(start_tag.replace('$', str(i + 1)) + content + end_tag)
 		
-		result = [start_tag.replace('$', str(i + 1)) + content + end_tag for i in range(self.count)]
+		glue = ''
+		if allow_newline(self):
+			glue = get_newline()
+			
 		return glue.join(result)
 	
 class Snippet(Tag):
-	def __init__(self, name, count = 1, doc_type = 'html'):
-		self.name = name
-		self.count = count
-		self.children = []
+	def __init__(self, name, count=1, doc_type='html'):
+		super(Snippet, self).__init__(name, count, doc_type)
 		self.value = get_snippet(doc_type, name)
+		self.attributes = {'id': '|', 'class': '|'}
 		self.__res = zen_settings[doc_type]
 		
-	def add_attribute(self, name = '', value = ''):
-		pass
+	def add_attribute(self, name='', value=''):
+		self.attributes[name] = value
 	
 	def is_block(self):
 		return True
@@ -597,7 +691,6 @@ class Snippet(Tag):
 		data = self.value
 		begin = ''
 		end = ''
-		glue = ''
 		child_padding = ''
 		child_token = '${child}'
 		child_indent = re.compile(r'(^\s+)')
@@ -612,19 +705,34 @@ class Snippet(Tag):
 						child_padding = m and m.group(1) or ''
 						break
 					
-				glue = get_newline()
-			
 			if child_token in data:
 				begin, end = data.split(child_token, 1)
 			else:
 				begin = data
 				
-			content = self.output_children(profile_name)
-			
-			if child_padding:
-				content = pad_string(content, child_padding)
+		for child in self.children:
+			content += child.to_string(profile_name)
+			if child != self.children[-1] and \
+				(profile['tag_nl'] == True or \
+					(profile['tag_nl'] == 'decide' and child.is_block())):
+				content += get_newline();
 		
-		return glue.join([begin.replace(r'\$', str(i + 1)) + content + end for i in range(self.count)])
+		if child_padding:
+			content = pad_string(content, child_padding)
+			
+		# substitute attributes
+		begin = replace_variables(begin, self.attributes)
+		end = replace_variables(end, self.attributes)
+		
+		if self.get_content():
+			content = pad_string(self.get_content(), 1) + content
+		
+		# multiply output
+		result += [begin + content + end for i in range(self.count)]
+		
+		glue = profile['tag_nl'] != False and get_newline() or ''
+		
+		return glue.join(result)
 	
 		
 # create default profiles

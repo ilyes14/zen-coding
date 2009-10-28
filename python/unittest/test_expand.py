@@ -7,8 +7,8 @@ import unittest
 
 from zencoding import zen_core as zen
 
-def expandAbbr(abbr, doc_type='html'):
-	return zen.expand_abbreviation(abbr, doc_type, 'plain')
+def expandAbbr(abbr, doc_type='html', profile_name='plain'):
+	return zen.expand_abbreviation(abbr, doc_type, profile_name)
 
 def extractAbbr(line):
 	return zen.find_abbr_in_line(line, len(line))[0]
@@ -65,7 +65,7 @@ class Test(unittest.TestCase):
 		self.assertEqual('<xsl:variable name=""><div></div><p></p></xsl:variable>', expandAbbr('var>div+p', 'xsl'))
 		
 	def testCSS(self):
-		self.assertEqual('@import url();', expandAbbr('@i', 'css'))
+		self.assertEqual('@import url(|);', expandAbbr('@i', 'css'))
 		self.assertEqual('!important', expandAbbr('!', 'css'))
 		self.assertEqual('position:static;', expandAbbr('pos:s', 'css'))
 		self.assertEqual('text-indent:-9999px;', expandAbbr('ti:-', 'css'))
@@ -76,6 +76,20 @@ class Test(unittest.TestCase):
 	def testNonExistedTypes(self):
 		self.assertEqual('<a></a>', expandAbbr('a', 'foo'))
 		self.assertEqual('<bq><p></p></bq>', expandAbbr('bq>p', 'foo'))
+	
+	def testTagHit(self):
+		self.assertEqual(True, zen.is_inside_tag('hello<div>world', 7))
+		self.assertEqual(True, zen.is_inside_tag('hello<br />world', 7))
+		self.assertEqual(True, zen.is_inside_tag('hello</p>world', 7))
+		self.assertEqual(False, zen.is_inside_tag('hello<div>world', 10))
+		self.assertEqual(False, zen.is_inside_tag('hello<div>world', 1))
+		
+	def testFormatting(self):
+		self.assertEqual('<blockquote>\n\t<p>|</p>\n</blockquote>', expandAbbr('bq>p', 'html', 'xhtml'));
+		self.assertEqual('<blockquote>|</blockquote>\n<p>|</p>', expandAbbr('bq+p', 'html', 'xhtml'));
+		self.assertEqual('<img src="|" alt="|" />\n<p>|</p>', expandAbbr('img+p', 'html', 'xhtml'));
+		self.assertEqual('<xsl:variable name="|" select="|"/>', expandAbbr('vare', 'xsl', 'xml'));
+		self.assertEqual('<xsl:variable name="|" select="|"/>\n<p>\n\t|\n</p>', expandAbbr('vare+p', 'xsl', 'xml'));
 
 if __name__ == "__main__":
 	#import sys;sys.argv = ['', 'Test.testAbbreviations']
