@@ -119,7 +119,7 @@ def save_match(opening_tag=None, closing_tag=None, ix=0):
 	
 	last_match['start_ix'], last_match['end_ix'] = make_range(opening_tag, closing_tag, ix)
 	
-	return last_match['start_ix'] != -1 and (last_match['start_ix'], last_match['end_ix']) or None
+	return last_match['start_ix'] != -1 and (last_match['start_ix'], last_match['end_ix']) or (None, None)
 
 def match(html, start_ix):
 	"""
