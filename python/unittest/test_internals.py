@@ -26,9 +26,6 @@ class TestDeepKey(unittest.TestCase):
 	def testNotExistedByKey(self):
 		self.assertFalse(zen.has_deep_key(test_obj, ('key3', 'key1')))
 
-	def testNotExistedByKey(self):
-		self.assertFalse(zen.has_deep_key(test_obj, 'key1.key3'))
-
 	def testNotExistedTopLevel(self):
 		self.assertFalse(zen.has_deep_key(test_obj, 'key2'))
 
