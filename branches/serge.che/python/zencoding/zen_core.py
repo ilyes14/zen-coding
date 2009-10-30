@@ -35,7 +35,7 @@ insertion_point = '|'
 "Symbol which refers to cursor position"
 
 sub_insertion_point = '|'
-"Symbol which refers to cursor position (for editors which support multiple placeholders)"
+"""@deprecated: Symbol which refers to cursor position (for editors which support multiple placeholders)"""
 
 content_placeholder = '{%::zen-content::%}'
 
@@ -354,10 +354,7 @@ def expand_abbreviation(abbr, doc_type = 'html', profile_name = 'plain'):
 	"""
 	tree = parse_into_tree(abbr, doc_type)
 	if tree:
-		result = tree.to_string(profile_name)
-		if result:
-			result = re.sub('\|', insertion_point, result, 1)
-			return replace_variables(re.sub('\|', sub_insertion_point, result))
+		return replace_variables(re.sub('\|', insertion_point, tree.to_string(profile_name) or ''))
 		
 	return ''
 
@@ -400,7 +397,7 @@ def wrap_with_abbreviation(abbr, text, doc_type='html', profile='plain'):
 		repeat_elem = tree.multiply_elem or tree.last
 		repeat_elem.set_content(text)
 		repeat_elem.repeat_by_lines = bool(tree.multiply_elem)
-		return tree.to_string(profile)
+		return replace_variables(re.sub('\|', insertion_point, tree.to_string(profile) or ''))
 	else:
 		return None
 
