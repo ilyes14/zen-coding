@@ -7,7 +7,7 @@ import unittest
 
 from zencoding import zen_core as zen, stparser
 
-zen_settings = stparser.get_settings()
+zen.update_settings(stparser.get_settings())
 
 def expandAbbr(abbr, doc_type='html', profile_name='plain'):
 	return zen.expand_abbreviation(abbr, doc_type, profile_name)
