@@ -401,6 +401,12 @@ def wrap_with_abbreviation(abbr, text, doc_type='html', profile='plain'):
 	else:
 		return None
 
+def update_settings(settings):
+	"""
+	Updates global zen settings
+	"""
+	globals()['zen_settings'] = settings
+
 class Tag(object):
 	def __init__(self, name, count=1, doc_type='html'):
 		"""
