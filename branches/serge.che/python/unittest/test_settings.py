@@ -5,9 +5,7 @@ Created on Jun 15, 2009
 '''
 import unittest
 from zencoding.zen_settings import zen_settings
-from zencoding.my_zen_settings import my_zen_settings
 from zencoding import stparser
-
 
 class Test(unittest.TestCase):
 
