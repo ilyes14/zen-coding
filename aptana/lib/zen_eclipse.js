@@ -37,7 +37,7 @@ function getPartition(offset){
 }
 
 /**
- * Возвращает тип текущего редактора (css или html)
+ * Returns current editor type ('css', 'html', etc)
  * @return {String|null}
  */
 function getEditorType() {
@@ -55,7 +55,7 @@ if (!('zen_coding' in this))
 	zen_coding = {};
 
 /**
- * Возвращает символ перевода строки, используемый в редакторе
+ * Returns editor's newline character
  * @return {String}
  */
 zen_coding.getNewline = function() {
@@ -63,7 +63,7 @@ zen_coding.getNewline = function() {
 }
 
 /**
- * Ищет аббревиатуру в текущем редакторе и возвращает ее
+ * Search for abbreviation in current editor from current caret position
  * @return {String|null}
  */
 function findAbbreviation() {
@@ -71,11 +71,11 @@ function findAbbreviation() {
 	var editor = editors.activeEditor;
 	
 	if (editor.selectionRange.startingOffset != editor.selectionRange.endingOffset) {
-		// пользователь сам выделил нужную аббревиатуру
+		// abbreviation is selected by user
 		return editor.source.substring(editor.selectionRange.startingOffset, editor.selectionRange.endingOffset);
 	}
 	
-	// будем искать аббревиатуру с текущей позиции каретки
+	// search for new abbreviation from current caret position
 	var original_offset = editor.currentOffset,
 		cur_line = editor.getLineAtOffset(original_offset),
 		line_offset = editor.getOffsetAtLine(cur_line);
@@ -84,10 +84,10 @@ function findAbbreviation() {
 }
 
 /**
- * Ищет новую точку вставки каретки
- * @param {Number} Инкремент поиска: -1 — ищем влево, 1 — ищем вправо
- * @param {Number} Начальное смещение относительно текущей позиции курсора
- * @return {Number} Вернет -1, если не была найдена новая позиция
+ * Search for new caret insertion point
+ * @param {Number} Search increment: -1 — search left, 1 — search right
+ * @param {Number} Initial offset relative to current caret position
+ * @return {Number} Returns -1 if insertion point wasn't found
  */
 function findNewEditPoint(inc, offset) {
 	inc = inc || 1;
@@ -111,13 +111,13 @@ function findNewEditPoint(inc, offset) {
 			case '"':
 			case '\'':
 				if (next_char == cur_char && prev_char == '=') {
-					// пустой атрибут
+					// empty attribute
 					next_point = cur_point + 1;
 				}
 				break;
 			case '>':
 				if (next_char == '<') {
-					// между тэгами
+					// between tags
 					next_point = cur_point + 1;
 				}
 				break;
@@ -171,14 +171,14 @@ function expandTab() {
 			end_line_offset = editor.getOffsetAtLine(end_line + 1) - zen_coding.getNewline().length;
 			
 	if (start_line != end_line) {
-		// выделили несколько строк, отбиваем их
+		// selecated a few lines, indent them
 		content = editor.source.substring(start_line_offset, end_line_offset);
 		var new_content = indent + zen_coding.padString(content, 1);
 		
 		editor.applyEdit(start_line_offset, content.length, new_content);
 		editor.selectAndReveal(start_line_offset, indent.length + content.length + end_line - start_line);
 	} else {
-		// выделение на одной строке, заменяем его на отступ
+		// selection spans just a single string, replace indentation
 		editor.applyEdit(start_offset, end_offset - start_offset, indent);
 		editor.currentOffset++;
 	}
@@ -247,8 +247,8 @@ function mainExpandAbbreviation(editor_type, profile_name) {
 		content = zen_coding.expandAbbreviation(abbr, editor_type, profile_name);
 		replaceEditorContent(abbr, content);
 	} else if (use_tab) {
-		// аббревиатуры раскрываются с помощью таба, но сама аббревиатура 
-		// не найдена, будем делать отступ
+		// A 'Tab' key is used as trigger, but no valid abbreviation found,
+		// let's indent selection
 		expandTab();
 	}
 }
@@ -277,30 +277,30 @@ function mainWrapWithAbbreviation(editor_type, profile_name) {
 		if (!range || range[0] == -1) // nothing to wrap
 			return null;
 			
+		start_offset = range[0];
+		end_offset = range[1];
+			
 		// narrow down selection until first non-space character
 		var re_space = /\s|\n|\r/;
 		function isSpace(ch) {
 			return re_space.test(ch);
 		}
 		
-		while (range[0] < range[1]) {
-			if (!isSpace(editor.source.charAt(range[0])))
+		while (start_offset < end_offset) {
+			if (!isSpace(editor.source.charAt(start_offset)))
 				break;
-			range[0]++;
+				
+			start_offset++;
 		}
 		
-		while (range[1] > range[0]) {
-			range[1]--
-			if (!isSpace(editor.source.charAt(range[0]))) {
-				range[1]++;
-				break
+		while (end_offset > start_offset) {
+			end_offset--;
+			if (!isSpace(editor.source.charAt(end_offset))) {
+				end_offset++;
+				break;
 			}
 		}
 			
-//		
-//		var last = HTMLPairMatcher.last_match;
-//		start_offset = last.opening_tag.start;
-//		end_offset = last.closing_tag ? last.closing_tag.end : last.opening_tag.end;
 	}
 	
 	var content = editor.source.substring(start_offset, end_offset),
