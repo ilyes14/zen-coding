@@ -223,12 +223,30 @@ var EditArea_zencoding = (function() {
 
 			if (!range || range[0] == -1) // nothing to wrap
 				return null;
-
-			var last = HTMLPairMatcher.last_match;
-//			console.log(last)
-
-			start_offset = last.opening_tag.start;
-			end_offset = last.closing_tag ? last.closing_tag.end : last.opening_tag.end;
+				
+			start_offset = range[0];
+			end_offset = range[1];
+				
+			// narrow down selection until first non-space character
+			var re_space = /\s|\n|\r/;
+			function isSpace(ch) {
+				return re_space.test(ch);
+			}
+			
+			while (start_offset < end_offset) {
+				if (!isSpace(content.charAt(start_offset)))
+					break;
+					
+				start_offset++;
+			}
+			
+			while (end_offset > start_offset) {
+				end_offset--;
+				if (!isSpace(content.charAt(end_offset))) {
+					end_offset++;
+					break;
+				}
+			}
 		}
 
 		var content = content.substring(start_offset, end_offset),
