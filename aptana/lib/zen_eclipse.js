@@ -276,10 +276,31 @@ function mainWrapWithAbbreviation(editor_type, profile_name) {
 		
 		if (!range || range[0] == -1) // nothing to wrap
 			return null;
+			
+		// narrow down selection until first non-space character
+		var re_space = /\s|\n|\r/;
+		function isSpace(ch) {
+			return re_space.test(ch);
+		}
 		
-		var last = HTMLPairMatcher.last_match;
-		start_offset = last.opening_tag.start;
-		end_offset = last.closing_tag ? last.closing_tag.end : last.opening_tag.end;
+		while (range[0] < range[1]) {
+			if (!isSpace(editor.source.charAt(range[0])))
+				break;
+			range[0]++;
+		}
+		
+		while (range[1] > range[0]) {
+			range[1]--
+			if (!isSpace(editor.source.charAt(range[0]))) {
+				range[1]++;
+				break
+			}
+		}
+			
+//		
+//		var last = HTMLPairMatcher.last_match;
+//		start_offset = last.opening_tag.start;
+//		end_offset = last.closing_tag ? last.closing_tag.end : last.opening_tag.end;
 	}
 	
 	var content = editor.source.substring(start_offset, end_offset),
