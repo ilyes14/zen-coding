@@ -2,309 +2,313 @@
 !important
 [!i | ]
 !important
-[pos | ]
+[!: | ]
+!important
+[!i: | ]
+!important
+[pos: | ]
 position:
-[t | ]
+[t: | ]
 top:
-[r | ]
+[r: | ]
 right:
-[b | ]
+[b: | ]
 bottom:
-[l | ]
+[l: | ]
 left:
-[z | ]
+[z: | ]
 z-index:
-[fl | ]
+[fl: | ]
 float:
-[cl | ]
+[cl: | ]
 clear:
-[d | ]
+[d: | ]
 display:
-[v | ]
+[v: | ]
 visibility:
-[ov | ]
+[ov: | ]
 overflow:
-[ovx | ]
+[ovx: | ]
 overflow-x:
-[ovy | ]
+[ovy: | ]
 overflow-y:
-[ovs | ]
+[ovs: | ]
 overflow-style:
-[zoo | ]
+[zoo: | ]
 zoom:1;
-[cp | ]
+[cp: | ]
 clip:
-[bxz | ]
+[bxz: | ]
 box-sizing:
-[bxsh | ]
+[bxsh: | ]
 box-shadow:
-[m | ]
+[m: | ]
 margin:
-[mt | ]
+[mt: | ]
 margin-top:
-[mr | ]
+[mr: | ]
 margin-right:
-[mb | ]
+[mb: | ]
 margin-bottom:
-[ml | ]
+[ml: | ]
 margin-left:
-[p | ]
+[p: | ]
 padding:
-[pt | ]
+[pt: | ]
 padding-top:
-[pr | ]
+[pr: | ]
 padding-right:
-[pb | ]
+[pb: | ]
 padding-bottom:
-[pl | ]
+[pl: | ]
 padding-left:
-[w | ]
+[w: | ]
 width:
-[h | ]
+[h: | ]
 height:
-[maw | ]
+[maw: | ]
 max-width:
-[mah | ]
+[mah: | ]
 max-height:
-[miw | ]
+[miw: | ]
 min-width:
-[mih | ]
+[mih: | ]
 min-height:
-[o | ]
+[o: | ]
 outline:
-[oo | ]
+[oo: | ]
 outline-offset:
-[ow | ]
+[ow: | ]
 outline-width:
-[os | ]
+[os: | ]
 outline-style:
-[oc | ]
+[oc: | ]
 outline-color:#000;
-[bd | ]
+[bd: | ]
 border:
-[bd+ | ]
+[bd+: | ]
 border:1px solid #000;
-[bdbk | ]
+[bdbk: | ]
 border-break:
-[bdcl | ]
+[bdcl: | ]
 border-collapse:
-[bdc | ]
+[bdc: | ]
 border-color:#000;
-[bdi | ]
-border-image:url(|);
-[bdti | ]
-border-top-image:url(|);
-[bdri | ]
-border-right-image:url(|);
-[bdbi | ]
-border-bottom-image:url(|);
-[bdli | ]
-border-left-image:url(|);
-[bdci | ]
-border-corner-image:url(|);
-[bdtli | ]
-border-top-left-image:url(|);
-[bdtri | ]
-border-top-right-image:url(|);
-[bdbri | ]
-border-bottom-right-image:url(|);
-[bdbli | ]
-border-bottom-left-image:url(|);
-[bdf | ]
+[bdi: | ]
+border-image:url();
+[bdti: | ]
+border-top-image:url();
+[bdri: | ]
+border-right-image:url();
+[bdbi: | ]
+border-bottom-image:url();
+[bdli: | ]
+border-left-image:url();
+[bdci: | ]
+border-corner-image:url();
+[bdtli: | ]
+border-top-left-image:url();
+[bdtri: | ]
+border-top-right-image:url();
+[bdbri: | ]
+border-bottom-right-image:url();
+[bdbli: | ]
+border-bottom-left-image:url();
+[bdf: | ]
 border-fit:
-[bdl | ]
+[bdl: | ]
 border-length:
-[bdsp | ]
+[bdsp: | ]
 border-spacing:
-[bds | ]
+[bds: | ]
 border-style:
-[bdw | ]
+[bdw: | ]
 border-width:
-[bdt | ]
+[bdt: | ]
 border-top:
-[bdt+ | ]
+[bdt+: | ]
 border-top:1px solid #000;
-[bdtw | ]
+[bdtw: | ]
 border-top-width:
-[bdts | ]
+[bdts: | ]
 border-top-style:
-[bdtc | ]
+[bdtc: | ]
 border-top-color:#000;
-[bdr | ]
+[bdr: | ]
 border-right:
-[bdr+ | ]
+[bdr+: | ]
 border-right:1px solid #000;
-[bdrw | ]
+[bdrw: | ]
 border-right-width:
-[bdrs | ]
+[bdrs: | ]
 border-right-style:
-[bdrc | ]
+[bdrc: | ]
 border-right-color:#000;
-[bdb | ]
+[bdb: | ]
 border-bottom:
-[bdb+ | ]
+[bdb+: | ]
 border-bottom:1px solid #000;
-[bdbw | ]
+[bdbw: | ]
 border-bottom-width:
-[bdbs | ]
+[bdbs: | ]
 border-bottom-style:
-[bdbc | ]
+[bdbc: | ]
 border-bottom-color:#000;
-[bdl | ]
+[bdl: | ]
 border-left:
-[bdl+ | ]
+[bdl+: | ]
 border-left:1px solid #000;
-[bdlw | ]
+[bdlw: | ]
 border-left-width:
-[bdls | ]
+[bdls: | ]
 border-left-style:
-[bdlc | ]
+[bdlc: | ]
 border-left-color:#000;
-[bdrs | ]
+[bdrs: | ]
 border-radius:
-[bdtrrs | ]
+[bdtrrs: | ]
 border-top-right-radius:
-[bdtlrs | ]
+[bdtlrs: | ]
 border-top-left-radius:
-[bdbrrs | ]
+[bdbrrs: | ]
 border-bottom-right-radius:
-[bdblrs | ]
+[bdblrs: | ]
 border-bottom-left-radius:
-[bg | ]
+[bg: | ]
 background:
-[bg+ | ]
-background:#FFF url(|) 0 0 no-repeat;
-[bgc | ]
+[bg+: | ]
+background:#FFF url() 0 0 no-repeat;
+[bgc: | ]
 background-color:#FFF;
-[bgi | ]
-background-image:url(|);
-[bgr | ]
+[bgi: | ]
+background-image:url();
+[bgr: | ]
 background-repeat:
-[bga | ]
+[bga: | ]
 background-attachment:
-[bgp | ]
+[bgp: | ]
 background-position:0 0;
-[bgpx | ]
+[bgpx: | ]
 background-position-x:
-[bgpy | ]
+[bgpy: | ]
 background-position-y:
-[bgbk | ]
+[bgbk: | ]
 background-break:
-[bgcp | ]
+[bgcp: | ]
 background-clip:
-[bgo | ]
+[bgo: | ]
 background-origin:
-[bgz | ]
+[bgz: | ]
 background-size:
-[c | ]
+[c: | ]
 color:#000;
-[tbl | ]
+[tbl: | ]
 table-layout:
-[cps | ]
+[cps: | ]
 caption-side:
-[ec | ]
+[ec: | ]
 empty-cells:
-[lis | ]
+[lis: | ]
 list-style:
-[lisp | ]
+[lisp: | ]
 list-style-position:
-[list | ]
+[list: | ]
 list-style-type:
-[lisi | ]
+[lisi: | ]
 list-style-image:
-[q | ]
+[q: | ]
 quotes:
-[ct | ]
+[ct: | ]
 content:
-[coi | ]
+[coi: | ]
 counter-increment:
-[cor | ]
+[cor: | ]
 counter-reset:
-[va | ]
+[va: | ]
 vertical-align:
-[ta | ]
+[ta: | ]
 text-align:
-[tal | ]
+[tal: | ]
 text-align-last:
-[td | ]
+[td: | ]
 text-decoration:
-[te | ]
+[te: | ]
 text-emphasis:
-[th | ]
+[th: | ]
 text-height:
-[ti | ]
+[ti: | ]
 text-indent:
-[tj | ]
+[tj: | ]
 text-justify:
-[to | ]
+[to: | ]
 text-outline:
-[to+ | ]
+[to+: | ]
 text-outline:0 0 #000;
-[tr | ]
+[tr: | ]
 text-replace:
-[tt | ]
+[tt: | ]
 text-transform:
-[tw | ]
+[tw: | ]
 text-wrap:
-[tsh | ]
+[tsh: | ]
 text-shadow:
-[tsh+ | ]
+[tsh+: | ]
 text-shadow:0 0 0 #000;
-[lh | ]
+[lh: | ]
 line-height:
-[whs | ]
+[whs: | ]
 white-space:
-[whsc | ]
+[whsc: | ]
 white-space-collapse:
-[wob | ]
+[wob: | ]
 word-break:
-[wos | ]
+[wos: | ]
 word-spacing:
-[wow | ]
+[wow: | ]
 word-wrap:
-[lts | ]
+[lts: | ]
 letter-spacing:
-[f | ]
+[f: | ]
 font:
-[f+ | ]
+[f+: | ]
 font:1em Arial,sans-serif;
-[fw | ]
+[fw: | ]
 font-weight:
-[fs | ]
+[fs: | ]
 font-style:
-[fv | ]
+[fv: | ]
 font-variant:
-[fz | ]
+[fz: | ]
 font-size:
-[fza | ]
+[fza: | ]
 font-size-adjust:
-[ff | ]
+[ff: | ]
 font-family:
-[fef | ]
+[fef: | ]
 font-effect:
-[fem | ]
+[fem: | ]
 font-emphasize:
-[femp | ]
+[femp: | ]
 font-emphasize-position:
-[fems | ]
+[fems: | ]
 font-emphasize-style:
-[fsm | ]
+[fsm: | ]
 font-smooth:
-[fst | ]
+[fst: | ]
 font-stretch:
-[op | ]
+[op: | ]
 opacity:
-[rz | ]
+[rz: | ]
 resize:
-[cur | ]
+[cur: | ]
 cursor:
-[pgbb | ]
+[pgbb: | ]
 page-break-before:
-[pgbi | ]
+[pgbi: | ]
 page-break-inside:
-[pgba | ]
+[pgba: | ]
 page-break-after:
-[orp | ]
+[orp: | ]
 orphans:
-[wid| ]
+[wid: | ]
 widows:
