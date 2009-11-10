@@ -71,6 +71,7 @@ class Test(unittest.TestCase):
 		self.assertEqual('!important', expandAbbr('!', 'css'))
 		self.assertEqual('position:static;', expandAbbr('pos:s', 'css'))
 		self.assertEqual('text-indent:-9999px;', expandAbbr('ti:-', 'css'))
+		self.assertEqual('border-bottom:1px solid #000;', expandAbbr('bdb+', 'css'))
 	
 	def testInheritance(self):
 		self.assertEqual('<a href=""></a>', expandAbbr('a', 'xsl'))

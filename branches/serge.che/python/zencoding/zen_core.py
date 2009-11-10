@@ -274,7 +274,7 @@ def parse_into_tree(abbr, doc_type='html'):
 	@return: Tag
 	"""
 	root = Tag('', 1, doc_type)
-	token = re.compile(r'([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?', re.IGNORECASE)
+	token = re.compile(r'([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?', re.IGNORECASE)
 	
 	if not abbr:
 		return None
@@ -284,10 +284,14 @@ def parse_into_tree(abbr, doc_type='html'):
 		a = get_abbreviation(doc_type, ex)
 		return a and a.value or ex
 		
-	def token_expander(operator, tag_name, id_attr, class_name, has_multiplier, multiplier):
+	def token_expander(operator, tag_name, id_attr, class_name, has_multiplier, multiplier, has_expando):
 		
 		multiply_by_lines = (has_multiplier and not multiplier)
 		multiplier = multiplier and int(multiplier) or 1
+		
+		if has_expando:
+			tag_name += '+'
+		
 		current = is_snippet(tag_name, doc_type) and Snippet(tag_name, multiplier, doc_type) or Tag(tag_name, multiplier, doc_type)
 		
 		if id_attr:
@@ -314,7 +318,7 @@ def parse_into_tree(abbr, doc_type='html'):
 	token_expander.last = None
 	
 	
-	abbr = re.sub(token, lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6)), abbr)
+	abbr = re.sub(token, lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6), m.group(7)), abbr)
 	
 	root.last = token_expander.last
 	
@@ -527,10 +531,10 @@ class Tag(object):
 				return True
 		return False
 	
-	def set_content(self, content):
+	def set_content(self, content): #@DuplicatedSignature
 		self.__content = content
 		
-	def get_content(self):
+	def get_content(self): #@DuplicatedSignature
 		return self.__content
 	
 	def find_deepest_child(self):
