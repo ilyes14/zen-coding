@@ -423,7 +423,7 @@ class Tag(object):
 		if abbr and abbr.type == stparser.TYPE_REFERENCE:
 			abbr = get_abbreviation(doc_type, abbr.value)
 		
-		self.name = abbr and abbr.value['name'] or name
+		self.name = abbr and abbr.value['name'] or name.replace('+', '')
 		self.count = count
 		self.children = []
 		self.attributes = []

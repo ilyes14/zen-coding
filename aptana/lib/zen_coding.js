@@ -197,7 +197,7 @@
 		if (abbr && abbr.type == TYPE_REFERENCE)
 			abbr = getAbbreviation(type, abbr.value);
 		
-		this.name = (abbr) ? abbr.value.name : name;
+		this.name = (abbr) ? abbr.value.name : name.replace('+', '');
 		this.count = count || 1;
 		this.children = [];
 		this.attributes = [];
