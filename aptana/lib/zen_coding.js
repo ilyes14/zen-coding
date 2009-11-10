@@ -693,7 +693,7 @@
 				last = null,
 				multiply_elem = null,
 				res = zen_settings[type],
-				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?/ig;
+				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
 			
 			if (!abbr)
 				return null;
@@ -704,9 +704,12 @@
 				return a ? a.value : str;
 			});
 			
-			abbr = abbr.replace(re, function(str, operator, tag_name, id, class_name, has_multiplier, multiplier){
+			abbr = abbr.replace(re, function(str, operator, tag_name, id, class_name, has_multiplier, multiplier, has_expando){
 				var multiply_by_lines = (has_multiplier && !multiplier);
 				multiplier = multiplier ? parseInt(multiplier) : 1;
+				
+				if (has_expando)
+					tag_name += '+';
 				
 				var current = isShippet(tag_name, type) ? new Snippet(tag_name, multiplier, type) : new Tag(tag_name, multiplier, type);
 				if (id)

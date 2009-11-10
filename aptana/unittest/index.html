@@ -101,6 +101,7 @@
 					assertEqual('!important', expandAbbr('!', 'css'));
 					assertEqual('position:static;', expandAbbr('pos:s', 'css'));
 					assertEqual('text-indent:-9999px;', expandAbbr('ti:-', 'css'));
+					assertEqual('border-bottom:1px solid #000;', expandAbbr('bdb+', 'css'));
 				 }},
 				 
 				 "test inheritance": function(){ with (this) {
