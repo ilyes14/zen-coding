@@ -14,9 +14,10 @@ function onOK() {
 	return trim(document.forms[0].tagname.value) != ''
 }
 
-// Определяет используемый в тексте тип переноса (CRLF или LF).
+// Определяет используемый в тексте тип переноса (CR, LF или CRLF).
 function getNewLineMark(text) {
-	return ( text.match(/\r\n/m) ? '\r\n' : '\n' )
+	return ( text.match(/\r\n/m) ? '\r\n' : 
+			( text.match(/\r^\n/) ? '\r' : '\n' ) )
 }
 
 // Сохраняет символы "|" в тексте.
@@ -36,12 +37,31 @@ function trim(s) {
 	return s.replace(/^\s+/, '').replace(/\s+$/, '')
 }
 
+// Предварительная обработка массива строк. Отрезает левые отступы у всех строк, 
+// кроме первой (чтобы компенсировать отступ, который добавит TopStyle), 
+// а также находит первую (start) и последнюю (end) непустую строку в тексте. 
+function preProcessor(text) {
+	var start = -1, end = text.length
+	for(var i=0; i < text.length; i++) {
+		if (i) text[i] = text[i].replace(/^\s*/, '')
+
+		if (start+1 == i && text[i].match(/^\s*$/))
+			start = i
+		else if (i > start && text[i].match(/^\s*$/))
+			end = (i < end ? i : end)
+		else {
+			end = text.length
+		}
+	}
+
+	return {lines: text, start: start+1, end: end-1}
+}
 
 function wrap(every) {
-	var every = !!every,
+	var every = !!every, res = '',
 		text = ts.getSelection() || '',
 
-		// Определяем тип переноса (CRLF или LF)
+		// Определяем тип переноса (CR, LF или CRLF)
 		nl = getNewLineMark(text),
 
 		// Разбиваем выделение по строкам
@@ -51,24 +71,27 @@ function wrap(every) {
 		tag = trim(document.forms[0].tagname.value),
 
 	    	// Получаем тэг без атрибутов
-		tag_name = tag.replace(/([^\s]+).*$/, "$1")
+		tag_name = tag.replace(/([^\s]+).*$/, "$1");
 
-	// Если выделение однострочное оборачиваем его в тэг
-	if (lines.length == 1) {
-		res = lines[0].replace(/([^\s].*[^\s])|([^\s])/, '<' + tag + '>$1$2<' + tag_name + '>')
-	}
-	else {
-		// Первую строку оборачиваем тэгом без ликвидации отступа слева (TopStyle ее не отбивает).
-		res = lines[0].replace(/([^\s].*[^\s])|([^\s])/, '<'+tag+'>$1$2' + 
-			(every ? '</'+tag_name+'>' : '') )
+	pre = preProcessor(lines)
+	lines = pre.lines
 
-		// У остальных строк перед заворачиванием в тэг удаляем пробелы слева, 
-		// чтобы скомпенсировать отступ, который автоматически добавит TopStyle.
-		for(var i=1, len=lines.length; i<len; i++)
-		    res += nl + lines[i].replace(/(\s*)(([^\s].*[^\s])|([^\s]))/, 
-			(every ? '<'+tag+'>' : '') + '$2$4' +  
-			(every || i==len-1 ? '</'+tag_name+'>' : ''))
-	}
+	for(var i=0, len=lines.length; i<len; i++)
+	    res += 
+		// ставим line feed для всех строк, кроме первой
+		(!i ? '' : nl) +
+		// обрамляем содержательную часть строки тэгом
+		lines[i].replace(/^(\s*)(.*[^\s])(\s*)$/, 
+			// сохраняем отступ слева (если есть)
+			'$1' + 
+			// обрамляем тэгом слева если первая непустая строка или wrap every line
+			(every || i==pre.start ? '<'+tag+'>' : '') + 
+			// сама строка
+			'$2' +  
+			// обрамляем тэгом справа если последняя непустая строка или wrap every line
+			(every || i==pre.end ? '</'+tag_name+'>' : '') + 
+			// сохраняем отступ справа (если есть)
+			'$3')
 
 	return preservePipe(res)
 }
