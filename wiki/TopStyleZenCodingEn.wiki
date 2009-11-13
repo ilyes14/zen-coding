@@ -12,20 +12,27 @@
 == How to define shortcut to Zen Coding ==
 Unfortunately, the only way to define hotkey for Zen Coding plugin is to add it to Quick Insert menu.
 To do this:
- # Open Clip library (View->Panels->Clip library) 
- # Right-click on the white space in the library and select "Configure Quick Insert"
+ # Press Ctrl-Q and select "Configure Quick Insert"
  # Select HTML Toolbar from the dropdown on the left
- # Add "Zen HTML" to Quick Insert panel.
+ # Add "Zen HTML" and/or "Warp in tag", "Wrap every line in tag" to Quick Insert panel.
 Now you can use Ctrl-Q for quick access Zen Coding.
 
 = <br> =
 = Using plugin =
 == Using Zen CSS ==
  # Type Zen CSS alias [http://code.google.com/p/zen-coding/wiki/ZenCSSPropertiesRu].
+ # Type colon symbol.
  # Press SPACE or TAB.
-*Known Issue:* You cannot use aliases that contains symbols "@" or ":".
+E.g., to expand "margin-bottom" abbrevation type "mb:" and press SPACE.
+<br>*Known Issue:* You cannot use aliases that contains symbols "@" or ":".
 
 == Using Zen HTML ==
  # Type Zen HTML alias [http://code.google.com/p/zen-coding/wiki/ZenHTMLSelectorsRu].
  # Select it.
  # If you added Zen Coding to Quick Insert menu press Ctrl-Q and then select Zen HTML from the list.<br>If not, open Zen Coding tab in HTML Toolbar and click on the Zen HTML icon.
+
+== Using Wrap in Tag ==
+ # Select text you want to be wrapped in tag.
+ # Click on the Wrap in tag icon in ZenCoding HTML Toolbar.
+ # Enter tag name (you can write attributes too).
+ # Click "Ok" button.
