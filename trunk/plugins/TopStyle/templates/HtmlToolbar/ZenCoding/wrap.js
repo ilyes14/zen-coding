@@ -17,7 +17,7 @@ function onOK() {
 // Определяет используемый в тексте тип переноса (CR, LF или CRLF).
 function getNewLineMark(text) {
 	return ( text.match(/\r\n/m) ? '\r\n' : 
-			( text.match(/\r^\n/) ? '\r' : '\n' ) )
+			( text.match(/\r^\n/m) ? '\r' : '\n' ) )
 }
 
 // Сохраняет символы "|" в тексте.
@@ -34,7 +34,7 @@ function preservePipe(text) {
 
 // Отрезает пробельные символы справа и слева в строке.
 function trim(s) {
-	return s.replace(/^\s+/, '').replace(/\s+$/, '')
+	return s.replace(/^\s+|\s+$/g, '')
 }
 
 // Предварительная обработка массива строк. Отрезает левые отступы у всех строк, 
