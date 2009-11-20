@@ -1,0 +1,16 @@
+#summary How to install and use Zen Coding for SlickEdit 14+
+= Installation =
+== Zen HTML and Zen CSS ==
+ * Close SlickEdit.
+ * Replace files html.als and css.als with files from this package in SlickEdit configuration directory:<br>*Windows XP:* 	\Documents and Settings\%USERNAME%\My Documents\My SlickEdit Config\14.0.2<br>*Windows Vista, 7:* 	\Users\%USERNAME%\Documents\My SlickEdit Config\14.0.2
+*WARNING:* All predefined aliases and your aliases will be overwritten by Zen HTML and Zen CSS rules. In order to keep them add content of html.als and css.als files from our package to your original files.
+<br>*NOTE:* In order to use extended templates like @f and f+ make sure that symbols
+:+@ are added to Word chars list (Tools->Options->Languages->Web Authoring Languages->HTML/CSS->General->Word chars) for both CSS and HTML languages.
+
+== Zen Coding ==
+ * Close SlickEdit.
+ * Go to Macro->Load Module... menu item.
+ * Choose bundles.e file from this package.
+ * Go to Tools->Options->Keyboard->Key Bindings menu item.
+ * Find expand-bundle macros and assign a shortcut to it.
+*NOTE:* currently E*N$ and E+ HTML selectors are not supported, E*N is supported only if it is located at the end of the expression.
