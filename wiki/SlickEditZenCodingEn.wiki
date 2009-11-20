@@ -8,7 +8,6 @@
 :+@ are added to Word chars list (Tools->Options->Languages->Web Authoring Languages->HTML/CSS->General->Word chars) for both CSS and HTML languages.
 
 == Zen Coding ==
- * Close SlickEdit.
  * Go to Macro->Load Module... menu item.
  * Choose bundles.e file from this package.
  * Go to Tools->Options->Keyboard->Key Bindings menu item.
