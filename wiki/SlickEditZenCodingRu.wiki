@@ -3,7 +3,7 @@
 == Zen HTML и Zen CSS ==
  * Закройте SlickEdit.
  * Замените файлы html.als и css.als на файлы из нашего архива в папке с вашими настройками для SlickEdit:<br>*Windows XP:* 	\Documents and Settings\%USERNAME%\My Documents\My SlickEdit Config\14.0.2<br>*Windows Vista, 7:* 	\Users\%USERNAME%\Documents\My SlickEdit Config\14.0.2
-*ВНИМАНИЕ:* Все стандартные и ваши алиасы будут перезаписаны алиасами Zen HTML и Zen CSS. Чтобы сохранить ваши алиасы нужно добавить содержимое html.als и css.als в соответствущие файлы на вашем диске.
+*ВНИМАНИЕ:* Все стандартные и ваши алиасы будут перезаписаны алиасами Zen HTML и Zen CSS. Чтобы сохранить ваши алиасы нужно добавить содержимое файлов html.als и css.als в соответствущие файлы на вашем диске.
 <br>*ПРИМЕЧАНИЕ:* Чтобы иметь возможность использовать расширенные шаблоны (например @f или f+) необходимо добавить символы :+@ в список Word chars для языков HTML и CSS (Tools->Options->Languages->Web Authoring Languages->HTML/CSS->General->Word chars).
 
 == Zen Coding ==
