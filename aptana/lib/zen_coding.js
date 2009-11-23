@@ -11,7 +11,9 @@
 		TYPE_EXPANDO = 'zen-expando',
 	
 		/** Reference to another abbreviation or tag */
-		TYPE_REFERENCE = 'zen-reference';
+		TYPE_REFERENCE = 'zen-reference',
+		
+		content_placeholder = '{%::zen-content::%}';
 		
 	var default_profile = {
 		tag_case: 'lower',
@@ -52,8 +54,28 @@
 	 * @return {String}
 	 */
 	function getNewline() {
-//		return editors.activeEditor.lineDelimiter;
-		return '\n';
+		return zen_coding.getNewline();
+	}
+	
+	/**
+	 * Split text into lines. Set <code>remove_empty</code> to true to filter
+	 * empty lines
+	 * @param {String} text
+	 * @param {Boolean} [remove_empty]
+	 * @return {Array}
+	 */
+	function splitByLines(text, remove_empty) {
+		var nl = getNewline(), 
+			lines = text.split(new RegExp('\\r?\\n|\\n\\r|\\r|' + nl));
+			
+		if (remove_empty) {
+			for (var i = lines.length; i >= 0; i--) {
+				if (!trim(lines[i]))
+					lines.splice(i, 1);
+			}
+		}
+		
+		return lines;
 	}
 	
 	/**
@@ -94,7 +116,7 @@
 	 * @param {String|Number} pad Количество отступов или сам отступ
 	 * @return {String}
 	 */
-	function padString(text, pad) {
+	function padString(text, pad, verbose) {
 		var pad_str = '', result = '';
 		if (typeof(pad) == 'number')
 			for (var i = 0; i < pad; i++) 
@@ -102,9 +124,8 @@
 		else
 			pad_str = pad;
 		
-		// бьем текст на строки и отбиваем все, кроме первой, строки
-		var nl = getNewline(), 
-			lines = text.split(new RegExp('\\r?\\n|' + nl));
+		var lines = splitByLines(text),
+			nl = getNewline();
 			
 		result += lines[0];
 		for (var j = 1; j < lines.length; j++) 
@@ -112,9 +133,6 @@
 			
 		return result;
 	}
-	
-	/**
-	 * Get the type of the partition based on the current offset	 * @param {Number} offset	 * @return {String}	 */	function getPartition(offset){		var class_name = String(editors.activeEditor.textEditor.getClass());		if (class_name == 'class org.eclipse.wst.xsl.ui.internal.editor.XSLEditor')			return 'text/xsl';					try {				var fileContext = editors.activeEditor.textEditor.getFileContext();				if (fileContext !== null && fileContext !== undefined) {				var partition = fileContext.getPartitionAtOffset(offset);				return String(partition.getType());			}		} catch(e) {					}			return null;	}
 	
 	/**
 	 * Check if passed abbreviation is snippet
@@ -145,7 +163,7 @@
 	 * @return {Object}
 	 */
 	function getElementsCollection(resource, type) {
-		if (resource.element_types)
+		if (resource && resource.element_types)
 			return resource.element_types[type] || {}
 		else
 			return {};
@@ -154,12 +172,13 @@
 	/**
 	 * Replace variables like ${var} in string
 	 * @param {String} str
+	 * @param {Object} [vars] Variable set (default is <code>zen_settings.variables</code>) 
 	 * @return {String}
 	 */
-	function replaceVariables(str) {
-		var re_variable = /\$\{([\w\-]+)\}/g;
+	function replaceVariables(str, vars) {
+		vars = vars || zen_settings.variables;
 		return str.replace(/\$\{([\w\-]+)\}/g, function(str, p1){
-			return (p1 in zen_settings.variables) ? zen_settings.variables[p1] : str;
+			return (p1 in vars) ? vars[p1] : str;
 		});
 	}
 	
@@ -178,12 +197,15 @@
 		if (abbr && abbr.type == TYPE_REFERENCE)
 			abbr = getAbbreviation(type, abbr.value);
 		
-		this.name = (abbr) ? abbr.value.name : name;
+		this.name = (abbr) ? abbr.value.name : name.replace('+', '');
 		this.count = count || 1;
 		this.children = [];
 		this.attributes = [];
+		this._attr_hash = {};
 		this._abbr = abbr;
 		this._res = zen_settings[type];
+		this._content = '';
+		this.repeat_by_lines = false;
 		
 		// add default attributes
 		if (this._abbr && this._abbr.value.attributes) {
@@ -211,7 +233,22 @@
 		 * @param {String} value Значение атрибута
 		 */
 		addAttribute: function(name, value) {
-			this.attributes.push({name: name, value: value});
+			var a;
+			if (name in this._attr_hash) {
+				// attribute already exists, decide what to do
+				a = this._attr_hash[name];
+				if (name == 'class') {
+					// 'class' is a magic attribute
+					a.value += ((a.value) ? ' ' : '') + value;
+				} else {
+					a.value = value;
+				}
+			} else {
+				a = {name: name, value: value};
+				this._attr_hash[name] = a
+				this.attributes.push(a);
+			}
+			
 		},
 		
 		/**
@@ -239,11 +276,23 @@
 		},
 		
 		/**
+		 * This function tests if current tags' content contains xHTML tags. 
+		 * This function is mostly used for output formatting
+		 */
+		hasTagsInContent: function() {
+			return this.getContent() && re_tag.test(this.getContent());
+		},
+		
+		/**
 		 * Проверяет, есть ли блочные потомки у текущего тэга. 
 		 * Используется для форматирования
 		 * @return {Boolean}
 		 */
 		hasBlockChildren: function() {
+			if (this.hasTagsInContent() && this.isBlock()) {
+				return true;
+			}
+			
 			for (var i = 0; i < this.children.length; i++) {
 				if (this.children[i].isBlock())
 					return true;
@@ -253,9 +302,44 @@
 		},
 		
 		/**
-		 * Transforms tag into string using profile
+		 * Set textual content for tag
+		 * @param {String} str Tag's content
+		 */
+		setContent: function(str) {
+			this._content = str;
+		},
+		
+		/**
+		 * Returns tag's textual content
+		 * @return {String}
+		 */
+		getContent: function() {
+			return this._content;
+		},
+		
+		/**
+		 * Search for deepest and latest child of current element
+		 * @return {Tag|null} Returns null if there's no children
+		 */
+		findDeepestChild: function() {
+			if (!this.children.length)
+				return null;
+				
+			var deepest_child = this;
+			while (true) {
+				deepest_child = deepest_child.children[ deepest_child.children.length - 1 ];
+				if (!deepest_child.children.length)
+					break;
+			}
+			
+			return deepest_child;
+		},
+		
+		/**
+		 * Transforms and formats tag into string using profile
 		 * @param {String} profile Profile name
 		 * @return {String}
+		 * TODO Function is too large, need refactoring
 		 */
 		toString: function(profile_name) {
 			
@@ -267,7 +351,7 @@
 				end_tag = '',
 				cursor = profile.place_cursor ? '|' : '',
 				self_closing = '',
-				a,
+				attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
 				attr_name;
 
 			if (profile.self_closing_tag == 'xhtml')
@@ -275,24 +359,36 @@
 			else if (profile.self_closing_tag === true)
 				self_closing = '/';
 				
-			// делаем строку атрибутов
+			function allowNewline(tag) {
+				return (profile.tag_nl === true || (profile.tag_nl == 'decide' && tag.isBlock()))
+			}
+				
+			// make attribute string
 			for (var i = 0; i < this.attributes.length; i++) {
-				a = this.attributes[i];
+				var a = this.attributes[i];
 				attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : a.name.toLowerCase();
-				attrs += ' ' + attr_name + '="' + (a.value || cursor) + '"';
+				attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
 			}
 			
-			// выводим потомков
-			if (!this.isEmpty())
+			var deepest_child = this.findDeepestChild();
+			
+			// output children
+			if (!this.isEmpty()) {
+				if (deepest_child && this.repeat_by_lines)
+					deepest_child.setContent(content_placeholder);
+				
 				for (var j = 0; j < this.children.length; j++) {
+//					
 					content += this.children[j].toString(profile_name);
 					if (
 						(j != this.children.length - 1) &&
-						(profile.tag_nl === true || (profile.tag_nl == 'decide' && this.children[j].isBlock()))
+						( allowNewline(this.children[j]) || allowNewline(this.children[j + 1]) )
 					)
 						content += getNewline();
 				}
+			}
 			
+			// define opening and closing tags
 			if (this.name) {
 				var tag_name = (profile.tag_case == 'upper') ? this.name.toUpperCase() : this.name.toLowerCase();
 				if (this.isEmpty()) {
@@ -303,45 +399,75 @@
 				}
 			}
 			
-			// форматируем вывод
+			// formatting output
 			if (profile.tag_nl !== false) {
 				if (
 					this.name && 
 					(
 						profile.tag_nl === true || 
-						(profile.tag_nl == 'decide' && this.hasBlockChildren()) 
+						this.hasBlockChildren() 
 					)
 				) {
-					start_tag += getNewline() + zen_settings.variables.indentation;
-					end_tag = getNewline() + end_tag;
+					if (end_tag) { // non-empty tag: add indentation
+						start_tag += getNewline() + zen_settings.variables.indentation;
+						end_tag = getNewline() + end_tag;
+					} else { // empty tag
+						
+					}
+						
 				}
 				
 				if (this.name) {
 					if (content)
 						content = padString(content, profile.indent ? 1 : 0);
-					else
+					else if (!this.isEmpty())
 						start_tag += cursor;
 				}
 					
 			}
-					
-			// выводим тэг нужное количество раз
-			for (var i = 0; i < this.count; i++) 
-				result.push(start_tag.replace(/\$/g, i + 1) + content + end_tag);
+			
+			// repeat tag by lines count
+			var cur_content = '';
+			if (this.repeat_by_lines) {
+				var lines = splitByLines( trim(this.getContent()) , true);
+				for (var j = 0; j < lines.length; j++) {
+					cur_content = deepest_child ? '' : content_placeholder;
+					if (content && !deepest_child)
+						cur_content += getNewline();
+						
+					var elem_str = start_tag.replace(/\$/g, j + 1) + cur_content + content + end_tag;
+					result.push(elem_str.replace(content_placeholder, trim(lines[j])));
+				}
+			}
+			
+			// repeat tag output
+			if (!result.length) {
+				if (this.getContent()) {
+					var pad = (profile.tag_nl === true || (this.hasTagsInContent() && this.isBlock())) ? 1 : 0;
+					content = padString(this.getContent(), pad) + content;
+				}
+				
+				for (var i = 0; i < this.count; i++) 
+					result.push(start_tag.replace(/\$/g, i + 1) + content + end_tag);
+			}
 			
 			var glue = '';
-			if (profile.tag_nl === true || (profile.tag_nl == 'decide' && this.isBlock()))
+			if (allowNewline(this))
 				glue = getNewline();
 				
 			return result.join(glue);
 		}
 	};
 	
+	// TODO inherit from Tag
 	function Snippet(name, count, type) {
 		/** @type {String} */
 		this.name = name;
 		this.count = count || 1;
 		this.children = [];
+		this._content = '';
+		this.repeat_by_lines = false;
+		this.attributes = {'id': '|', 'class': '|'};
 		this.value = getSnippet(type, name);
 	}
 	
@@ -354,11 +480,46 @@
 			this.children.push(tag);
 		},
 		
-		addAttribute: function(){
+		addAttribute: function(name, value){
+			this.attributes[name] = value;
 		},
 		
 		isBlock: function() {
 			return true; 
+		},
+		
+		/**
+		 * Set textual content for snippet
+		 * @param {String} str Tag's content
+		 */
+		setContent: function(str) {
+			this._content = str;
+		},
+		
+		/**
+		 * Returns snippet's textual content
+		 * @return {String}
+		 */
+		getContent: function() {
+			return this._content;
+		},
+		
+		/**
+		 * Search for deepest and latest child of current element
+		 * @return {Tag|null} Returns null if there's no children
+		 */
+		findDeepestChild: function() {
+			if (!this.children.length)
+				return null;
+				
+			var deepest_child = this;
+			while (true) {
+				deepest_child = deepest_child.children[ deepest_child.children.length - 1 ];
+				if (!deepest_child.children.length)
+					break;
+			}
+			
+			return deepest_child;
 		},
 		
 		toString: function(profile_name) {
@@ -375,7 +536,7 @@
 				if (profile.tag_nl !== false) {
 					var nl = getNewline();
 					data = data.replace(/\n/g, nl);
-					// нужно узнать, какой отступ должен быть у потомков
+					// figuring out indentation for children
 					var lines = data.split(nl), m;
 					for (var j = 0; j < lines.length; j++) {
 						if (lines[j].indexOf(child_token) != -1) {
@@ -406,9 +567,18 @@
 				content = padString(content, child_padding);
 			
 			
+			// substitute attributes
+			begin = replaceVariables(begin, this.attributes);
+			end = replaceVariables(end, this.attributes);
+				
+			if (this.getContent()) {
+				content = padString(this.getContent(), 1) + content;
+			}
+			
 			// выводим тэг нужное количество раз
 			for (var i = 0; i < this.count; i++) 
-				result.push(begin.replace(/\$(?!\{)/g, i + 1) + content + end);
+				result.push(begin + content + end);
+//				result.push(begin.replace(/\$(?!\{)/g, i + 1) + content + end);
 			
 			return result.join((profile.tag_nl !== false) ? getNewline() : '');
 		}
@@ -444,20 +614,23 @@
 	function getSettingsResource(type, abbr, res_name) {
 		var resource = zen_settings[type];
 		
-		if (resource[res_name] && abbr in resource[res_name])
-			return resource[res_name][abbr];
-		else if ('extends' in resource) {
-			// find abbreviation in ancestors
-			for (var i = 0; i < resource['extends'].length; i++) {
-				var type = resource['extends'][i];
-				if (
-					zen_settings[type] && 
-					zen_settings[type][res_name] && 
-					zen_settings[type][res_name][abbr]
-				)
-					return zen_settings[type][res_name][abbr];
+		if (resource) {
+			if (res_name in resource && abbr in resource[res_name])
+				return resource[res_name][abbr];
+			else if ('extends' in resource) {
+				// find abbreviation in ancestors
+				for (var i = 0; i < resource['extends'].length; i++) {
+					var type = resource['extends'][i];
+					if (
+						zen_settings[type] && 
+						zen_settings[type][res_name] && 
+						zen_settings[type][res_name][abbr]
+					)
+						return zen_settings[type][res_name][abbr];
+				}
 			}
 		}
+		
 		
 		return null;
 	}
@@ -470,37 +643,15 @@
 	
 	
 	return {
-		/**
-		 * Ищет аббревиатуру в текущем редакторе и возвращает ее
-		 * @return {String|null}
-		 * TODO move to Eclipse specific file
-		 */
-		findAbbreviation: function() {
-			/** Текущий редактор */
-			var editor = editors.activeEditor;
-			
-			if (editor.selectionRange.startingOffset != editor.selectionRange.endingOffset) {
-				// пользователь сам выделил нужную аббревиатуру
-				return editor.source.substring(editor.selectionRange.startingOffset, editor.selectionRange.endingOffset);
-			}
-			
-			// будем искать аббревиатуру с текущей позиции каретки
-			var original_offset = editor.currentOffset,
-				cur_line = editor.getLineAtOffset(original_offset),
-				line_offset = editor.getOffsetAtLine(cur_line);
-			
-			return this.extractAbbreviation(editor.source.substring(line_offset, original_offset));
-		},
-		
 		expandAbbreviation: function(abbr, type, profile) {
 			var tree = this.parseIntoTree(abbr, type || 'html');
 			return replaceVariables(tree ? tree.toString(profile) : '');
 		},
 		
 		/**
-		 * Извлекает аббревиатуру из строки
+		 * Extracts abbreviations from text stream, starting from the end
 		 * @param {String} str
-		 * @return {String} Аббревиатура или пустая строка
+		 * @return {String} Abbreviation or empty string
 		 */
 		extractAbbreviation: function(str) {
 			var cur_offset = str.length,
@@ -530,9 +681,9 @@
 		},
 		
 		/**
-		 * Преобразует аббревиатуру в дерево элементов
-		 * @param {String} abbr Аббревиатура
-		 * @param {String} type Тип документа (xsl, html)
+		 * Parses abbreviation into a node set
+		 * @param {String} abbr Abbreviation
+		 * @param {String} type Document type (xsl, html, etc.)
 		 * @return {Tag}
 		 */
 		parseIntoTree: function(abbr, type) {
@@ -540,8 +691,9 @@
 			var root = new Tag('', 1, type),
 				parent = root,
 				last = null,
+				multiply_elem = null,
 				res = zen_settings[type],
-				re = /([\+>])?([a-z][a-z0-9:\!\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(?:\*(\d+))?/ig;
+				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
 			
 			if (!abbr)
 				return null;
@@ -552,8 +704,12 @@
 				return a ? a.value : str;
 			});
 			
-			abbr = abbr.replace(re, function(str, operator, tag_name, id, class_name, multiplier){
+			abbr = abbr.replace(re, function(str, operator, tag_name, id, class_name, has_multiplier, multiplier, has_expando){
+				var multiply_by_lines = (has_multiplier && !multiplier);
 				multiplier = multiplier ? parseInt(multiplier) : 1;
+				
+				if (has_expando)
+					tag_name += '+';
 				
 				var current = isShippet(tag_name, type) ? new Snippet(tag_name, multiplier, type) : new Tag(tag_name, multiplier, type);
 				if (id)
@@ -570,11 +726,18 @@
 				parent.addChild(current);
 				
 				last = current;
+				
+				if (multiply_by_lines)
+					multiply_elem = current;
+				
 				return '';
 			});
 			
+			root.last = last;
+			root.multiply_elem = multiply_elem;
+			
 			// empty 'abbr' string means that abbreviation was successfully expanded,
-			// if not—abbreviation wasn't valid 
+			// if not — abbreviation wasn't valid 
 			return (!abbr) ? root : null;
 		},
 		
@@ -585,27 +748,123 @@
 		 * @return {String}
 		 */
 		padString: padString,
-		getNewline: getNewline,
+		setupProfile: setupProfile,
+		getNewline: function(){
+			return '\n';
+		},
 		
 		/**
-		 * Ищет новую точку вставки каретки		 * @param {Number} Инкремент поиска: -1 — ищем влево, 1 — ищем вправо		 * @param {Number} Начальное смещение относительно текущей позиции курсора		 * @return {Number} Вернет -1, если не была найдена новая позиция		 */		findNewEditPoint: function(inc, offset) {			inc = inc || 1;
-			offset = offset || 0;			var editor = editors.activeEditor,				cur_point = editor.currentOffset + offset,				max_len = editor.sourceLength,				next_point = -1;						function ch(ix) {				return editor.source.charAt(ix);			}							while (cur_point < max_len && cur_point > 0) {				cur_point += inc;				var cur_char = ch(cur_point),					next_char = ch(cur_point + 1),					prev_char = ch(cur_point - 1);									switch (cur_char) {					case '"':					case '\'':						if (next_char == cur_char && prev_char == '=') {							// пустой атрибут							next_point = cur_point + 1;						}						break;					case '>':						if (next_char == '<') {							// между тэгами							next_point = cur_point + 1;						}						break;				}								if (next_point != -1)					break;			}						return next_point;		},
+		 * Returns range for matched tag pair inside document
+		 * @requires HTMLParser
+		 * @param {String} html Full xHTML document
+		 * @param {Number} cursor_pos Cursor position inside document
+		 * @return {Object} Pair of indicies (<code>start</code> and <code>end</code>). 
+		 * Returns 'null' if match wasn't found 
+		 */
+		getPairRange: function(html, cursor_pos) {
+			var tags = {},
+				ranges = [],
+				result = null;
+				
+			function inRange(start, end) {
+				return cursor_pos > start && cursor_pos < end;
+			} 
+			
+			var handler = {
+				start: function(name, attrs, unary, ix_start, ix_end) {
+					if (unary && inRange(ix_start, ix_end)) {
+						// this is the exact range for cursor position, stop searching
+						result = {start: ix_start, end: ix_end};
+						this.stop = true;
+					} else {
+						if (!tags.hasOwnProperty(name))
+							tags[name] = [];
+							
+						tags[name].push(ix_start);
+					}
+				},
+				
+				end: function(name, ix_start, ix_end) {
+					if (tags.hasOwnProperty(name)) {
+						var start = tags[name].pop();
+						if (inRange(start, ix_end))
+							ranges.push({start: start, end: ix_end});
+					}
+				},
+				
+				comment: function(data, ix_start, ix_end) {
+					if (inRange(ix_start, ix_end)) {
+						// this is the exact range for cursor position, stop searching
+						result = {start: ix_start, end: ix_end};
+						this.stop = true;
+					}
+				}
+			};
+			
+			// scan document
+			try {
+				HTMLParser(html, handler);
+			} catch(e) {}
+			
+			if (!result && ranges.length) {
+				// because we have overlaped ranges only, we have to sort array by 
+				// length: the shorter range length, the most probable match
+				result = ranges.sort(function(a, b){
+					return (a.end - a.start) - (b.end - b.start);
+				})[0];
+			}
+			
+			return result;
+		},
 		
 		/**
-		 * Возвращает тип текущего редактора (css или html)		 * @return {String|null}
-		 * TODO move to Eclipse-specific file		 */		getEditorType: function() {			var content_types = {				'text/html':  'html',				'text/xml' :  'html',				'text/css' :  'css',				'text/xsl' :  'xsl'			};						return content_types[getPartition(editors.activeEditor.currentOffset)];		},
-		
-		/**
-		 * Возвращает отступ текущей строки у редактора
+		 * Wraps passed text with abbreviation. Text will be placed inside last
+		 * expanded element
+		 * @param {String} abbr Abbreviation
+		 * @param {String} text Text to wrap
+		 * @param {String} [type] Document type (html, xml, etc.). Default is 'html'
+		 * @param {String} [profile] Output profile's name. Default is 'plain'
 		 * @return {String}
 		 */
-		getCurrentLinePadding: function() {
-			var editor = editors.activeEditor,
-				cur_line_num = editor.getLineAtOffset(editor.selectionRange.startingOffset),
-				end_offset = editor.getOffsetAtLine(cur_line_num + 1) + getNewline().length,
-				cur_line = editor.source.substring(editor.getOffsetAtLine(cur_line_num), end_offset);			return (cur_line.match(/^(\s+)/) || [''])[0];		},
+		wrapWithAbbreviation: function(abbr, text, type, profile) {
+			var tree = this.parseIntoTree(abbr, type || 'html');
+			if (tree) {
+				var repeat_elem = tree.multiply_elem || tree.last;
+				repeat_elem.setContent(text);
+				repeat_elem.repeat_by_lines = !!tree.multiply_elem;
+				return tree.toString(profile);
+			} else {
+				return null;
+			}
+		},
 		
-		setupProfile: setupProfile,
+		splitByLines: splitByLines,
+		
+		/**
+		 * Check if cursor is placed inside xHTML tag
+		 * @param {String} html Contents of the document
+		 * @param {Number} cursor_pos Current caret position inside tag
+		 * @return {Boolean}
+		 */
+		isInsideTag: function(html, cursor_pos) {
+			var re_tag = /^<\/?\w[\w\:\-]*.*?>/;
+			
+			// search left to find opening brace
+			var pos = cursor_pos;
+			while (pos > -1) {
+				if (html.charAt(pos) == '<') 
+					break;
+				pos--;
+			}
+			
+			if (pos != -1) {
+				var m = re_tag.exec(html.substring(pos));
+				if (m && cursor_pos > pos && cursor_pos < pos + m[0].length)
+					return true;
+			}
+			
+			return false;
+		},
 		
 		settings_parser: (function(){
 			/**
@@ -620,8 +879,7 @@
 			}
 			
 			/** Regular expression for XML tag matching */
-			var re_tag = /^<([\w\-]+(?:\:\w+)?)((?:\s+[\w\-]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
-				
+			var re_tag = /^<(\w+\:?[\w\-]*)((?:\s+[\w\:\-]+\s*=\s*(['"]).*?\3)*)\s*(\/?)>/,
 				re_attrs = /([\w\-]+)\s*=\s*(['"])(.*?)\2/g;
 			
 			/**
@@ -631,9 +889,6 @@
 			 * @return {Object}
 			 */
 			function makeExpando(key, value) {
-//				if (key.substr(-1) == '+') 
-//					key = key.substring(0, key.length - 2);	
-				
 				return entry(TYPE_EXPANDO, key, value);
 			}
 			
@@ -678,7 +933,7 @@
 						// this is expando, leave 'value' as is
 						obj[key] = makeExpando(key, value);
 					} else if (m = re_tag.exec(value)) {
-						obj[key] = makeAbbreviation(key, m[1], m[2], m[3] == '/');
+						obj[key] = makeAbbreviation(key, m[1], m[2], m[4] == '/');
 					} else {
 						// assume it's reference to another abbreviation
 						obj[key] = entry(TYPE_REFERENCE, key, value);
@@ -742,13 +997,15 @@
 	
 })();
 
-// first we need to expand some strings into hashes
-zen_coding.settings_parser.createMaps(zen_settings);
-if ('my_zen_settings' in this) {
-	// we need to extend default settings with user's
-	zen_coding.settings_parser.createMaps(my_zen_settings);
-	zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
+if ('zen_settings' in this) {
+	// first we need to expand some strings into hashes
+	zen_coding.settings_parser.createMaps(zen_settings);
+	if ('my_zen_settings' in this) {
+		// we need to extend default settings with user's
+		zen_coding.settings_parser.createMaps(my_zen_settings);
+		zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
+	}
+	
+	// now we need to parse final set of settings
+	zen_coding.settings_parser.parse(zen_settings);
 }
-
-// now we need to parse final set of settings
-zen_coding.settings_parser.parse(zen_settings);

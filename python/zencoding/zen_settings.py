@@ -1,24 +1,29 @@
-/**
- * Zen Coding settings
- * @author Sergey Chikuyonok (serge.che@gmail.com)
- * @link http://chikuyonok.ru
- */
-var zen_settings = {
-	/** 
-	 * Variables that can be placed inside snippets or abbreviations as ${variable}
-	 * ${child} variable is reserved, don't use it 
-	 */
+"""
+Zen Coding settings
+@author Sergey Chikuyonok (serge.che@gmail.com)
+@link http://chikuyonok.ru
+"""
+zen_settings = {
+			
+#	Variables that can be placed inside snippets or abbreviations as ${variable}
+#	${child} variable is reserved, don't use it
 	'variables': {
 		'lang': 'en',
 		'locale': 'en-US',
 		'charset': 'UTF-8',
 		'profile': 'xhtml',
 		
-		/** Inner element indentation */
-		'indentation': '\t'     // TODO take from Aptana settings
+#		Inner element indentation
+		'indentation': '\t'
+	},
+	
+	# common settings are used for quick injection of user-defined snippets
+	'common': {
+		
 	},
 	
 	'css': {
+		'extends': 'common',
 		'snippets': {
 			"@i": "@import url(|);",
 			"@m": "@media print {\n\t|\n}",
@@ -494,6 +499,7 @@ var zen_settings = {
 	},
 	
 	'html': {
+		'extends': 'common',
 		'snippets': {
 			'cc:ie6': '<!--[if lte IE 6]>\n\t${child}|\n<![endif]-->',
 			'cc:ie': '<!--[if IE]>\n\t${child}|\n<![endif]-->',
@@ -570,7 +576,7 @@ var zen_settings = {
 			'link:rss': '<link rel="alternate" type="application/rss+xml" title="RSS" href="|rss.xml" />',
 			'link:atom': '<link rel="alternate" type="application/atom+xml" title="Atom" href="atom.xml" />',
 			'meta:utf': '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />',
-			'meta:win': '<meta http-equiv="Content-Type" content="text/html;charset=windows-1251" />',
+			'meta:win': '<meta http-equiv="Content-Type" content="text/html;charset=Win-1251" />',
 			'meta:compat': '<meta http-equiv="X-UA-Compatible" content="IE=7" />',
 			'style': '<style type="text/css"></style>',
 			'script': '<script type="text/javascript"></script>',
@@ -664,7 +670,7 @@ var zen_settings = {
 			'det': '<details></details>',
 			'cmd': '<command></command>',
 			
-			// expandos
+#			expandos
 			'ol+': 'ol>li',
 			'ul+': 'ul>li',
 			'dl+': 'dl>dt+dd',
@@ -687,7 +693,7 @@ var zen_settings = {
 	},
 	
 	'xsl': {
-		'extends': 'html', 
+		'extends': 'common,html', 
 		'abbreviations': {
 			'tm': '<xsl:template match="" mode=""></xsl:template>',
 			'tmatch': 'tm',
@@ -707,8 +713,8 @@ var zen_settings = {
 			'each': '<xsl:for-each select=""></xsl:for-each>',
 			'ap': '<xsl:apply-templates select="" mode=""/>',
 			
-			//expandos
+#			expandos
 			'choose+': 'xsl:choose>xsl:when+xsl:otherwise'
 		}
 	}
-};
+}
