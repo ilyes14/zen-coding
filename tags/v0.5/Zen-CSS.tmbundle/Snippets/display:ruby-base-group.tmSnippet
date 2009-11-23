@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>display:${TM_CSS_SPACE}ruby-base-group;$0</string>
+	<key>name</key>
+	<string>display:ruby-base-group</string>
+	<key>scope</key>
+	<string>source.css</string>
+	<key>tabTrigger</key>
+	<string>d:rbbg</string>
+	<key>uuid</key>
+	<string>01E7933C-0E64-4915-9B28-6CA8DC01ADE2</string>
+</dict>
+</plist>
