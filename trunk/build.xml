@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="Zen Coding" default="main" basedir=".">
+	<import file="${webtasks_path}"/>
+
 	<property name="src" value="${basedir}/python/zencoding"/>
+	<property name="js-src" value="${basedir}/aptana"/>
 	<property name="textmate" value="${basedir}/plugins/TextMate"/>
 	<property name="textmate_bundle_name" value="Zen Coding.tmbundle"/>
 	<property name="textmate_bundle_path" value="${textmate}/${textmate_bundle_name}"/>
+	<property name="editarea_path" value="${basedir}/plugins/editArea/zencoding"/>
 
 	<property name="aptana_path" value="${basedir}/aptana"/>
 
-	<target name="main" depends="build_textmate, install_tm_bundle">
+
+	<target name="main" depends="build_textmate, build_editarea">
 		<echo>Done</echo>
 	</target>
 
@@ -26,6 +31,14 @@
 				<file name="zen_core.py"/>
 			</filelist>
 		</copy>
+	</target>
+
+	<target name="build_editarea">
+		<compile-js-lib tofile="${editarea_path}/core.js">
+			<files>
+				<filelist dir="${js-src}">					<file name="zen_settings.js"/>					<file name="lib/zen_coding.js"/>					<file name="lib/html_matcher.js"/>				</filelist>
+			</files>
+		</compile-js-lib>
 	</target>
 
 	<target name="install_tm_bundle" depends="build_textmate">

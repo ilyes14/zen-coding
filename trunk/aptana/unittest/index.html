@@ -9,7 +9,7 @@
 
 		<script src="../zen_settings.js" type="text/javascript"></script>
 		<script src="../my_zen_settings.js" type="text/javascript"></script>
-		<script src="../lib/core.js" type="text/javascript"></script>
+		<script src="../lib/zen_coding.js" type="text/javascript"></script>
 	</head>
 	<body>
 		<div id="content">
@@ -28,6 +28,8 @@
 			function expandAbbr(abbr, type, profile) {
 				return zen_coding.expandAbbreviation(abbr, type, profile);
 			}
+			
+//			console.log(zen_settings);
 			
 //			console.log(expandAbbr('html:xs>ul#nav>li.item$*4', 'html', 'xhtml'));
 			
@@ -83,6 +85,7 @@
 				 	assertEqual('<input type="checkbox" name="" id="" />', expandAbbr('input:c'));
 				 	assertEqual('<some:elem></some:elem>', expandAbbr('some:elem'));
 				 	assertEqual('<li id="id1" class="class1"></li><li id="id2" class="class2"></li><li id="id3" class="class3"></li>', expandAbbr('li#id$.class$*3'));
+				 	assertEqual('<select name="" id="test"></select>', expandAbbr('select#test'));
 				 }},
 				 
 				 "test XSL": function(){ with (this) {
@@ -90,12 +93,42 @@
 					assertEqual('<xsl:choose><xsl:when test=""></xsl:when><xsl:otherwise></xsl:otherwise></xsl:choose>', expandAbbr('choose+', 'xsl'));
 					assertEqual('<xsl:variable><div></div><p></p></xsl:variable>', expandAbbr('xsl:variable>div+p', 'xsl'));
 					assertEqual('<xsl:variable name=""><div></div><p></p></xsl:variable>', expandAbbr('var>div+p', 'xsl'));
+					assertEqual('<xsl:apply-templates select="" mode="" />', expandAbbr('ap', 'xsl'));
+				 }},
+				 
+				 "test CSS": function(){ with (this) {
+					assertEqual('@import url(|);', expandAbbr('@i', 'css'));
+					assertEqual('!important', expandAbbr('!', 'css'));
+					assertEqual('position:static;', expandAbbr('pos:s', 'css'));
+					assertEqual('text-indent:-9999px;', expandAbbr('ti:-', 'css'));
+					assertEqual('border-bottom:1px solid #000;', expandAbbr('bdb+', 'css'));
 				 }},
 				 
 				 "test inheritance": function(){ with (this) {
 					assertEqual('<a href=""></a>', expandAbbr('a', 'xsl'));
 					assertEqual('<div id="demo"></div>', expandAbbr('demo', 'xsl'));
-				 }}
+				 }},
+				 
+				 "test non-existed types": function(){ with (this) {
+					assertEqual('<a></a>', expandAbbr('a', 'foo'));
+					assertEqual('<bq><p></p></bq>', expandAbbr('bq>p', 'foo'));
+				 }},
+				 
+				 "test tag hit": function(){ with (this) {
+					assertEqual(true, zen_coding.isInsideTag('hello<div>world', 7));
+					assertEqual(true, zen_coding.isInsideTag('hello<br />world', 7));
+					assertEqual(true, zen_coding.isInsideTag('hello</p>world', 7));
+					assertEqual(false, zen_coding.isInsideTag('hello<div>world', 10));
+					assertEqual(false, zen_coding.isInsideTag('hello<div>world', 1));
+				 }},
+				 
+				 "test formatting": function(){ with (this) {
+					assertEqual('<blockquote>\n\t<p>|</p>\n</blockquote>', expandAbbr('bq>p', 'html', 'xhtml'));
+					assertEqual('<blockquote>|</blockquote>\n<p>|</p>', expandAbbr('bq+p', 'html', 'xhtml'));
+					assertEqual('<img src="|" alt="|" />\n<p>|</p>', expandAbbr('img+p', 'html', 'xhtml'));
+					assertEqual('<xsl:variable name="|" select="|"/>', expandAbbr('vare', 'xsl', 'xml'));
+					assertEqual('<xsl:variable name="|" select="|"/>\n<p>\n\t|\n</p>', expandAbbr('vare+p', 'xsl', 'xml'));
+				 }},
 				 
 			});
 		</script>
