@@ -647,6 +647,7 @@ text-align:;                                ta
 text-align:left;                            ta:l
 text-align:center;                          ta:c
 text-align:right;                           ta:r
+text-align:justify;                         ta:j
 }}}
 
 {{{
