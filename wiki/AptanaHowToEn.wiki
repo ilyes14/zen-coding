@@ -6,11 +6,11 @@ Zen Coding requires [http://wiki.eclipse.org/Eclipse_Monkey_Overview EclipseMonk
   # Install EclipseMonkey using update site: http://download.eclipse.org/technology/dash/update (you can skip this step if you have Aptana installed)
   # Create top-level project in your current Eclipse workspace, name it, for example, *zencoding*
   # Create *scripts* folder inside newly created project
-  # Extract contents of downloaded into this folder. The project structure may look like this:
+  # Extract contents of downloaded zip plugin into this folder. The project structure may look like this:
      http://zen-coding.googlecode.com/svn/wiki/images/aptana-proj-structure.png
   # Restart Eclipse/Aptana if needed
   
-Now you should have Scripts menu with Zen Coding in it.
+Now you should have Scripts menu item with Zen Coding in it.
 
 ==Changing keyboard shortcuts==
 If you don't like default keyboard shortcuts, you can always change them. For example, if you wish to change "Expand Abbreviation" shortcut, you should open `Expand Abbreviation.js` file. At the top of this file you will see something like this:
