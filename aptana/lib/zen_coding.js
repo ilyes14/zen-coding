@@ -352,7 +352,9 @@
 				cursor = profile.place_cursor ? '|' : '',
 				self_closing = '',
 				attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
-				attr_name;
+				attr_name,
+				
+				is_empty = (this.isEmpty() && !this.children.length);
 
 			if (profile.self_closing_tag == 'xhtml')
 				self_closing = ' /';
@@ -373,7 +375,7 @@
 			var deepest_child = this.findDeepestChild();
 			
 			// output children
-			if (!this.isEmpty()) {
+			if (!is_empty) {
 				if (deepest_child && this.repeat_by_lines)
 					deepest_child.setContent(content_placeholder);
 				
@@ -391,7 +393,7 @@
 			// define opening and closing tags
 			if (this.name) {
 				var tag_name = (profile.tag_case == 'upper') ? this.name.toUpperCase() : this.name.toLowerCase();
-				if (this.isEmpty()) {
+				if (is_empty) {
 					start_tag = '<' + tag_name + attrs + self_closing + '>';
 				} else {
 					start_tag = '<' + tag_name + attrs + '>';
@@ -420,7 +422,7 @@
 				if (this.name) {
 					if (content)
 						content = padString(content, profile.indent ? 1 : 0);
-					else if (!this.isEmpty())
+					else if (!is_empty)
 						start_tag += cursor;
 				}
 					

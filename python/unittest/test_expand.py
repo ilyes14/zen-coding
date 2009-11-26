@@ -5,7 +5,7 @@ Created on Jun 19, 2009
 '''
 import unittest
 
-from zencoding import zen_core as zen, stparser
+from zencoding import zen_core as zen
 
 #zen.update_settings(stparser.get_settings())
 
@@ -66,6 +66,8 @@ class Test(unittest.TestCase):
 		self.assertEqual('<xsl:choose><xsl:when test=""></xsl:when><xsl:otherwise></xsl:otherwise></xsl:choose>', expandAbbr('choose+', 'xsl'))
 		self.assertEqual('<xsl:variable><div></div><p></p></xsl:variable>', expandAbbr('xsl:variable>div+p', 'xsl'))
 		self.assertEqual('<xsl:variable name=""><div></div><p></p></xsl:variable>', expandAbbr('var>div+p', 'xsl'))
+		self.assertEqual('<xsl:apply-templates select="" mode="" />', expandAbbr('ap', 'xsl'));
+		self.assertEqual('<xsl:apply-templates select="" mode=""><xsl:with-param name="" select="" /><xsl:with-param name="" select="" /></xsl:apply-templates>', expandAbbr('ap>wp*2', 'xsl'));
 		
 	def testCSS(self):
 		self.assertEqual('@import url(|);', expandAbbr('@i', 'css'))
