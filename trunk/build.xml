@@ -12,7 +12,7 @@
 	<property name="aptana_path" value="${basedir}/aptana"/>
 
 
-	<target name="main" depends="build_textmate, build_editarea">
+	<target name="main" depends="install_tm_bundle, build_editarea">
 		<echo>Done</echo>
 	</target>
 
@@ -27,7 +27,8 @@
 
 		<copy todir="${textmate_bundle_path}/Support/zencoding">
 			<filelist dir="${src}">
-				<file name="settings.py"/>
+				<file name="zen_settings.py"/>
+				<file name="stparser.py"/>
 				<file name="zen_core.py"/>
 			</filelist>
 		</copy>
