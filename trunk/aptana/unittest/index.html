@@ -94,6 +94,7 @@
 					assertEqual('<xsl:variable><div></div><p></p></xsl:variable>', expandAbbr('xsl:variable>div+p', 'xsl'));
 					assertEqual('<xsl:variable name=""><div></div><p></p></xsl:variable>', expandAbbr('var>div+p', 'xsl'));
 					assertEqual('<xsl:apply-templates select="" mode="" />', expandAbbr('ap', 'xsl'));
+					assertEqual('<xsl:apply-templates select="" mode=""><xsl:with-param name="" select="" /><xsl:with-param name="" select="" /></xsl:apply-templates>', expandAbbr('ap>wp*2', 'xsl'));
 				 }},
 				 
 				 "test CSS": function(){ with (this) {
