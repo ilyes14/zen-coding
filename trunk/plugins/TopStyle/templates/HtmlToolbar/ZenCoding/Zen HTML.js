@@ -1,19 +1,27 @@
 function objectTag() {
 	var 
+		// получаем выделение, удаляя в нем все переносы строк
 		selection = ts.getSelection(false, false).replace(/\s*[\r\n]\s*/mg, ''), 
-		text = zen_coding.parseIntoTree( selection, zen_coding.getEditorType() )
-	
-	if (!text)
-		return ''
 
-	text = text.toString(true)
+		// опеределяем контекст аббревиатуры HTML/CSS
+		type = ts.hasParent('style', '', '') ? 'css' : 'html',
+
+		// опеределяем тип документа: HTML/xHTML 
+		profile = ts.isXHTML() ? 'xhtml' : 'html', 
+
+		// разворачиваем аббревиатуру
+		text = zen_coding.expandAbbreviation(selection, type, profile);
+
+	if (!text)
+		return '';
+
+	text = text.toString(true);
 
 	// Удаляем все символы | (позиция курсора), кроме первого.
-	var cursor_pos = text.indexOf('|')
+	var cursor_pos = text.indexOf('|');
 	if (cursor_pos!=-1) {
-		text = text.substring(0, cursor_pos+1).concat( text.substring(cursor_pos+1).replace(/\|/gm, '') )
+		text = text.substring(0, cursor_pos+1).concat( text.substring(cursor_pos+1).replace(/\|/gm, '') );
 	}
 
-	// Если выделение содержит отступ слева - сохраняем его.
-	return zen_coding.getCurrentLinePadding() + text 
+	return text;
 }
