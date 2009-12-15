@@ -1,0 +1,67 @@
+﻿<macromedia-extension
+	 name="Zen Coding"
+	 version="0.5.0"
+	 type="suite">
+
+	<author name="GreLI" />
+
+	<products>
+		<product name="Dreamweaver" version="8" primary="true" />
+	</products>
+
+	<description
+	 href="http://code.google.com/p/zen-coding/">
+	<![CDATA[
+	Zen Coding implementation for Dreamweaver CS4 for HTML and CSS hi-speed coding
+	]]>
+	</description>
+
+	<ui-access>
+	<![CDATA[
+	Access the Zen Coding commands in Commands > Zen Coding or via shortcuts:<br>
+Ctrl+, Expand Abbreviation<br>
+Ctrl+H Wrap with Abbreviation<br>
+Ctrl+/ Merge Lines<br>
+Alt+Left Previous Edit Point<br>
+Alt+Right Next Edit Point<br>
+Alt+Up Match pair
+	]]>
+	</ui-access>
+
+	<license-agreement>
+	<![CDATA[
+	GNU GPL v3
+	]]>
+	</license-agreement>
+
+	<files>
+		<file source="Commands/expandAbbr.html" destination="$Dreamweaver/configuration/Commands" />
+		<file source="Commands/wrapWithAbbr.html" destination="$Dreamweaver/configuration/Commands" />
+		<file source="Commands/prevEditPoint.html" destination="$Dreamweaver/configuration/Commands" />
+		<file source="Commands/nextEditPoint.html" destination="$Dreamweaver/configuration/Commands" />
+		<file source="Commands/mergeLines.html" destination="$Dreamweaver/configuration/Commands" />
+		<file source="Commands/gotoMatchingPair.html" destination="$Dreamweaver/configuration/Commands" />
+		<file source="Commands/formatSelectionWithShowdown.html" destination="$Dreamweaver/configuration/Commands" />
+		<file source="Commands/ZenCoding/zen_settings.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
+		<file source="Commands/ZenCoding/zen_coding.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
+		<file source="Commands/ZenCoding/html_matcher.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
+		<file source="Commands/ZenCoding/showdown.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
+		<file source="Commands/ZenCoding/zen_dreamweaver.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
+	</files>
+
+	<configuration-changes>
+		<menu-insert appendTo="DWMenu_Commands">
+			<menu id="DWMenu_ZenCoding" name="Zen Coding">
+			</menu>
+		</menu-insert>
+		<menu-insert appendTo="DWMenu_ZenCoding">
+			<menuitem id="DWMenu_Commands_ZenCoding_Expand_Abbreviation" name="Expand Abbreviation" key="Ctrl+," command="dw.runCommand('expandAbbr.html')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_Wrap_With_Abbreviation" name="Wrap with Abbreviation" key="Ctrl+H" command="dw.runCommand('wrapWithAbbr.html')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_Previous_Edit_Point" name="Previous Edit Point" key="Alt+Left" command="dw.runCommand('prevEditPoint.html')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_Next_Edit_Point" name="Next Edit Point" key="Alt+Right" command="dw.runCommand('nextEditPoint.html')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_Merge_Lines" name="Merge Lines" key="Ctrl+/" command="dw.runCommand('mergeLines.html')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_Go_to_Matching_Pair" name="Go to Matching Pair" key="Alt+Up" command="dw.runCommand('gotoMatchingPair.html')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_Format_Selection_With_Showdown" name="Format Selection With Showdown" command="dw.runCommand('formatSelectionWithShowdown.html')" />
+		</menu-insert>
+	</configuration-changes>
+</macromedia-extension>
