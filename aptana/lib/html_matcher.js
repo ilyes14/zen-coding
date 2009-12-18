@@ -244,7 +244,7 @@
 	 * method doesn't save matched result in <code>last_match</code> property.
 	 * This method is generally used for lookups 
 	 */
-	HTMLPairMatcher.find = function() {
+	HTMLPairMatcher.find = function(html, start_ix) {
 		return findPair(html, start_ix);
 	};
 	
