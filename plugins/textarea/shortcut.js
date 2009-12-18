@@ -30,7 +30,8 @@ shortcut = {
 		//The function to be called at keypress
 		var func = function(e) {
 			e = e || window.event;
-			var code;
+			var code,
+				is_mac = /mac\s+os/i.test(navigator.userAgent);
 			
 			if(opt['disable_in_input']) { //Don't enable shortcut keys in Input, Textarea fields
 				var element;
@@ -162,6 +163,8 @@ shortcut = {
 				} else if(k == 'meta') {
 					kp++;
 					modifiers.meta.wanted = true;
+					if (!is_mac)
+						modifiers.ctrl.wanted = true;
 				} else if(k.length > 1) { //If it is a special key
 					if(special_keys[k] == code) kp++;
 					
@@ -184,9 +187,10 @@ shortcut = {
 						modifiers.shift.pressed == modifiers.shift.wanted &&
 						modifiers.alt.pressed == modifiers.alt.wanted &&
 						modifiers.meta.pressed == modifiers.meta.wanted) {
-				callback(e);
+				
+				var result = callback(e);
 	
-				if(!opt['propagate']) { //Stop the event
+				if(result !== true && !opt['propagate']) { //Stop the event
 					//e.cancelBubble is supported by IE - this will kill the bubbling process.
 					e.cancelBubble = true;
 					e.returnValue = false;
