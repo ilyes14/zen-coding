@@ -248,5 +248,19 @@
 		return findPair(html, start_ix);
 	};
 	
+	/**
+	 * Search for matching tags in <code>html</code>, starting from 
+	 * <code>start_ix</code> position. The difference between 
+	 * <code>HTMLPairMatcher</code> function itself is that <code>getTags</code> 
+	 * method doesn't save matched result in <code>last_match</code> property 
+	 * and returns array of opening and closing tags
+	 * This method is generally used for lookups 
+	 */
+	HTMLPairMatcher.getTags = function(html, start_ix) {
+		return findPair(html, start_ix, function(opening_tag, closing_tag){
+			return [opening_tag, closing_tag];
+		});
+	};
+	
 	HTMLPairMatcher.last_match = last_match;
 })();

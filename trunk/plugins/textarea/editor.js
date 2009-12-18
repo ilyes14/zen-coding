@@ -12,6 +12,7 @@
  * 
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
+ * @include "../../aptana/lib/zen_coding.js"
  */
 var editor = (function(){
 	/** @param {Element} Source element */
@@ -91,9 +92,9 @@ var editor = (function(){
 		var len = text.length,
 			start = 0,
 			end = len - 1;
-			
+		
 		// search left
-		for (var i = from; i > 0; i--) {
+		for (var i = from - 1; i > 0; i--) {
 			var ch = text.charAt(i);
 			if (ch == '\n' || ch == '\r') {
 				start = i + 1;
@@ -101,7 +102,7 @@ var editor = (function(){
 			}
 		}
 		// search right
-		for (var j = from + 1; j < len; j++) {
+		for (var j = from; j < len; j++) {
 			var ch = text.charAt(j);
 			if (ch == '\n' || ch == '\r') {
 				end = j;
@@ -118,6 +119,15 @@ var editor = (function(){
 	function getCaretPos() {
 		var selection = getSelectionRange();
 		return selection ? selection.start : null;
+	}
+	
+	/**
+	 * Returns whitrespace padding of string
+	 * @param {String} str String line
+	 * @return {String}
+	 */
+	function getStringPadding(str) {
+		return (str.match(/^(\s+)/) || [''])[0];
 	}
 	
 	return {
@@ -143,9 +153,7 @@ var editor = (function(){
 		 * Returns current caret position
 		 * @return {Number}
 		 */
-		getCaretPos: function() {
-			return this.getSelectionRange().start;
-		},
+		getCaretPos: getCaretPos,
 		
 		/**
 		 * Returns content of current line
@@ -153,7 +161,7 @@ var editor = (function(){
 		 */
 		getCurrentLine: function() {
 			var range = this.getCurrentLineRange();
-			return this.getContent().substring(range.start, range.end);
+			return range.start < range.end ? this.getContent().substring(range.start, range.end) : '';
 		},
 		
 		/**
@@ -181,11 +189,16 @@ var editor = (function(){
 				has_start = typeof(start) !== 'undefined',
 				has_end = typeof(end) !== 'undefined';
 				
+			// indent new value
+			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
+			
 			// find new caret position
 			var new_pos = value.indexOf(caret_placeholder);
 			if (new_pos != -1) {
 				caret_pos = (start || 0) + new_pos;
 				value = value.split(caret_placeholder).join('');
+			} else {
+				caret_pos += value.length;
 			}
 			
 			try {
@@ -193,7 +206,6 @@ var editor = (function(){
 					content = content.substring(0, start) + value + content.substring(end);
 				} else if (has_start) {
 					content = content.substring(0, start) + value + content.substring(start);
-					caret_pos += value.length;
 				}
 				
 				target.value = content;

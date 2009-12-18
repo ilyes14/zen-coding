@@ -299,3 +299,42 @@ function nextEditPoint(editor) {
 	if (new_point != -1)
 		editor.createSelection(new_point);
 }
+
+/**
+ * Inserts newline character with proper indentation
+ * @param {editor} editor Editor instance
+ * @param {String} mode Syntax mode (only 'html' is implemented)
+ */
+function insertFormattedNewline(editor, mode) {
+	mode = mode || 'html';
+	var pad = getCurrentLinePadding(editor),
+		caret_pos = editor.getCaretPos();
+		
+	function insert_nl() {
+		editor.replaceContent('\n', caret_pos);
+	}
+	
+	switch (mode) {
+		case 'html':
+			// let's see if we're breaking newly created tag
+			var pair = HTMLPairMatcher.getTags(editor.getContent(), editor.getCaretPos());
+			
+			if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caret_pos && pair[1].start == caret_pos) {
+				editor.replaceContent('\n\t|\n', caret_pos);
+			} else {
+				insert_nl();
+			}
+			break;
+		default:
+			insert_nl();
+	}
+}
+
+/**
+ * Select line under cursor
+ * @param {editor} editor Editor instance
+ */
+function selectLine(editor) {
+	var range = editor.getCurrentLineRange();
+	editor.createSelection(range.start, range.end);
+}
