@@ -17,7 +17,7 @@ var editor = (function(){
 	/** @param {Element} Source element */
 	var target = null,
 		/** Textual placeholder that identifies cursor position in pasted text */
-		caret_placeholder = '~{%cursor%}~';
+		caret_placeholder = '|';
 	
 	/**
 	 * Returns content of current target element
@@ -69,6 +69,9 @@ var editor = (function(){
 	 */
 	function createSelection(start, end) {
 		// W3C's DOM
+		if (typeof(end) == 'undefined')
+			end = start;
+			
 		if ('setSelectionRange' in target) {
 			target.setSelectionRange(start, end);
 		} else if ('createTextRange' in target) {
@@ -93,7 +96,7 @@ var editor = (function(){
 		for (var i = from; i > 0; i--) {
 			var ch = text.charAt(i);
 			if (ch == '\n' || ch == '\r') {
-				start = i;
+				start = i + 1;
 				break;
 			}
 		}
@@ -128,12 +131,29 @@ var editor = (function(){
 		/**
 		 * Returns current line's start and end indexes
 		 */
-		getCurrentLine: function() {
+		getCurrentLineRange: function() {
 			var caret_pos = getCaretPos(),
 				content = getContent();
 			if (caret_pos === null) return null;
 			
 			return findNewlineBounds(content, caret_pos);
+		},
+		
+		/**
+		 * Returns current caret position
+		 * @return {Number}
+		 */
+		getCaretPos: function() {
+			return this.getSelectionRange().start;
+		},
+		
+		/**
+		 * Returns content of current line
+		 * @return {String}
+		 */
+		getCurrentLine: function() {
+			var range = this.getCurrentLineRange();
+			return this.getContent().substring(range.start, range.end);
 		},
 		
 		/**
@@ -165,27 +185,20 @@ var editor = (function(){
 			var new_pos = value.indexOf(caret_placeholder);
 			if (new_pos != -1) {
 				caret_pos = (start || 0) + new_pos;
-				value = value.replace(caret_placeholder, '');
+				value = value.split(caret_placeholder).join('');
 			}
 			
 			try {
 				if (has_start && has_end) {
 					content = content.substring(0, start) + value + content.substring(end);
 				} else if (has_start) {
-					content = content.substring(0, start) + value;
+					content = content.substring(0, start) + value + content.substring(start);
+					caret_pos += value.length;
 				}
 				
 				target.value = content;
 				createSelection(caret_pos, caret_pos);
 			} catch(e){}
-		},
-		
-		/**
-		 * Returns cursor placeholder value
-		 * @return {String}
-		 */
-		getCaretPlaceholder: function() {
-			return caret_placeholder;
 		},
 		
 		/**
