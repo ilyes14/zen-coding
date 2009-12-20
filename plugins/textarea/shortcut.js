@@ -7,9 +7,11 @@
 shortcut = {
 	'all_shortcuts':{},//All the shortcuts are stored in this array
 	'add': function(shortcut_combination,callback,opt) {
+		var is_opera = !!window.opera;
+		
 		//Provide a set of default options
 		var default_options = {
-			'type':'keydown',
+			'type':is_opera ? 'keypress' : 'keydown',
 			'propagate':false,
 			'disable_in_input':false,
 			'target':document,
@@ -148,6 +150,16 @@ shortcut = {
             
 			var k;
 			for(var i=0; k=keys[i], i<keys.length; i++) {
+				// Due to stupid Opera bug I have to swap Ctrl and Meta keys
+				if (is_mac && is_opera) {
+					if (k == 'ctrl' || k == 'control')
+						k = 'meta';
+					else if (k == 'meta')
+						k = 'ctrl';
+				} else if (!is_mac && k == 'meta') {
+					k = 'ctrl';
+				}
+				
 				//Modifiers
 				if(k == 'ctrl' || k == 'control') {
 					kp++;
@@ -163,8 +175,6 @@ shortcut = {
 				} else if(k == 'meta') {
 					kp++;
 					modifiers.meta.wanted = true;
-					if (!is_mac)
-						modifiers.ctrl.wanted = true;
 				} else if(k.length > 1) { //If it is a special key
 					if(special_keys[k] == code) kp++;
 					
