@@ -20,6 +20,23 @@ var editor = (function(){
 		/** Textual placeholder that identifies cursor position in pasted text */
 		caret_placeholder = '|';
 	
+		
+	// different browser uses different newlines, so we have to figure out
+	// native browser newline and sanitize incoming text with them
+	var tx = document.createElement('textarea');
+	tx.value = '\n';
+	var nl = tx.value;
+	tx = null;
+	
+	/**
+	 * Replaces all newlines in <code>text</code> with browser's native ones
+	 * @param {String} text
+	 * @return {String}
+	 */
+	function sanitizeNewlines(text) {
+		return zen_coding.splitByLines(text).join(nl);
+	}
+		
 	/**
 	 * Returns content of current target element
 	 */
@@ -191,6 +208,7 @@ var editor = (function(){
 				
 			// indent new value
 			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
+			value = sanitizeNewlines(value);
 			
 			// find new caret position
 			var new_pos = value.indexOf(caret_placeholder);
