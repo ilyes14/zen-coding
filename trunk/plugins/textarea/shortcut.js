@@ -7,7 +7,8 @@
 shortcut = {
 	'all_shortcuts':{},//All the shortcuts are stored in this array
 	'add': function(shortcut_combination,callback,opt) {
-		var is_opera = !!window.opera;
+		var is_opera = !!window.opera,
+			is_mac = /mac\s+os/i.test(navigator.userAgent);
 		
 		//Provide a set of default options
 		var default_options = {
@@ -32,8 +33,7 @@ shortcut = {
 		//The function to be called at keypress
 		var func = function(e) {
 			e = e || window.event;
-			var code,
-				is_mac = /mac\s+os/i.test(navigator.userAgent);
+			var code;
 			
 			if(opt['disable_in_input']) { //Don't enable shortcut keys in Input, Textarea fields
 				var element;
