@@ -7,7 +7,7 @@
  * @include "actions.js"
  * @include "editor.js"
  * @include "shortcut.js"
- */zen_editor = (function(){ // should be global
+ */zen_textarea = (function(){ // should be global
 	var default_options = {
 		profile: 'xhtml',
 		syntax: 'html',
@@ -80,7 +80,7 @@
 			key_code = evt.keyCode || evt.which;
 			
 		if (target_elem && target_elem.nodeType == 1 && target_elem.nodeName == 'TEXTAREA') {
-			editor.setTarget(target_elem);
+			zen_editor.setTarget(target_elem);
 			
 			var options = getOptionsFromElement(target_elem),
 				syntax = options.syntax,
@@ -90,51 +90,51 @@
 				case 'expand_abbreviation':
 					if (key_code == 9) {
 						if (options.use_tab)
-							expandAbbreviationWithTab(editor, syntax, profile_name);
+							expandAbbreviationWithTab(zen_editor, syntax, profile_name);
 						else
 							// user pressed Tab key but it's forbidden in 
 							// Zen Coding: bubble up event
 							return true;
 							
 					} else {
-						expandAbbreviation(editor, syntax, profile_name);
+						expandAbbreviation(zen_editor, syntax, profile_name);
 					}
 					break;
 				case 'match_pair_inward':
 				case 'balance_tag_inward':
-					matchPair(editor, 'in');
+					matchPair(zen_editor, 'in');
 					break;
 				case 'match_pair_outward':
 				case 'balance_tag_outward':
-					matchPair(editor, 'out');
+					matchPair(zen_editor, 'out');
 					break;
 				case 'wrap_with_abbreviation':
 					var abbr = prompt('Enter abbreviation', 'div');
 					if (abbr)
-						wrapWithAbbreviation(editor, abbr, syntax, profile_name);
+						wrapWithAbbreviation(zen_editor, abbr, syntax, profile_name);
 					break;
 				case 'next_edit_point':
-					nextEditPoint(editor);
+					nextEditPoint(zen_editor);
 					break;
 				case 'previuos_edit_point':
 				case 'prev_edit_point':
-					prevEditPoint(editor);
+					prevEditPoint(zen_editor);
 					break;
 				case 'pretty_break':
 				case 'format_line_break':
 					if (key_code == 13) {
 						if (options.pretty_break)
-							insertFormattedNewline(editor);
+							insertFormattedNewline(zen_editor);
 						else
 							// user pressed Enter but it's forbidden in 
 							// Zen Coding: bubble up event
 							return true;
 					} else {
-						insertFormattedNewline(editor);
+						insertFormattedNewline(zen_editor);
 					}
 					break;
 				case 'select_line':
-					selectLine(editor);
+					selectLine(zen_editor);
 			}
 		} else {
 			// allow event bubbling
@@ -158,9 +158,7 @@
 	addShortcut('Meta+E', 'Expand Abbreviation');
 	addShortcut('Tab', 'Expand Abbreviation');
 	addShortcut('Meta+D', 'Balance Tag Outward');
-	addShortcut('Alt+G', 'Balance Tag Outward');
 	addShortcut('Shift+Meta+D', 'Balance Tag inward');
-	addShortcut('Shift+Alt+D', 'Balance Tag inward');
 	addShortcut('Shift+Meta+A', 'Wrap with Abbreviation');
 	addShortcut('Ctrl+Alt+RIGHT', 'Next Edit Point');
 	addShortcut('Ctrl+Alt+LEFT', 'Previuos Edit Point');
