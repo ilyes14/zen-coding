@@ -15,6 +15,26 @@
 		pretty_break: false
 	},
 	
+	mac_char_map = {
+		'ctrl': '⌃',
+		'control': '⌃',
+		'meta': '⌘',
+		'shift': '⇧',
+		'alt': '⌥',
+		'enter': '⏎',
+		'tab': '⇥',
+		'left': '←',
+		'right': '→'
+	},
+	
+	pc_char_map = {
+		'left': '←',
+		'right': '→'
+	},
+	
+	shortcuts = {},
+	is_mac = /mac\s+os/i.test(navigator.userAgent),
+	
 	/** Zen Coding parameter name/value regexp for getting options from element */
 	re_param = /\bzc\-(\w+)\-(\w+)/g;
 	
@@ -32,6 +52,46 @@
 	}
 	
 	options = copyOptions();
+	
+	/**
+	 * Makes first letter of string in uppercase
+	 * @param {String} str
+	 */
+	function capitalize(str) {
+		return str.charAt().toUpperCase() + str.substring(1);
+	}
+	
+	function humanize(str) {
+		return capitalize(str.replace(/_(\w)/g, function(s, p){return ' ' + p.toUpperCase()}));
+	}
+	
+	function formatShortcut(char_map, glue) {
+		var result = [];
+		if (typeof(glue) == 'undefined')
+			glue = '+';
+			
+		for (var p in shortcuts) if (shortcuts.hasOwnProperty(p)) {
+			var keys = p.split('+'),
+				ar = [],
+				lp = p.toLowerCase();
+				
+			if (lp == 'tab' || lp == 'enter')
+				continue;
+				
+			for (var i = 0; i < keys.length; i++) {
+				var key = keys[i].toLowerCase();
+				ar.push(key in char_map ? char_map[key] : capitalize(key));
+			}
+			
+			result.push({
+				'keystroke': ar.join(glue), 
+				'action_name': humanize(shortcuts[p])
+			});
+		}
+		
+		return result;
+	}
+	
 	
 	/**
 	 * Get Zen Coding options from element's class name
@@ -148,7 +208,8 @@
 	 * @param {String} action_name
 	 */
 	function addShortcut(keystroke, action_name) {
-		action_name = normalizeActionName(action_name)
+		action_name = normalizeActionName(action_name);
+		shortcuts[keystroke.toLowerCase()] = action_name;
 		shortcut.add(keystroke, function(evt){
 			return runAction(action_name, evt);
 		});
@@ -174,6 +235,9 @@
 		 * @param {String} keystroke
 		 */
 		unbindShortcut: function(keystroke) {
+			keystroke = keystroke.toLowerCase();
+			if (keystroke in shortcuts)
+				delete shortcuts[keystroke];
 			shortcut.remove(keystroke);
 		},
 		
@@ -190,6 +254,36 @@
 		 */
 		getOption: function(name) {
 			return options[name];
+		},
+		
+		/**
+		 * Returns array of binded actions and their keystrokes
+		 * @return {Array}
+		 */
+		getShortcuts: function() {
+			return formatShortcut(is_mac ? mac_char_map : pc_char_map, is_mac ? '' : '+');
+		},
+		
+		/**
+		 * Show info window about Zen Coding
+		 */
+		showInfo: function() {
+			var message = 'All textareas on this page are powered by Zen Coding project: ' +
+					'a set of tools for fast HTML coding.\n\n' +
+					'Available shortcuts:\n';
+					
+			var sh = this.getShortcuts(),
+				actions = [];
+				
+			for (var i = 0; i < sh.length; i++) {
+				actions.push(sh[i].keystroke + ' — ' + sh[i].action_name)
+			}
+			
+			message += actions.join('\n') + '\n\n';
+			message += 'More info on http://code.google.com/p/zen-coding/';
+			
+			alert(message);
+			
 		}
 	}
 })();
