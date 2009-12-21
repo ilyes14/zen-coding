@@ -14,7 +14,7 @@
  * @link http://chikuyonok.ru
  * @include "../../aptana/lib/zen_coding.js"
  */
-var editor = (function(){
+var zen_editor = (function(){
 	/** @param {Element} Source element */
 	var target = null,
 		/** Textual placeholder that identifies cursor position in pasted text */
@@ -26,20 +26,8 @@ var editor = (function(){
 	var tx = document.createElement('textarea');
 	tx.value = '\n';
 	zen_coding.setNewline(tx.value);
-	var nl = tx.value;
-//	tx = null;
+	tx = null;
 	
-	/**
-	 * Replaces all newlines in <code>text</code> with browser's native ones
-	 * @param {String} text
-	 * @return {String}
-	 */
-	function sanitizeNewlines(text) {
-		tx.value = text;
-//		var lines = zen_coding.splitByLines(text);
-		return tx.value;
-	}
-		
 	/**
 	 * Returns content of current target element
 	 */
@@ -107,7 +95,7 @@ var editor = (function(){
 			start -= delta;
 			
 			t.moveStart('character', start);
-			t.moveEnd("character", end - start);
+			t.moveEnd('character', end - start);
 			t.select();
 		}
 	}
@@ -220,7 +208,6 @@ var editor = (function(){
 				
 			// indent new value
 			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
-//			value = sanitizeNewlines(value);
 			
 			// find new caret position
 			var new_pos = value.indexOf(caret_placeholder);
@@ -239,8 +226,6 @@ var editor = (function(){
 				}
 				
 				target.value = content;
-//				alert(caret_pos);
-//				caret_pos += 1;
 				createSelection(caret_pos, caret_pos);
 			} catch(e){}
 		},

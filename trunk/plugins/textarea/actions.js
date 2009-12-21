@@ -12,7 +12,7 @@
 
 /**
  * Search for abbreviation in editor from current caret position
- * @param {editor} editor Editor instance
+ * @param {zen_editor} editor Editor instance
  * @return {String|null}
  */
 function findAbbreviation(editor) {
@@ -29,7 +29,7 @@ function findAbbreviation(editor) {
 
 /**
  * Find from current caret position and expand abbreviation in editor
- * @param {editor} editor Editor instance
+ * @param {zen_editor} editor Editor instance
  * @param {String} type Syntax type (html, css, etc.)
  * @param {String} profile_name Output profile name (html, xml, xhtml)
  * @return {Boolean} Returns <code>true</code> if abbreviation was expanded 
@@ -56,7 +56,7 @@ function expandAbbreviation(editor, type, profile_name) {
 /**
  * A special version of <code>expandAbbreviation</code> function: if it can't
  * find abbreviation, it will place Tab character at caret position
- * @param {editor} editor Editor instance
+ * @param {zen_editor} editor Editor instance
  * @param {String} type Syntax type (html, css, etc.)
  * @param {String} profile_name Output profile name (html, xml, xhtml)
  */
@@ -67,7 +67,7 @@ function expandAbbreviationWithTab(editor, type, profile_name) {
 
 /**
  * Find and select HTML tag pair
- * @param {editor} editor Editor instance
+ * @param {zen_editor} editor Editor instance
  * @param {String} [direction] Direction of pair matching: 'in' or 'out'. 
  * Default is 'out'
  */
@@ -123,7 +123,7 @@ function matchPair(editor, direction) {
 
 /**
  * Wraps content with abbreviation
- * @param {editor} Editor instance
+ * @param {zen_editor} Editor instance
  * @param {String} type Syntax type (html, css, etc.)
  * @param {String} profile_name Output profile name (html, xml, xhtml)
  */
@@ -183,7 +183,7 @@ function wrapWithAbbreviation(editor, abbr, type, profile_name) {
 
 /**
  * Unindent content, thus preparing text for tag wrapping
- * @param {editor} Editor instance
+ * @param {zen_editor} Editor instance
  * @param {String} text
  * @return {String}
  */
@@ -200,7 +200,7 @@ function unindent(editor, text) {
 
 /**
  * Returns padding of current editor's line
- * @param {editor} Editor instance
+ * @param {zen_editor} Editor instance
  * @return {String}
  */
 function getCurrentLinePadding(editor) {
@@ -209,7 +209,7 @@ function getCurrentLinePadding(editor) {
 
 /**
  * Search for new caret insertion point
- * @param {editor} editor Editor instance
+ * @param {zen_editor} editor Editor instance
  * @param {Number} Search increment: -1 — search left, 1 — search right
  * @param {Number} Initial offset relative to current caret position
  * @return {Number} Returns -1 if insertion point wasn't found
@@ -277,7 +277,7 @@ function findNewEditPoint(editor, inc, offset) {
 
 /**
  * Move caret to previous edit point
- * @param {editor} editor Editor instance
+ * @param {zen_editor} editor Editor instance
  */
 function prevEditPoint(editor) {
 	var cur_pos = editor.getCaretPos(),
@@ -293,7 +293,7 @@ function prevEditPoint(editor) {
 
 /**
  * Move caret to next edit point
- * @param {editor} editor Editor instance
+ * @param {zen_editor} editor Editor instance
  */
 function nextEditPoint(editor) {
 	var new_point = findNewEditPoint(editor, 1);
@@ -303,7 +303,7 @@ function nextEditPoint(editor) {
 
 /**
  * Inserts newline character with proper indentation
- * @param {editor} editor Editor instance
+ * @param {zen_editor} editor Editor instance
  * @param {String} mode Syntax mode (only 'html' is implemented)
  */
 function insertFormattedNewline(editor, mode) {
@@ -333,7 +333,7 @@ function insertFormattedNewline(editor, mode) {
 
 /**
  * Select line under cursor
- * @param {editor} editor Editor instance
+ * @param {zen_editor} editor Editor instance
  */
 function selectLine(editor) {
 	var range = editor.getCurrentLineRange();
