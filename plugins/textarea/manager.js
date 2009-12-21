@@ -109,7 +109,9 @@
 					matchPair(editor, 'out');
 					break;
 				case 'wrap_with_abbreviation':
-					wrapWithAbbreviation(editor, syntax, profile_name);
+					var abbr = prompt('Enter abbreviation', 'div');
+					if (abbr)
+						wrapWithAbbreviation(editor, abbr, syntax, profile_name);
 					break;
 				case 'next_edit_point':
 					nextEditPoint(editor);

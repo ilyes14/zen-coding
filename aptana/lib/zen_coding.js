@@ -13,7 +13,8 @@
 		/** Reference to another abbreviation or tag */
 		TYPE_REFERENCE = 'zen-reference',
 		
-		content_placeholder = '{%::zen-content::%}';
+		content_placeholder = '{%::zen-content::%}',
+		newline = '\n';
 		
 	var default_profile = {
 		tag_case: 'lower',
@@ -65,8 +66,13 @@
 	 * @return {Array}
 	 */
 	function splitByLines(text, remove_empty) {
-		var nl = getNewline(), 
-			lines = text.split(new RegExp('\\r?\\n|\\n\\r|\\r|' + nl));
+		
+		// IE fails to split string by regexp, 
+		// need to normalize newlines first
+		var lines = text.replace(/\r\n/g, '\n').replace(/\n\r/g, '\n').split('\n');
+		
+//		var nl = getNewline(), 
+//			lines = text.split(new RegExp('\\r?\\n|\\n\\r|\\r|' + nl));
 			
 		if (remove_empty) {
 			for (var i = lines.length; i >= 0; i--) {
@@ -752,7 +758,11 @@
 		padString: padString,
 		setupProfile: setupProfile,
 		getNewline: function(){
-			return '\n';
+			return newline;
+		},
+		
+		setNewline: function(str) {
+			newline = str;
 		},
 		
 		/**
