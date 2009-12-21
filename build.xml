@@ -8,11 +8,24 @@
 	<property name="textmate_bundle_name" value="Zen Coding.tmbundle"/>
 	<property name="textmate_bundle_path" value="${textmate}/${textmate_bundle_name}"/>
 	<property name="editarea_path" value="${basedir}/plugins/editArea/zencoding"/>
+	<property name="textarea_path" value="${basedir}/plugins/textarea/build"/>
 
 	<property name="aptana_path" value="${basedir}/aptana"/>
+	
+	<filelist dir="${basedir}" id="textarea.js-files">
+		<file name="plugins/textarea/__intro.js"/>
+		<file name="aptana/zen_settings.js"/>
+		<file name="aptana/lib/html_matcher.js"/>
+		<file name="aptana/lib/zen_coding.js"/>
+		<file name="plugins/textarea/editor.js"/>
+		<file name="plugins/textarea/actions.js"/>
+		<file name="plugins/textarea/shortcut.js"/>
+		<file name="plugins/textarea/manager.js"/>
+		<file name="plugins/textarea/__outro.js"/>
+	</filelist>
 
 
-	<target name="main" depends="install_tm_bundle, build_editarea">
+	<target name="main" depends="install_tm_bundle, build_editarea, build_textarea">
 		<echo>Done</echo>
 	</target>
 
@@ -38,6 +51,17 @@
 		<compile-js-lib tofile="${editarea_path}/core.js">
 			<files>
 				<filelist dir="${js-src}">					<file name="zen_settings.js"/>					<file name="lib/zen_coding.js"/>					<file name="lib/html_matcher.js"/>				</filelist>
+			</files>
+		</compile-js-lib>
+	</target>
+	
+	<target name="build_textarea">
+		<concat destfile="${textarea_path}/zen_textarea.js">
+			<filelist refid="textarea.js-files"/>
+		</concat>
+		<compile-js-lib tofile="${textarea_path}/zen_textarea.min.js">
+			<files>
+				<filelist refid="textarea.js-files"/>
 			</files>
 		</compile-js-lib>
 	</target>

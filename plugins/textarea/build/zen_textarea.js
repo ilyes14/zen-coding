@@ -2997,7 +2997,7 @@ shortcut = {
 				case 'next_edit_point':
 					nextEditPoint(zen_editor);
 					break;
-				case 'previuos_edit_point':
+				case 'previous_edit_point':
 				case 'prev_edit_point':
 					prevEditPoint(zen_editor);
 					break;
@@ -3043,7 +3043,7 @@ shortcut = {
 	addShortcut('Shift+Meta+D', 'Balance Tag inward');
 	addShortcut('Shift+Meta+A', 'Wrap with Abbreviation');
 	addShortcut('Ctrl+Alt+RIGHT', 'Next Edit Point');
-	addShortcut('Ctrl+Alt+LEFT', 'Previuos Edit Point');
+	addShortcut('Ctrl+Alt+LEFT', 'Previous Edit Point');
 	addShortcut('Meta+L', 'Select Line');
 	addShortcut('Enter', 'Format Line Break');
 	
