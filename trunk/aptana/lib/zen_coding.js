@@ -1009,7 +1009,7 @@
 	
 })();
 
-if ('zen_settings' in this) {
+if ('zen_settings' in this || zen_settings) {
 	// first we need to expand some strings into hashes
 	zen_coding.settings_parser.createMaps(zen_settings);
 	if ('my_zen_settings' in this) {
