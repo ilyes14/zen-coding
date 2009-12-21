@@ -78,13 +78,14 @@ function matchPair(editor, direction) {
 		cursor = range.end,
 		range_start = range.start, 
 		range_end = range.end,
+//		content = zen_coding.splitByLines(editor.getContent()).join('\n'),
 		content = editor.getContent(),
 		range = null,
 		_r,
 	
 		old_open_tag = HTMLPairMatcher.last_match['opening_tag'],
 		old_close_tag = HTMLPairMatcher.last_match['closing_tag'];
-	
+		
 	if (direction == 'in' && old_open_tag && range_start != range_end) {
 //		user has previously selected tag and wants to move inward
 		if (!old_close_tag) {
@@ -112,6 +113,7 @@ function matchPair(editor, direction) {
 	}
 	
 	if (range !== null && range[0] != -1) {
+//		alert(range[0] + ', '+ range[1]);
 		editor.createSelection(range[0], range[1]);
 		return true;
 	} else {
@@ -125,14 +127,13 @@ function matchPair(editor, direction) {
  * @param {String} type Syntax type (html, css, etc.)
  * @param {String} profile_name Output profile name (html, xml, xhtml)
  */
-function wrapWithAbbreviation(editor, type, profile_name) {
+function wrapWithAbbreviation(editor, abbr, type, profile_name) {
 	profile_name = profile_name || 'xhtml';
 	
 	var range = editor.getSelectionRange(),
 		start_offset = range.start,
 		end_offset = range.end,
-		content = editor.getContent(),
-		abbr = prompt('Enter abbreviation');
+		content = editor.getContent();
 		
 		
 	if (!abbr)

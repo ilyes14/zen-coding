@@ -25,8 +25,9 @@ var editor = (function(){
 	// native browser newline and sanitize incoming text with them
 	var tx = document.createElement('textarea');
 	tx.value = '\n';
+	zen_coding.setNewline(tx.value);
 	var nl = tx.value;
-	tx = null;
+//	tx = null;
 	
 	/**
 	 * Replaces all newlines in <code>text</code> with browser's native ones
@@ -34,7 +35,9 @@ var editor = (function(){
 	 * @return {String}
 	 */
 	function sanitizeNewlines(text) {
-		return zen_coding.splitByLines(text).join(nl);
+		tx.value = text;
+//		var lines = zen_coding.splitByLines(text);
+		return tx.value;
 	}
 		
 	/**
@@ -62,7 +65,7 @@ var editor = (function(){
 			if (range === null) {
 				return {
 					start: 0, 
-					end: target.value.length
+					end: getContent().length
 				};
 			}
 	 
@@ -94,8 +97,17 @@ var editor = (function(){
 			target.setSelectionRange(start, end);
 		} else if ('createTextRange' in target) {
 			var t = target.createTextRange();
-			t.moveStart("character", start);
-			t.moveEnd("character", end - target.value.length);
+			
+			t.collapse(true);
+			var delta = zen_coding.splitByLines(getContent().substring(0, start)).length - 1;
+			
+			// IE has an issue with handling newlines while creating selection,
+			// so we need to adjust start and end indexes
+			end -= delta + zen_coding.splitByLines(getContent().substring(start, end)).length - 1;
+			start -= delta;
+			
+			t.moveStart('character', start);
+			t.moveEnd("character", end - start);
 			t.select();
 		}
 	}
@@ -208,7 +220,7 @@ var editor = (function(){
 				
 			// indent new value
 			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
-			value = sanitizeNewlines(value);
+//			value = sanitizeNewlines(value);
 			
 			// find new caret position
 			var new_pos = value.indexOf(caret_placeholder);
@@ -227,6 +239,8 @@ var editor = (function(){
 				}
 				
 				target.value = content;
+//				alert(caret_pos);
+//				caret_pos += 1;
 				createSelection(caret_pos, caret_pos);
 			} catch(e){}
 		},
