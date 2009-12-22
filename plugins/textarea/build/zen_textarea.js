@@ -2278,7 +2278,7 @@ function findAbbreviation(editor) {
 function expandAbbreviation(editor, type, profile_name) {
 	profile_name = profile_name || 'xhtml';
 	
-	var caret_pos = editor.getCaretPos(),
+	var caret_pos = editor.getSelectionRange().end,
 		abbr,
 		content = '';
 		
