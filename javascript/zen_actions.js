@@ -5,9 +5,9 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * 
- * @include "editor.js"
- * @include "../../aptana/lib/html_matcher.js"
- * @include "../../aptana/lib/zen_coding.js"
+ * @include "zen_editor.js"
+ * @include "html_matcher.js"
+ * @include "zen_coding.js"
  */
 
 /**
