@@ -52,8 +52,7 @@ var zen_settings = {
 			"d": "display:|;",
 			"d:n": "display:none;",
 			"d:b": "display:block;",
-			"d:i": "display:inline;",
-			"d:ib": "display:inline-block;",
+			"d:ib": "display:inline;",
 			"d:li": "display:list-item;",
 			"d:ri": "display:run-in;",
 			"d:cp": "display:compact;",
@@ -716,8 +715,7 @@ var zen_settings = {
 };/**
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- */
-(function(){
+ */(function(){
 	// Regular Expressions for parsing tags and attributes
 	var start_tag = /^<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
 		end_tag = /^<\/([\w\:\-]+)[^>]*>/,
@@ -984,8 +982,7 @@ var zen_settings = {
  * @link http://chikuyonok.ru
  * @include "settings.js"
  * @include "/EclipseMonkey/scripts/monkey-doc.js"
- */
-var zen_coding = (function(){
+ */var zen_coding = (function(){
 	
 	var re_tag = /<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*\s*(\/?)>$/;
 	
@@ -1197,8 +1194,7 @@ var zen_coding = (function(){
 		
 		// add default attributes
 		if (this._abbr && this._abbr.value.attributes) {
-			var def_attrs = this._abbr.value.attributes;
-			if (def_attrs) {
+			var def_attrs = this._abbr.value.attributes;			if (def_attrs) {
 				for (var i = 0; i < def_attrs.length; i++) {
 					var attr = def_attrs[i];
 					this.addAttribute(attr.name, attr.value);
@@ -2832,8 +2828,7 @@ shortcut = {
  * @include "actions.js"
  * @include "editor.js"
  * @include "shortcut.js"
- */
-zen_textarea = (function(){ // should be global
+ */zen_textarea = (function(){ // should be global
 	var default_options = {
 		profile: 'xhtml',
 		syntax: 'html',
