@@ -1,4 +1,5 @@
 /**
+ * Core library that do all Zen Coding magic
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * @include "settings.js"
@@ -14,6 +15,7 @@
 		TYPE_REFERENCE = 'zen-reference',
 		
 		content_placeholder = '{%::zen-content::%}',
+		caret_placeholder = '|',
 		newline = '\n';
 		
 	var default_profile = {
@@ -117,12 +119,12 @@
 	}
 	
 	/**
-	 * Отбивает текст отступами
-	 * @param {String} text Текст, который нужно отбить
-	 * @param {String|Number} pad Количество отступов или сам отступ
+	 * Indents text with padding
+	 * @param {String} text Text to indent
+	 * @param {String|Number} pad Padding size (number) or padding itself (string)
 	 * @return {String}
 	 */
-	function padString(text, pad, verbose) {
+	function padString(text, pad) {
 		var pad_str = '', result = '';
 		if (typeof(pad) == 'number')
 			for (var i = 0; i < pad; i++) 
@@ -151,9 +153,8 @@
 	}
 	
 	/**
-	 * Проверяет, закачивается ли строка полноценным тэгом. В основном 
-	 * используется для проверки принадлежности символа '>' аббревиатуре 
-	 * или тэгу
+	 * Test if passed string ends with XHTML tag. This method is used for testing
+	 * '>' character: it belongs to tag or it's a part of abbreviation? 
 	 * @param {String} str
 	 * @return {Boolean}
 	 */
@@ -189,11 +190,11 @@
 	}
 	
 	/**
-	 * Тэг
+	 * Tag
 	 * @class
-	 * @param {String} name Имя тэга
-	 * @param {Number} count Сколько раз вывести тэг (по умолчанию: 1)
-	 * @param {String} type Тип тэга (html, xml)
+	 * @param {String} name tag name
+	 * @param {Number} count Output multiplier (default: 1)
+	 * @param {String} type Tag type (html, xml)
 	 */
 	function Tag(name, count, type) {
 		name = name.toLowerCase();
@@ -226,7 +227,7 @@
 	
 	Tag.prototype = {
 		/**
-		 * Добавляет нового потомка
+		 * Adds new child tag to current one
 		 * @param {Tag} tag
 		 */
 		addChild: function(tag) {
@@ -234,9 +235,9 @@
 		},
 		
 		/**
-		 * Добавляет атрибут
-		 * @param {String} name Название атрибута
-		 * @param {String} value Значение атрибута
+		 * Adds new attribute
+		 * @param {String} name Attribute's name
+		 * @param {String} value Attribute's value
 		 */
 		addAttribute: function(name, value) {
 			var a;
@@ -258,7 +259,7 @@
 		},
 		
 		/**
-		 * Проверяет, является ли текущий элемент пустым
+		 * Test if current tag is empty
 		 * @return {Boolean}
 		 */
 		isEmpty: function() {
@@ -266,7 +267,7 @@
 		},
 		
 		/**
-		 * Проверяет, является ли текущий элемент строчным
+		 * Test if current tag is inline-level (like &lt;strong&gt;, &lt;img&gt;)
 		 * @return {Boolean}
 		 */
 		isInline: function() {
@@ -290,8 +291,7 @@
 		},
 		
 		/**
-		 * Проверяет, есть ли блочные потомки у текущего тэга. 
-		 * Используется для форматирования
+		 * Test if current tag contains block-level children
 		 * @return {Boolean}
 		 */
 		hasBlockChildren: function() {
@@ -481,7 +481,7 @@
 	
 	Snippet.prototype = {
 		/**
-		 * Добавляет нового потомка
+		 * Adds new child
 		 * @param {Tag} tag
 		 */
 		addChild: function(tag) {
@@ -583,7 +583,7 @@
 				content = padString(this.getContent(), 1) + content;
 			}
 			
-			// выводим тэг нужное количество раз
+			// output tag
 			for (var i = 0; i < this.count; i++) 
 				result.push(begin + content + end);
 //				result.push(begin.replace(/\$(?!\{)/g, i + 1) + content + end);
@@ -682,7 +682,7 @@
 			}
 			
 			if (start_index != -1) 
-				// что-то нашли, возвращаем аббревиатуру
+				// found somethind, return abbreviation
 				return str.substring(start_index);
 			else
 				return '';
@@ -750,9 +750,9 @@
 		},
 		
 		/**
-		 * Отбивает текст отступами
-		 * @param {String} text Текст, который нужно отбить
-		 * @param {String|Number} pad Количество отступов или сам отступ
+		 * Indents text with padding
+		 * @param {String} text Text to indent
+		 * @param {String|Number} pad Padding size (number) or padding itself (string)
 		 * @return {String}
 		 */
 		padString: padString,
@@ -763,70 +763,6 @@
 		
 		setNewline: function(str) {
 			newline = str;
-		},
-		
-		/**
-		 * Returns range for matched tag pair inside document
-		 * @requires HTMLParser
-		 * @param {String} html Full xHTML document
-		 * @param {Number} cursor_pos Cursor position inside document
-		 * @return {Object} Pair of indicies (<code>start</code> and <code>end</code>). 
-		 * Returns 'null' if match wasn't found 
-		 */
-		getPairRange: function(html, cursor_pos) {
-			var tags = {},
-				ranges = [],
-				result = null;
-				
-			function inRange(start, end) {
-				return cursor_pos > start && cursor_pos < end;
-			} 
-			
-			var handler = {
-				start: function(name, attrs, unary, ix_start, ix_end) {
-					if (unary && inRange(ix_start, ix_end)) {
-						// this is the exact range for cursor position, stop searching
-						result = {start: ix_start, end: ix_end};
-						this.stop = true;
-					} else {
-						if (!tags.hasOwnProperty(name))
-							tags[name] = [];
-							
-						tags[name].push(ix_start);
-					}
-				},
-				
-				end: function(name, ix_start, ix_end) {
-					if (tags.hasOwnProperty(name)) {
-						var start = tags[name].pop();
-						if (inRange(start, ix_end))
-							ranges.push({start: start, end: ix_end});
-					}
-				},
-				
-				comment: function(data, ix_start, ix_end) {
-					if (inRange(ix_start, ix_end)) {
-						// this is the exact range for cursor position, stop searching
-						result = {start: ix_start, end: ix_end};
-						this.stop = true;
-					}
-				}
-			};
-			
-			// scan document
-			try {
-				HTMLParser(html, handler);
-			} catch(e) {}
-			
-			if (!result && ranges.length) {
-				// because we have overlaped ranges only, we have to sort array by 
-				// length: the shorter range length, the most probable match
-				result = ranges.sort(function(a, b){
-					return (a.end - a.start) - (b.end - b.start);
-				})[0];
-			}
-			
-			return result;
 		},
 		
 		/**
@@ -876,6 +812,25 @@
 			}
 			
 			return false;
+		},
+		
+		/**
+		 * Returns caret placeholder
+		 * @return {String}
+		 */
+		getCaretPlaceholder: function() {
+			return caret_placeholder;
+		},
+		
+		/**
+		 * Set caret placeholder: a string (like '|') or function.
+		 * You may use a function as a placeholder generator. For example,
+		 * TextMate uses ${0}, ${1}, ..., ${n} natively for quick Tab-switching
+		 * between them.
+		 * @param {String|Function}
+		 */
+		setCaretPlaceholder: function(value) {
+			caret_placeholder = value;
 		},
 		
 		settings_parser: (function(){

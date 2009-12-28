@@ -26,6 +26,13 @@ var zen_editor = {
 	setTarget: function(obj) {},
 	
 	/**
+	 * Setup underlying editor context. You should call this method 
+	 * <code>before</code> using any Zen Coding action.
+	 * @param {Object} context
+	 */
+	setContext: function(context) {},
+	
+	/**
 	 * Returns character indexes of selected text: object with <code>start</code>
 	 * and <code>end</code> properties
 	 * @return {Object}
