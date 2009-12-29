@@ -83,6 +83,11 @@ var zen_editor = {
 	getCaretPos: function(){},
 	
 	/**
+	 * Set new caret position
+	 */
+	setCaretPos: function(pos){},
+	
+	/**
 	 * Returns content of current line
 	 * @return {String}
 	 */
@@ -113,5 +118,21 @@ var zen_editor = {
 	 * Returns editor's content
 	 * @return {String}
 	 */
-	getContent: function(){}
+	getContent: function(){},
+	
+	/**
+	 * Returns current editpr's syntax mode
+	 * @return {String}
+	 */
+	getSyntax: function(){
+		return 'html';
+	},
+	
+	/**
+	 * Returns current output profile name (@see zen_coding#setupProfile)
+	 * @return {String}
+	 */
+	getProfileName: function() {
+		return 'xhtml';
+	}
 };

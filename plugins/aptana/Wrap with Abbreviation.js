@@ -11,24 +11,15 @@
  */
 
 // init engine
-include('zen_settings.js');
 try {
 	include('my_zen_settings.js');
 } catch(e){}
 
-include('lib/zen_coding.js');
-include('lib/html_matcher.js');
-include('lib/zen_eclipse.js');
+include('zencoding.js');
 
 function main() {
-	var editor_type;
-	try {
-		editor_type = getEditorType();
-		if (!editor_type) {
-			printMessage('"Expand abbreviation" doesn\'t work in this editor.');
-			return;
-		}
-	} catch(e) {}
-	
-	mainWrapWithAbbreviation(editor_type, guessProfileName());
+	zen_editor.setContext(editors.activeEditor);
+	var abbr = prompt('Enter abbreviation:');
+	if (abbr)
+		wrapWithAbbreviation(zen_editor, abbr, zen_editor.getSyntax(), zen_editor.getProfileName());
 }

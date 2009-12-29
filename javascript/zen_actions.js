@@ -176,7 +176,7 @@ function wrapWithAbbreviation(editor, abbr, type, profile_name) {
 		result = zen_coding.wrapWithAbbreviation(abbr, unindent(editor, new_content), type, profile_name);
 	
 	if (result) {
-		editor.createSelection(end_offset);
+		editor.setCaretPos(end_offset);
 		editor.replaceContent(result, start_offset, end_offset);
 	}
 }
@@ -288,7 +288,7 @@ function prevEditPoint(editor) {
 		new_point = findNewEditPoint(editor, -1, -2);
 	
 	if (new_point != -1) 
-		editor.createSelection(new_point);
+		editor.setCaretPos(new_point);
 }
 
 /**
@@ -298,7 +298,7 @@ function prevEditPoint(editor) {
 function nextEditPoint(editor) {
 	var new_point = findNewEditPoint(editor, 1);
 	if (new_point != -1)
-		editor.createSelection(new_point);
+		editor.setCaretPos(new_point);
 }
 
 /**
@@ -338,4 +338,64 @@ function insertFormattedNewline(editor, mode) {
 function selectLine(editor) {
 	var range = editor.getCurrentLineRange();
 	editor.createSelection(range.start, range.end);
+}
+
+/**
+ * Moves caret to matching opening or closing tag
+ * @param {zen_editor} editor
+ */
+function goToMatchingPair(editor) {
+	var content = editor.getContent(),
+		caret_pos = editor.getCaretPos();
+	
+	if (content.charAt(caret_pos) == '<') 
+		// looks like caret is outside of tag pair  
+		caret_pos++;
+		
+	var range = HTMLPairMatcher(content, caret_pos);
+		
+	if (range && range[0] != -1) {
+		// match found
+		var open_tag = HTMLPairMatcher.last_match.opening_tag,
+			close_tag = HTMLPairMatcher.last_match.closing_tag;
+			
+		if (close_tag) { // exclude unary tags
+			if (open_tag.start <= caret_pos && open_tag.end >= caret_pos)
+				editor.setCaretPos(close_tag.start);
+			else if (close_tag.start <= caret_pos && close_tag.end >= caret_pos)
+				editor.setCaretPos(open_tag.start);
+		}
+	}
+}
+
+/**
+ * Merge lines spanned by user selection. If there's no selection, tries to find
+ * matching tags and use them as selection
+ * @param {zen_editor} editor
+ */
+function mergeLines(editor) {
+	var selection = zen_editor.getSelectionRange();
+	if (selection.start == selection.end) {
+		// find matching tag
+		var pair = HTMLPairMatcher(zen_editor.getContent(), zen_editor.getCaretPos());
+		if (pair) {
+			selection.start = pair[0];
+			selection.end = pair[1];
+		}
+	}
+	
+	if (selection.start != selection.end) {
+		// got range, merge lines
+		var text = zen_editor.getContent().substring(selection.start, selection.end),
+			old_length = text.length;
+		var lines =  zen_coding.splitByLines(text);
+		
+		for (var i = 1; i < lines.length; i++) {
+			lines[i] = lines[i].replace(/^\s+/, '');
+		}
+		
+		text = lines.join('').replace(/\s{2,}/, ' ');
+		zen_editor.replaceContent(text, selection.start, selection.end);
+		zen_editor.createSelection(selection.start, selection.start + text.length);
+	}
 }

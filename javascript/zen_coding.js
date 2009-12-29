@@ -71,7 +71,13 @@
 		
 		// IE fails to split string by regexp, 
 		// need to normalize newlines first
-		var lines = text.replace(/\r\n/g, '\n').replace(/\n\r/g, '\n').split('\n');
+		// Also, Mozilla's Rhiho JS engine has a wierd newline bug
+		var nl = getNewline();
+		var lines = text
+			.replace(/\r\n/g, '\n')
+			.replace(/\n\r/g, '\n')
+			.replace(/\n/g, nl)
+			.split(nl);
 		
 //		var nl = getNewline(), 
 //			lines = text.split(new RegExp('\\r?\\n|\\n\\r|\\r|' + nl));
