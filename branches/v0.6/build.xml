@@ -1,90 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="Zen Coding" default="main" basedir=".">
 	<import file="${webtasks_path}"/>
-
-	<property name="src" value="${basedir}/python/zencoding"/>
-	<property name="js-src" value="${basedir}/aptana"/>
-	<property name="textmate" value="${basedir}/plugins/TextMate"/>
-	<property name="textmate_bundle_name" value="Zen Coding.tmbundle"/>
-	<property name="textmate_bundle_path" value="${textmate}/${textmate_bundle_name}"/>
-	<property name="editarea_path" value="${basedir}/plugins/editArea/zencoding"/>
-	<property name="textarea_path" value="${basedir}/plugins/textarea/build"/>
-
-	<property name="aptana_path" value="${basedir}/aptana"/>
+	<property file="build.properties"/>
 	
-	<filelist dir="${basedir}" id="textarea.js-files">
-		<file name="plugins/textarea/__intro.js"/>
-		<file name="aptana/zen_settings.js"/>
-		<file name="aptana/lib/html_matcher.js"/>
-		<file name="aptana/lib/zen_coding.js"/>
-		<file name="plugins/textarea/editor.js"/>
-		<file name="plugins/textarea/actions.js"/>
-		<file name="plugins/textarea/shortcut.js"/>
-		<file name="plugins/textarea/manager.js"/>
-		<file name="plugins/textarea/__outro.js"/>
+	<!-- List of Zen Coding JavaScript files -->
+	<filelist dir="${zencoding_javascript}" id="javascript.files">
+		<file name="zen_settings.js"/>
+		<file name="zen_coding.js"/>
+		<file name="zen_actions.js"/>
+		<file name="html_matcher.js"/>
 	</filelist>
-
-
-	<target name="main" depends="install_tm_bundle, build_editarea, build_textarea">
-		<echo>Done</echo>
-	</target>
-
-	<target name="build_textmate">
-		<concat destfile="${textmate_bundle_path}/Commands/Expand Abbreviation.tmCommand">
-			<filelist>
-				<file name="${textmate}/tm_header" />
-				<file name="${src}/textmate.py" />
-				<file name="${textmate}/tm_footer" />
-			</filelist>
-		</concat>
-
-		<copy todir="${textmate_bundle_path}/Support/zencoding">
-			<filelist dir="${src}">
-				<file name="zen_settings.py"/>
-				<file name="stparser.py"/>
-				<file name="zen_core.py"/>
-			</filelist>
-		</copy>
-	</target>
-
-	<target name="build_editarea">
-		<compile-js-lib tofile="${editarea_path}/core.js">
-			<files>
-				<filelist dir="${js-src}">					<file name="zen_settings.js"/>					<file name="lib/zen_coding.js"/>					<file name="lib/html_matcher.js"/>				</filelist>
-			</files>
-		</compile-js-lib>
+	
+	<target name="init">
+		<mkdir dir="${zencoding_build_dir}"/>
+		<mkdir dir="${zencoding_plugins}"/>
 	</target>
 	
-	<target name="build_textarea">
-		<concat destfile="${textarea_path}/zen_textarea.js">
-			<filelist refid="textarea.js-files"/>
+	<target name="create_javascript" depends="init">
+		<concat destfile="${zencoding_build_dir}/zencoding.js">
+			<filelist refid="javascript.files"/>
 		</concat>
-		<compile-js-lib tofile="${textarea_path}/zen_textarea.min.js">
-			<files>
-				<filelist refid="textarea.js-files"/>
-			</files>
-		</compile-js-lib>
 	</target>
-
-	<target name="install_tm_bundle" depends="build_textmate">
-		<property name="tm_bundle_path" value="${user.home}/Library/Application Support/TextMate/Bundles/${textmate_bundle_name}"/>
-		<mkdir dir="${tm_bundle_path}"/>
-		<copydir dest="${tm_bundle_path}" src="${textmate_bundle_path}"/>
-		<exec command="osascript -e 'tell app &quot;TextMate&quot; to reload bundles'"/>
-	</target>
-
-	<target name="install_aptana">
-		<property name="aptana_scripts" value="${user.home}/Projects/EclipseMonkey/scripts"/>
-		<copy todir="${aptana_scripts}/lib">
-			<fileset dir="${aptana_path}/lib">
-				<include name="*.js"/>
+	
+	<target name="aptana_plugin" depends="create_javascript">
+		<delete dir="${zencoding_aptana_plugin.dir}"/>
+		<mkdir dir="${zencoding_aptana_plugin.dir}"/>
+		<copy todir="${zencoding_aptana_plugin.dir}">
+			<fileset dir="${zencoding_plugins_source}/aptana">
+			    <include name="*.js"/>
+			    <exclude name="zen_eclipse.js"/>
+			    <exclude name="zen_editor.js"/>
 			</fileset>
 		</copy>
-
-		<copy todir="${aptana_scripts}">
-			<fileset dir="${aptana_path}">
-				<include name="*.js"/>
+		<concat destfile="${zencoding_aptana_plugin.dir}/zencoding.js">
+			<filelist files="${zencoding_build_dir}/zencoding.js"/>
+			<filelist files="${zencoding_plugins_source}/aptana/zen_eclipse.js"/>
+			<filelist files="${zencoding_plugins_source}/aptana/zen_editor.js"/>
+		</concat>
+		
+		<zip destfile="${zencoding_plugins}/${zencoding_aptana_plugin.zip}">
+			<fileset dir="${zencoding_aptana_plugin.dir}" id="">
+			    <include name="*.js"/>
+			    <exclude name="*.zip"/>
 			</fileset>
-		</copy>
+		</zip>
+	</target>
+
+	<!-- Main build routine -->
+	<target name="main" depends="aptana_plugin">
+		<echo>Done</echo>
 	</target>
 </project>

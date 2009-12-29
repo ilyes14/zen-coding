@@ -12,13 +12,6 @@
 include('lib/zen_eclipse.js');
 
 function main() {
-	var editor = editors.activeEditor,
-		new_point = findNewEditPoint(-1);
-		
-	if (new_point == editor.currentOffset) 
-		// вернулись в ту же точку, начнем искать с другого места
-		new_point = findNewEditPoint(-1, -2);
-	
-	if (new_point != -1) 
-		editor.currentOffset = new_point;
+	zen_editor.setContext(editors.activeEditor);
+	prevEditPoint(zen_editor);
 }
