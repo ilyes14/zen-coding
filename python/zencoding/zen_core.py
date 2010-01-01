@@ -144,6 +144,13 @@ def get_newline():
 	"""
 	return newline
 
+def set_newline(char):
+	"""
+	Sets newline character used in Zen Coding
+	"""
+	global newline
+	newline = char
+
 def string_to_hash(text):
 	"""
 	Helper function that transforms string into hash
