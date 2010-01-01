@@ -62,7 +62,7 @@ var zen_editor = {
 	createSelection: function(start, end) {},
 	
 	/**
-	 * Returns current line's start and end indexes and object with <code>start</code>
+	 * Returns current line's start and end indexes as object with <code>start</code>
 	 * and <code>end</code> properties
 	 * @return {Object}
 	 * @example
