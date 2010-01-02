@@ -5,20 +5,16 @@
 	<key>beforeRunningCommand</key>
 	<string>nop</string>
 	<key>command</key>
-	<string>python "$TM_BUNDLE_SUPPORT"/expand_abbreviation.py</string>
-	<key>fallbackInput</key>
-	<string>line</string>
+	<string>python "$TM_BUNDLE_SUPPORT"/prev_edit_point.py</string>
 	<key>input</key>
-	<string>selection</string>
+	<string>document</string>
 	<key>keyEquivalent</key>
-	<string>@e</string>
+	<string>^~</string>
 	<key>name</key>
-	<string>Expand Abbreviation</string>
+	<string>Previous Edit Point</string>
 	<key>output</key>
-	<string>insertAsSnippet</string>
-	<key>scope</key>
-	<string></string>
+	<string>showAsTooltip</string>
 	<key>uuid</key>
-	<string>1B3928AC-1FDA-4956-9002-90D8C17D3B77</string>
+	<string>4C1466AA-6D21-455B-96D2-92703E52243E</string>
 </dict>
 </plist>

@@ -25,7 +25,6 @@ Created on Apr 17, 2009
 @author: Sergey Chikuyonok (http://chikuyonok.ru)
 '''
 from zen_settings import zen_settings
-from zen_core import is_allowed_char
 import re
 import stparser
 
@@ -435,6 +434,9 @@ def wrap_with_abbreviation(abbr, text, doc_type='html', profile='plain'):
 
 def update_settings(settings):
 	globals()['zen_settings'] = settings
+	
+def set_insertion_point(ins_point):
+	globals()['insertion_point'] = ins_point
 
 class Tag(object):
 	def __init__(self, name, count=1, doc_type='html'):
