@@ -92,7 +92,7 @@ function matchPair(editor, direction) {
 //			unary tag was selected, can't move inward
 			return false;
 		} else if (old_open_tag.start == range_start) {
-			if (content[old_open_tag.end] == '<') {
+			if (content.charAt(old_open_tag.end) == '<') {
 //				test if the first inward tag matches the entire parent tag's content
 				_r = HTMLPairMatcher.find(content, old_open_tag.end + 1);
 				if (_r[0] == old_open_tag.end && _r[1] == old_close_tag.start) {
@@ -183,7 +183,7 @@ function wrapWithAbbreviation(editor, abbr, type, profile_name) {
 
 /**
  * Unindent content, thus preparing text for tag wrapping
- * @param {zen_editor} Editor instance
+ * @param {zen_editor} editor Editor instance
  * @param {String} text
  * @return {String}
  */
@@ -210,8 +210,8 @@ function getCurrentLinePadding(editor) {
 /**
  * Search for new caret insertion point
  * @param {zen_editor} editor Editor instance
- * @param {Number} Search increment: -1 — search left, 1 — search right
- * @param {Number} Initial offset relative to current caret position
+ * @param {Number} inc Search increment: -1 — search left, 1 — search right
+ * @param {Number} offset Initial offset relative to current caret position
  * @return {Number} Returns -1 if insertion point wasn't found
  */
 function findNewEditPoint(editor, inc, offset) {
@@ -308,8 +308,7 @@ function nextEditPoint(editor) {
  */
 function insertFormattedNewline(editor, mode) {
 	mode = mode || 'html';
-	var pad = getCurrentLinePadding(editor),
-		caret_pos = editor.getCaretPos();
+	var caret_pos = editor.getCaretPos();
 		
 	function insert_nl() {
 		editor.replaceContent('\n', caret_pos);
@@ -374,10 +373,10 @@ function goToMatchingPair(editor) {
  * @param {zen_editor} editor
  */
 function mergeLines(editor) {
-	var selection = zen_editor.getSelectionRange();
+	var selection = editor.getSelectionRange();
 	if (selection.start == selection.end) {
 		// find matching tag
-		var pair = HTMLPairMatcher(zen_editor.getContent(), zen_editor.getCaretPos());
+		var pair = HTMLPairMatcher(editor.getContent(), editor.getCaretPos());
 		if (pair) {
 			selection.start = pair[0];
 			selection.end = pair[1];
@@ -386,7 +385,7 @@ function mergeLines(editor) {
 	
 	if (selection.start != selection.end) {
 		// got range, merge lines
-		var text = zen_editor.getContent().substring(selection.start, selection.end),
+		var text = editor.getContent().substring(selection.start, selection.end),
 			old_length = text.length;
 		var lines =  zen_coding.splitByLines(text);
 		
@@ -395,7 +394,7 @@ function mergeLines(editor) {
 		}
 		
 		text = lines.join('').replace(/\s{2,}/, ' ');
-		zen_editor.replaceContent(text, selection.start, selection.end);
-		zen_editor.createSelection(selection.start, selection.start + text.length);
+		editor.replaceContent(text, selection.start, selection.end);
+		editor.createSelection(selection.start, selection.start + text.length);
 	}
 }
