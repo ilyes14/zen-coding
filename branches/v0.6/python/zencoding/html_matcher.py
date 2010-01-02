@@ -12,7 +12,6 @@ dictionary for later use.
 
 @author: Sergey Chikuyonok (serge.che@gmail.com)
 '''
-from html_matcher import _find_pair
 import re
 
 start_tag = r'<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:\'[^\']*\')|[^>\s]+))?)*)\s*(\/?)>'

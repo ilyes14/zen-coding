@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Middleware layer that communicates between editor and Zen Coding.
 This layer describes all available Zen Coding actions, like 
@@ -80,13 +83,14 @@ def match_pair(editor, direction='out'):
 	
 	old_open_tag = html_matcher.last_match['opening_tag']
 	old_close_tag = html_matcher.last_match['closing_tag']
-		
+	
 	if direction == 'in' and old_open_tag and range_start != range_end:
 #		user has previously selected tag and wants to move inward
 		if not old_close_tag:
 #			unary tag was selected, can't move inward
 			return False
 		elif old_open_tag['start'] == range_start:
+			raise Exception, 'search inward'
 			if content[old_open_tag['end']] == '<':
 #				test if the first inward tag matches the entire parent tag's content
 				_r = html_matcher.find(content, old_open_tag['end'] + 1)
@@ -146,7 +150,7 @@ def wrap_with_abbreviation(editor, abbr, syntax, profile_name='xhtml'):
 				end_offset += 1
 				break
 	
-	new_content = content[start_offset, end_offset]
+	new_content = content[start_offset:end_offset]
 	result = zen.wrap_with_abbreviation(abbr, unindent(editor, new_content), syntax, profile_name)
 	
 	if result:
@@ -200,7 +204,7 @@ def find_new_edit_point(editor, inc=1, offset=0):
 			if c == '\n' or c == '\r': break
 			start -= 1
 		
-		return content[start, ix]
+		return content[start:ix]
 		
 	while cur_point < max_len and cur_point > 0:
 		cur_point += inc
