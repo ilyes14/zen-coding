@@ -25,6 +25,7 @@ Created on Apr 17, 2009
 @author: Sergey Chikuyonok (http://chikuyonok.ru)
 '''
 from zen_settings import zen_settings
+from zen_core import is_allowed_char
 import re
 import stparser
 
@@ -369,6 +370,25 @@ def expand_abbreviation(abbr, doc_type = 'html', profile_name = 'plain'):
 		return replace_variables(re.sub('\|', insertion_point, tree.to_string(profile_name) or ''))
 		
 	return ''
+
+def extract_abbreviation(text):
+	cur_offset = len(text)
+	start_index = -1
+	
+	while True:
+		cur_offset -= 1
+		if cur_offset < 0:
+			# moved at string start
+			start_index = 0;
+			break
+		
+		ch = text[cur_offset]
+		
+		if not is_allowed_char(ch) or (ch == '>' and is_ends_with_tag(text[0, cur_offset + 1])):
+			start_index = cur_offset + 1
+			break
+	
+	return text[start_index] if start_index != -1 else ''
 
 def is_inside_tag(html, cursor_pos):
 	re_tag = re.compile(r'^<\/?\w[\w\:\-]*.*?>')

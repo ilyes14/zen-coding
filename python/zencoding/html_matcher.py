@@ -12,6 +12,7 @@ dictionary for later use.
 
 @author: Sergey Chikuyonok (serge.che@gmail.com)
 '''
+from html_matcher import _find_pair
 import re
 
 start_tag = r'<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:\'[^\']*\')|[^>\s]+))?)*)\s*(\/?)>'
@@ -135,6 +136,18 @@ def find(html, start_ix):
 	<code>start_ix</code> position.
 	"""
 	return _find_pair(html, start_ix)
+
+def get_tags(html, start_ix):
+	"""
+	Search for matching tags in <code>html</code>, starting from 
+	<code>start_ix</code> position. The difference between 
+	<code>match</code> function itself is that <code>get_tags</code> 
+	method doesn't save matched result in <code>last_match</code> property 
+	and returns array of opening and closing tags
+	This method is generally used for lookups
+	"""
+	return _find_pair(html, start_ix, lambda op, cl: (op, cl))
+
 
 def _find_pair(html, start_ix, action=make_range):
 	"""
