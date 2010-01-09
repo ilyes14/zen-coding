@@ -6,6 +6,10 @@
 	<property file="${zencoding_plugins_source}/TextMate/build.properties"/>
 
 	<target name="textmate_bundle" depends="build_textmate_macros">
+		<zip destfile="${zencoding_plugins}/${zencoding_textmate_plugin.zip}">
+			<fileset dir="${textmate.build_dir}"></fileset>
+		</zip>
+		
 		<echo>TextMate bundle done</echo>
 	</target>
 
