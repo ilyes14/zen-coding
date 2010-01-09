@@ -9,6 +9,8 @@ Zen Coding requires [http://wiki.eclipse.org/Eclipse_Monkey_Overview EclipseMonk
   # Extract contents of downloaded zip plugin into this folder. The project structure may look like this:
      http://zen-coding.googlecode.com/svn/wiki/images/aptana-proj-structure.png
   # Restart Eclipse/Aptana if needed
+
+*UPD:* see step-by-step ZC installation on Aptana (Windows) in [http://gonzalezmora.com/publications/screencasts/ZenCoding/ZenCoding.html screencast from Gonzalo González Mora]
   
 Now you should have Scripts menu item with Zen Coding in it.
 
@@ -29,4 +31,3 @@ If you don't like default keyboard shortcuts, you can always change them. For ex
 }}}
 
 There's a *Key* command describing current shortcut, which is `M3+E` in this case (`M3` stands for `Alt`). Just change this shortcut and save the file. Read more about available keycodes on [http://docs.aptana.com/docs/index.php/Eclipse_Monkey_scripting_with_Ruby#Adding_metadata_to_your_script Aptana Help Pages] 
-
