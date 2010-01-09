@@ -90,7 +90,7 @@ def is_allowed_char(ch):
 	@type ch: str
 	@return: bool
 	"""
-	return ch.isalnum() or ch in "#.>+*:$-_!@"
+	return ch.isalnum() or ch in "#.>+*:$-_!@[]"
 
 def split_by_lines(text, remove_empty=False):
 	"""
@@ -269,6 +269,122 @@ def get_settings_resource(res_type, abbr, res_name):
 					return zen_settings[v][res_name][abbr]
 	return None;
 
+def get_word(ix, text):
+	"""
+	Get word, starting at <code>ix</code> character of <code>text</code>
+	@param ix: int
+	@param text: str
+	"""
+	m = re.match(r'^[\w\-:\$]+', text[ix:])
+	return m.group(0) if m else ''
+	
+def extract_attributes(attr_set):
+	"""
+	Extract attributes and their values from attribute set 
+ 	@param attr_set: str
+	"""
+	attr_set = attr_set.strip()
+	loop_count = 100 # endless loop protection
+	re_string = r'^(["\'])((?:(?!\1)[^\\]|\\.)*)\1'
+	result = []
+		
+	while attr_set and loop_count:
+		loop_count -= 1
+		attr_name = get_word(0, attr_set)
+		attr = None
+		if attr_name:
+			attr = {'name': attr_name, 'value': ''}
+			
+			# let's see if attribute has value
+			ch = attr_set[len(attr_name)] if len(attr_set) > len(attr_name) else ''
+			if ch == '=':
+				ch2 = attr_set[len(attr_name) + 1]
+				if ch2 in '"\'':
+					# we have a quoted string
+					m = re.match(re_string, attr_set[len(attr_name) + 1:])
+					if m:
+						attr['value'] = m.group(2)
+						attr_set = attr_set[len(attr_name) + len(m.group(0)) + 1:].strip()
+					else:
+						# something wrong, break loop
+						attr_set = ''
+				else:
+					# unquoted string
+					m = re.match(r'^(.+?)(\s|$)', attr_set[len(attr_name) + 1:])
+					if m:
+						attr['value'] = m.group(1)
+						attr_set = attr_set[len(attr_name) + len(m.group(1)) + 1:].strip()
+					else:
+						# something wrong, break loop
+						attr_set = ''
+				
+			else:
+				attr_set = attr_set[len(attr_name):].strip()
+		else:
+			# something wrong, can't extract attribute name
+			break
+		
+		if attr: result.append(attr)
+		
+	return result
+
+def parse_attributes(text):
+	"""
+	Parses tag attributes extracted from abbreviation
+	"""
+	
+#	Example of incoming data:
+#	#header
+#	.some.data
+#	.some.data#header
+#	[attr]
+#	#item[attr=Hello other="World"].class
+
+	result = []
+	class_name = None
+	char_map = {'#': 'id', '.': 'class'}
+	
+	# walk char-by-char
+	i = 0
+	il = len(text)
+		
+	while i < il:
+		ch = text[i]
+		
+		if ch == '#': # id
+			val = get_word(i, text[1:])
+			result.append({'name': char_map[ch], 'value': val})
+			i += len(val) + 1
+			
+		elif ch == '.': #class
+			val = get_word(i, text[1:])
+			if not class_name:
+				# remember object pointer for value modification
+				class_name = {'name': char_map[ch], 'value': ''}
+				result.append(class_name)
+			
+			if class_name['value']:
+				class_name['value'] += ' ' + val
+			else:
+				class_name['value'] = val
+			
+			i += len(val) + 1
+				
+		elif ch == '[': # begin attribute set
+			# search for end of set
+			end_ix = text.find(']', i)
+			if end_ix == -1:
+				# invalid attribute set, stop searching
+				i = len(text)
+			else:
+				result.extend(extract_attributes(text[i + 1:end_ix]))
+				i = end_ix
+		else:
+			i += 1
+		
+		
+	return result
+
 
 def parse_into_tree(abbr, doc_type='html'):
 	"""
@@ -281,7 +397,8 @@ def parse_into_tree(abbr, doc_type='html'):
 	@return: Tag
 	"""
 	root = Tag('', 1, doc_type)
-	token = re.compile(r'([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?', re.IGNORECASE)
+#	token = re.compile(r'([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?', re.IGNORECASE)
+	token = re.compile(r'([\+>])?([a-z@\!][a-z0-9:\-]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?', re.IGNORECASE)
 	
 	if not abbr:
 		return None
@@ -291,7 +408,7 @@ def parse_into_tree(abbr, doc_type='html'):
 		a = get_abbreviation(doc_type, ex)
 		return a and a.value or ex
 		
-	def token_expander(operator, tag_name, id_attr, class_name, has_multiplier, multiplier, has_expando):
+	def token_expander(operator, tag_name, attrs, has_multiplier, multiplier, has_expando):
 		
 		multiply_by_lines = (has_multiplier and not multiplier)
 		multiplier = multiplier and int(multiplier) or 1
@@ -301,10 +418,10 @@ def parse_into_tree(abbr, doc_type='html'):
 		
 		current = is_snippet(tag_name, doc_type) and Snippet(tag_name, multiplier, doc_type) or Tag(tag_name, multiplier, doc_type)
 		
-		if id_attr:
-			current.add_attribute('id', id_attr[1:])
-		if class_name:
-			current.add_attribute('class', class_name[1:].replace('.', ' '))
+		if attrs:
+			attrs = parse_attributes(attrs)
+			for attr in attrs:
+				current.add_attribute(attr['name'], attr['value'])
 			
 		# dive into tree
 		if operator == '>' and token_expander.last:
@@ -327,7 +444,7 @@ def parse_into_tree(abbr, doc_type='html'):
 	
 #	abbr = re.sub(token, lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6), m.group(7)), abbr)
 	# Issue from Einar Egilsson
-	abbr = token.sub(lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6), m.group(7)), abbr)
+	abbr = token.sub(lambda m: token_expander(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6)), abbr)
 	
 	root.last = token_expander.last
 	
