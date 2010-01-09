@@ -61,6 +61,20 @@
 					assertEqual('<p id="myid"></p>', expandAbbr('p#myid'));
 					assertEqual('<p id="myid" class="name_with-dash32 otherclass"></p>', expandAbbr('p#myid.name_with-dash32.otherclass'));
 					assertEqual('<span class="one two three"></span>', expandAbbr('span.one.two.three'));
+					
+					assertEqual('<span class="one" id="two"></span>', expandAbbr('span.one#two'));
+					assertEqual('<span class="one two" id="three"></span>', expandAbbr('span.one.two#three'));
+					
+					assertEqual('<span title=""></span>', expandAbbr('span[title]'));
+					assertEqual('<span title="" data=""></span>', expandAbbr('span[title data]'));
+					assertEqual('<span class="test" title="" data=""></span>', expandAbbr('span.test[title data]'));
+					assertEqual('<span id="one" class="two" title="" data=""></span>', expandAbbr('span#one.two[title data]'));
+					assertEqual('<span title="Hello"></span>', expandAbbr('span[title=Hello]'));
+					assertEqual('<span title="Hello world"></span>', expandAbbr('span[title="Hello world"]'));
+					assertEqual('<span title="Hello world"></span>', expandAbbr('span[title=\'Hello world\']'));
+					assertEqual('<span title="Hello world" data="other"></span>', expandAbbr('span[title="Hello world" data=other]'));
+					assertEqual('<span title="Hello world" data="other" attr2="" attr3=""></span>', expandAbbr('span[title="Hello world" data=other attr2 attr3]'));
+					assertEqual('<span title="Hello world" data="other" attr2="" attr3=""><em></em></span>', expandAbbr('span[title="Hello world" data=other attr2 attr3]>em'));
 				 }},
 				 
 				 "test expandos":  function(){ with (this) {
