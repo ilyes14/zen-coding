@@ -44,7 +44,7 @@
 	 */
 	function isAllowedChar(ch) {
 		var char_code = ch.charCodeAt(0),
-			special_chars = '#.>+*:$-_!@';
+			special_chars = '#.>+*:$-_!@[]';
 		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter
@@ -649,6 +649,136 @@
 		return null;
 	}
 	
+	/**
+	 * Get word, starting at <code>ix</code> character of <code>str</code>
+	 */
+	function getWord(ix, str) {
+		var m = str.substring(ix).match(/^[\w\-:\$]+/);
+		return m ? m[0] : '';
+	}
+	
+	/**
+	 * Extract attributes and their values from attribute set 
+	 * @param {String} attr_set
+	 */
+	function extractAttributes(attr_set) {
+		attr_set = trim(attr_set);
+		var loop_count = 100, // endless loop protection
+			re_string = /^(["'])((?:(?!\1)[^\\]|\\.)*)\1/,
+			result = [],
+			attr;
+			
+		while (attr_set && loop_count--) {
+			var attr_name = getWord(0, attr_set);
+			attr = null;
+			if (attr_name) {
+				attr = {name: attr_name, value: ''};
+//				result[attr_name] = '';
+				// let's see if attribute has value
+				var ch = attr_set.charAt(attr_name.length);
+				switch (ch) {
+					case '=':
+						var ch2 = attr_set.charAt(attr_name.length + 1);
+						if (ch2 == '"' || ch2 == "'") {
+							// we have a quoted string
+							var m = attr_set.substring(attr_name.length + 1).match(re_string);
+							if (m) {
+								attr.value = m[2];
+								attr_set = trim(attr_set.substring(attr_name.length + m[0].length + 1));
+							} else {
+								// something wrong, break loop
+								attr_set = '';
+							}
+						} else {
+							// unquoted string
+							var m = attr_set.substring(attr_name.length + 1).match(/(.+?)(\s|$)/);
+							if (m) {
+								attr.value = m[1];
+								attr_set = trim(attr_set.substring(attr_name.length + m[1].length + 1));
+							} else {
+								// something wrong, break loop
+								attr_set = '';
+							}
+						}
+						break;
+					default:
+						attr_set = trim(attr_set.substring(attr_name.length));
+						break;
+				}
+			} else {
+				// something wrong, can't extract attribute name
+				break;
+			}
+			
+			if (attr) result.push(attr);
+		}
+		return result;
+	}
+	
+	/**
+	 * Parses tag attributes extracted from abbreviation
+	 * @param {String} str
+	 */
+	function parseAttributes(str) {
+		/*
+		 * Example of incoming data:
+		 * #header
+		 * .some.data
+		 * .some.data#header
+		 * [attr]
+		 * #item[attr=Hello other="World"].class
+		 */
+		var result = [],
+			class_name,
+			char_map = {'#': 'id', '.': 'class'};
+		
+		// walk char-by-char
+		var i = 0,
+			il = str.length,
+			val;
+			
+		while (i < il) {
+			var ch = str.charAt(i);
+			switch (ch) {
+				case '#': // id
+					val = getWord(i, str.substring(1));
+					result.push({name: char_map[ch], value: val});
+					i += val.length + 1;
+					break;
+				case '.': // class
+					val = getWord(i, str.substring(1));
+					if (!class_name) {
+						// remember object pointer for value modification
+						class_name = {name: char_map[ch], value: ''};
+						result.push(class_name);
+					}
+					
+					class_name.value += ((class_name.value) ? ' ' : '') + val;
+					i += val.length + 1;
+					break;
+				case '[': //begin attribute set
+					// search for end of set
+					var end_ix = str.indexOf(']', i);
+					if (end_ix == -1) {
+						// invalid attribute set, stop searching
+						i = str.length;
+					} else {
+						var attrs = extractAttributes(str.substring(i + 1, end_ix));
+						for (var j = 0, jl = attrs.length; j < jl; j++) {
+							result.push(attrs[j]);
+						}
+						i = end_ix;
+					}
+					break;
+				default:
+					i++;
+				
+			}
+		}
+		
+		return result;
+	}
+	
 	// create default profiles
 	setupProfile('xhtml');
 	setupProfile('html', {self_closing_tag: false});
@@ -707,7 +837,8 @@
 				last = null,
 				multiply_elem = null,
 				res = zen_settings[type],
-				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
+				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
+//				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
 			
 			if (!abbr)
 				return null;
@@ -718,7 +849,7 @@
 				return a ? a.value : str;
 			});
 			
-			abbr = abbr.replace(re, function(str, operator, tag_name, id, class_name, has_multiplier, multiplier, has_expando){
+			abbr = abbr.replace(re, function(str, operator, tag_name, attrs, has_multiplier, multiplier, has_expando){
 				var multiply_by_lines = (has_multiplier && !multiplier);
 				multiplier = multiplier ? parseInt(multiplier) : 1;
 				
@@ -726,12 +857,12 @@
 					tag_name += '+';
 				
 				var current = isShippet(tag_name, type) ? new Snippet(tag_name, multiplier, type) : new Tag(tag_name, multiplier, type);
-				if (id)
-					current.addAttribute('id', id.substr(1));
-				
-				if (class_name) 
-					current.addAttribute('class', class_name.substr(1).replace(/\./g, ' '));
-				
+				if (attrs) {
+					attrs = parseAttributes(attrs);
+					for (var i = 0, il = attrs.length; i < il; i++) {
+						current.addAttribute(attrs[i].name, attrs[i].value);
+					}
+				}
 				
 				// dive into tree
 				if (operator == '>' && last)
