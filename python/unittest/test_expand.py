@@ -36,6 +36,20 @@ class Test(unittest.TestCase):
 		self.assertEqual('<p id="myid" class="name_with-dash32 otherclass"></p>', expandAbbr('p#myid.name_with-dash32.otherclass'))
 		self.assertEqual('<span class="one two three"></span>', expandAbbr('span.one.two.three'))
 		
+		self.assertEqual('<span class="one" id="two"></span>', expandAbbr('span.one#two'));
+		self.assertEqual('<span class="one two" id="three"></span>', expandAbbr('span.one.two#three'));
+		
+		self.assertEqual('<span title=""></span>', expandAbbr('span[title]'));
+		self.assertEqual('<span title="" data=""></span>', expandAbbr('span[title data]'));
+		self.assertEqual('<span class="test" title="" data=""></span>', expandAbbr('span.test[title data]'));
+		self.assertEqual('<span id="one" class="two" title="" data=""></span>', expandAbbr('span#one.two[title data]'));
+		self.assertEqual('<span title="Hello"></span>', expandAbbr('span[title=Hello]'));
+		self.assertEqual('<span title="Hello world"></span>', expandAbbr('span[title="Hello world"]'));
+		self.assertEqual('<span title="Hello world"></span>', expandAbbr('span[title=\'Hello world\']'));
+		self.assertEqual('<span title="Hello world" data="other"></span>', expandAbbr('span[title="Hello world" data=other]'));
+		self.assertEqual('<span title="Hello world" data="other" attr2="" attr3=""></span>', expandAbbr('span[title="Hello world" data=other attr2 attr3]'));
+		self.assertEqual('<span title="Hello world" data="other" attr2="" attr3=""><em></em></span>', expandAbbr('span[title="Hello world" data=other attr2 attr3]>em'));
+		
 	def testExpandos(self):
 		self.assertEqual('<dl><dt></dt><dd></dd></dl>', expandAbbr('dl+'))
 		self.assertEqual('<table><tr><td></td></tr></table>', expandAbbr('table+'))
