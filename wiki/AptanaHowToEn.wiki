@@ -10,8 +10,8 @@ Zen Coding requires [http://wiki.eclipse.org/Eclipse_Monkey_Overview EclipseMonk
      http://zen-coding.googlecode.com/svn/wiki/images/aptana-proj-structure.png
   # Restart Eclipse/Aptana if needed
 
-*UPD:* see step-by-step ZC installation on Aptana (Windows) in [http://gonzalezmora.com/publications/screencasts/ZenCoding/ZenCoding.html screencast from Gonzalo González Mora]
-  
+*UPD:* see step-by-step ZC installation on Aptana (Windows) in [http://gonzalezmora.com/publications/screencasts/ZenCoding/ZenCoding.html screencast from Gonzalo González Mora].
+
 Now you should have Scripts menu item with Zen Coding in it.
 
 ==Changing keyboard shortcuts==
