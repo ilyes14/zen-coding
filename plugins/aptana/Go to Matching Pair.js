@@ -2,7 +2,7 @@
  * Menu: Zen Coding > Go to Matching Pair
  * Kudos: Sergey Chikuyonok (http://chikuyonok.ru)
  * License: EPL 1.0
- * Key: M2+M4+ARROW_UP
+ * Key: M3+M4+ARROW_UP
  * DOM: http://download.eclipse.org/technology/dash/update/org.eclipse.eclipsemonkey.lang.javascript
  * 
  * @include "/EclipseMonkey/scripts/monkey-doc.js"
