@@ -31,3 +31,14 @@ If you don't like default keyboard shortcuts, you can always change them. For ex
 }}}
 
 There's a *Key* command describing current shortcut, which is `M3+E` in this case (`M3` stands for `Alt`). Just change this shortcut and save the file. Read more about available keycodes on [http://docs.aptana.com/docs/index.php/Eclipse_Monkey_scripting_with_Ruby#Adding_metadata_to_your_script Aptana Help Pages] 
+
+Please note that action hotkeys may be changed in future releases.
+
+==Keyboard shortcuts doesn't work!==
+Eclipse is a great IDE with tons of features, most of them are bound to keyboard shortcuts. Every newly installed Eclipse plugin binds its own shortcuts. All this may result in keyboard shortcut conflicts with Zen Coding: shortcuts defined in Eclipse's Preferences take precedence over script ones.
+
+There are two solutions of this problem:
+  # Unbind reserved shortcuts from Eclipse’s Preferences → General → Keys. You can sort commands by Binding field, select command and click on “Unbind Command” button.
+  # Remap Zen Coding action to different keyboard shortcut (see above)
+
+Eclipse on Mac (at least Cocoa version) has problems with M3 (Alt) key, which makes creating convenient two or three-keys keyboard shortcuts virtually impossible for every user by default.
