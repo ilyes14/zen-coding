@@ -245,7 +245,7 @@ var zen_editor = (function(){
 				caret_pos += value.length;
 			}
 			
-			editor.beginCompoundChange();
+//			editor.beginCompoundChange();
 			try {
 				if (has_start && has_end) {
 					editor.applyEdit(start, end - start, value);
@@ -257,7 +257,7 @@ var zen_editor = (function(){
 				
 				this.setCaretPos(caret_pos);
 			} catch(e){}
-			editor.endCompoundChange();
+//			editor.endCompoundChange();
 		},
 		
 		/**
