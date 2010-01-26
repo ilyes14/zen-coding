@@ -2,7 +2,7 @@
  * Menu: Zen Coding > Wrap with Abbreviation
  * Kudos: Sergey Chikuyonok (http://chikuyonok.ru)
  * License: EPL 1.0
- * Key: M2+M4+A
+ * Key: M1+M2+A
  * DOM: http://download.eclipse.org/technology/dash/update/org.eclipse.eclipsemonkey.lang.javascript
  * 
  * @include "/EclipseMonkey/scripts/monkey-doc.js"
