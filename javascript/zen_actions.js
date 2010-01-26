@@ -398,3 +398,119 @@ function mergeLines(editor) {
 		editor.createSelection(selection.start, selection.start + text.length);
 	}
 }
+
+/**
+ * Toggle comment on current editor's selection or HTML tag/CSS rule
+ * @param {zen_editor} editor
+ */
+function toggleComment(editor) {
+	switch (editor.getSyntax()) {
+		case 'html':
+		case 'xml':
+		case 'xhtml':
+			return toggleHTMLComment(editor);
+	}
+}
+
+/**
+ * Toggle HTML comment on current selection or tag
+ * @param {zen_editor} editor
+ * @return {Boolean} Returns <code>true</code> if comment was toggled
+ */
+function toggleHTMLComment(editor) {
+	var rng = editor.getSelectionRange(),
+		content = editor.getContent(),
+		caret_pos = editor.getCaretPos(),
+		new_content = null;
+		
+	/**
+	 * Remove comment markers from string
+	 * @param {Sting} str
+	 * @return {String}
+	 */
+	function removeComment(str) {
+		return str
+			.replace(/^<!--\s*/, function(str){
+				caret_pos -= str.length;
+				return '';
+			}).replace(/\s*-->$/, '');
+	}
+	
+	function hasMatch(str, start) {
+		return content.substr(start, str.length) == str;
+	}
+		
+	if (rng.start == rng.end) {
+		// no selection, find matching tag
+		var pair = HTMLPairMatcher.getTags(content, editor.getCaretPos());
+		if (pair && pair[0]) { // found pair
+			rng.start = pair[0].start;
+			rng.end = pair[1] ? pair[1].end : pair[0].end;
+		}
+	}
+	
+	if (rng.start != rng.end) {
+		if (hasMatch('<!--', rng.start)) {
+			// should remove comment
+			new_content = removeComment(content.substring(rng.start, rng.end)); 
+		} else {
+			// looks like we found tag
+			// first, we need to make sure that this tag is not inside 
+			// comment
+			
+			var from = rng.start,
+				comment_start = -1,
+				comment_end = -1;
+			
+			// search for comment start
+			while (from--) {
+				if (content.charAt(from) == '<' && hasMatch('<!--', from)) {
+					comment_start = from;
+					break;
+				}
+			}
+			
+			if (comment_start != -1) {
+				// search for comment end
+				from = comment_start;
+				var content_len = content.length;
+				while (content_len >= from++) {
+					if (content.charAt(from) == '-' && hasMatch('-->', from)) {
+						comment_end = from + 3;
+						break;
+					}
+				}
+			}
+			
+			if (comment_start < rng.start && comment_end > rng.end) {
+				// that tag we found is inside comment so we have to remove 
+				// comment, not add it
+				rng.start = comment_start;
+				rng.end = comment_end;
+				
+				new_content = removeComment(content.substring(comment_start, comment_end));
+			} else {
+				// should add comment
+				// make sure that there's no comment inside selection
+				new_content = '<!-- ' + 
+					content.substring(rng.start, rng.end).replace(/<!--\s+|\s+-->/g, '') +
+					' -->';
+					
+				// adjust caret position
+				caret_pos += 5;
+			}
+		}
+		
+		// replace editor content
+		if (new_content !== null) {
+			editor.setCaretPos(rng.start);
+			editor.replaceContent(unindent(editor, new_content), rng.start, rng.end);
+			editor.setCaretPos(caret_pos);
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+

@@ -34,7 +34,9 @@ var zen_editor = {
 	
 	/**
 	 * Returns character indexes of selected text: object with <code>start</code>
-	 * and <code>end</code> properties
+	 * and <code>end</code> properties. If there's no selection, should return 
+	 * object with <code>start</code> and <code>end</code> properties referring
+	 * to current caret position
 	 * @return {Object}
 	 * @example
 	 * var selection = zen_editor.getSelectionRange();
