@@ -19,10 +19,14 @@
 		},
 		cleanUp: function() {
 			for (var i = this.children.length - 1; i >= 0; i--) {
-				if (!this.children[i].expr)
+				var expr = this.children[i].expr;
+				if (!expr)
 					this.children.splice(i, 1);
-				else 
+				else {
+					// remove operators at the and of expression
+					this.children[i].expr = expr.replace(/[\+>]+$/, '');
 					this.children[i].cleanUp();
+				}
 			}
 		}
 	}
@@ -36,31 +40,28 @@
 function splitByGroups(abbr) {
 	var root = abbrGroup(),
 		last_parent = root,
-//		last = root.addChild(),
 		cur_item = root.addChild(),
+		stack = [],
 		i = 0,
 		il = abbr.length;
 	
 	while (i < il) {
 		var ch = abbr.charAt(i);
-//		console.log(ch);
 		switch(ch) {
 			case '(':
 				// found new group
 				var operator = i ? abbr.charAt(i - 1) : '';
 				if (operator == '>') {
+					stack.push(cur_item);
 					last_parent = cur_item;
 					cur_item = null;
-//					last = last.addChild();
 				} else {
-//					last_parent = cur_item.parent;
+					stack.push(last_parent);
 					cur_item = null;
-//					last = last.parent.addChild();
 				}
 				break;
 			case ')':
-//				last = (last.parent || root).addChild();
-				last_parent = last_parent.parent || root;
+				last_parent = stack.pop();
 				cur_item = null;
 				var next_char = (i < il - 1) ? abbr.charAt(i + 1) : '';
 				if (next_char == '+' || next_char == '>') 
