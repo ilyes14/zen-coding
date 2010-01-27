@@ -24,7 +24,7 @@
 					this.children.splice(i, 1);
 				else {
 					// remove operators at the and of expression
-					this.children[i].expr = expr.replace(/[\+>]+$/, '');
+//					this.children[i].expr = expr.replace(/[\+>]+$/, '');
 					this.children[i].cleanUp();
 				}
 			}
@@ -69,6 +69,11 @@ function splitByGroups(abbr) {
 					i++;
 				break;
 			default:
+				if (ch == '+' || ch == '>') {
+					// skip operator if it's followed by parenthesis
+					var next_char = (i + 1 < il) ? abbr.charAt(i + 1) : '';
+					if (next_char == '(') break;
+				}
 				if (!cur_item)
 					cur_item = last_parent.addChild();
 				cur_item.expr += ch;
