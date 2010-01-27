@@ -779,6 +779,90 @@
 		return result;
 	}
 	
+	/**
+	 * Creates group element
+	 * @param {String} expr Part of abbreviation that belongs to group item
+	 * @param {abbrGroup} [parent] Parent group item element
+	 */
+	function abbrGroup(parent) {
+		return {
+			expr: '',
+			parent: parent || null,
+			children: [],
+			addChild: function() {
+				var child = abbrGroup(this);
+				this.children.push(child);
+				return child;
+			},
+			cleanUp: function() {
+				for (var i = this.children.length - 1; i >= 0; i--) {
+					var expr = this.children[i].expr;
+					if (!expr)
+						this.children.splice(i, 1);
+					else {
+						// remove operators at the and of expression
+//						this.children[i].expr = expr.replace(/[\+>]+$/, '');
+						this.children[i].cleanUp();
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Split abbreviation by groups
+	 * @param {String} abbr
+	 * @return {abbrGroup()}
+	 */
+	function splitByGroups(abbr) {
+		var root = abbrGroup(),
+			last_parent = root,
+			cur_item = root.addChild(),
+			stack = [],
+			i = 0,
+			il = abbr.length;
+		
+		while (i < il) {
+			var ch = abbr.charAt(i);
+			switch(ch) {
+				case '(':
+					// found new group
+					var operator = i ? abbr.charAt(i - 1) : '';
+					if (operator == '>') {
+						stack.push(cur_item);
+						last_parent = cur_item;
+						cur_item = null;
+					} else {
+						stack.push(last_parent);
+						cur_item = null;
+					}
+					break;
+				case ')':
+					last_parent = stack.pop();
+					cur_item = null;
+					var next_char = (i < il - 1) ? abbr.charAt(i + 1) : '';
+					if (next_char == '+' || next_char == '>') 
+						// next char is group operator, skip it
+						i++;
+					break;
+				default:
+					if (ch == '+' || ch == '>') {
+						// skip operator if it's followed by parenthesis
+						var next_char = (i + 1 < il) ? abbr.charAt(i + 1) : '';
+						if (next_char == '(') break;
+					}
+					if (!cur_item)
+						cur_item = last_parent.addChild();
+					cur_item.expr += ch;
+			}
+			
+			i++;
+		}
+		
+		root.cleanUp();
+		return root;
+	}
+	
 	// create default profiles
 	setupProfile('xhtml');
 	setupProfile('html', {self_closing_tag: false});
@@ -788,8 +872,47 @@
 	
 	return {
 		expandAbbreviation: function(abbr, type, profile) {
-			var tree = this.parseIntoTree(abbr, type || 'html');
-			return replaceVariables(tree ? tree.toString(profile) : '');
+			type = type || 'html';
+			var is_invalid = false,
+				context = this;
+			
+			/**
+			 * @param {abbrGroup} group
+			 * @param {Tag} parent
+			 */
+			function expandGroup(group, parent) {
+				var tree = context.parseIntoTree(group.expr, type),
+					/** @type {Tag} */
+					last_item = null;
+					
+				if (tree) {
+					for (var i = 0, il = tree.children.length; i < il; i++) {
+						last_item = tree.children[i];
+						parent.addChild(last_item);
+					}
+				} else {
+					is_invalid = true;
+					return;
+				}
+				
+				if (group.children.length) {
+					var add_point = last_item.findDeepestChild() || last_item;
+					for (var j = 0, jl = group.children.length; j < jl; j++) {
+						expandGroup(group.children[j], add_point);
+					}
+				}
+			}
+			
+			// first, split abbreviation by groups
+			var group_root = splitByGroups(abbr),
+				tree_root = new Tag('', 1, type);
+			
+			// the recursively expand each group item
+			for (var i = 0, il = group_root.children.length; i < il; i++) {
+				expandGroup(group_root.children[i], tree_root);
+			}
+			
+			return !is_invalid ? replaceVariables(tree_root.toString(profile)) : '';
 		},
 		
 		/**
