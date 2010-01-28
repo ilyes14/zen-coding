@@ -37,6 +37,9 @@
 	
 	var profiles = {};
 	
+	/** List of registered filters */
+	var filters = {};
+	
 	/**
 	 * Проверяет, является ли символ допустимым в аббревиатуре
 	 * @param {String} ch
@@ -647,32 +650,56 @@
 	}
 	
 	/**
-	 * Returns resurce value from data set with respect of inheritance
-	 * @param {String} type Resource type (html, css, ...)
-	 * @param {String} abbr Abbreviation name
-	 * @param {String} res_name Resource name ('snippets' or 'abbreviation')
-	 * @return {Object|null}
+	 * Creates resource inheritance chain for lookups
+	 * @param {String} syntax Syntax name
+	 * @param {String} name Resource name
+	 * @return {Array}
 	 */
-	function getSettingsResource(type, abbr, res_name) {
-		var resource = zen_settings[type];
+	function createResourceChain(syntax, name) {
+		var resource = zen_settings[syntax],
+			result = [];
 		
 		if (resource) {
-			if (res_name in resource && abbr in resource[res_name])
-				return resource[res_name][abbr];
-			else if ('extends' in resource) {
-				// find abbreviation in ancestors
+			if (name in resource)
+				result.push(resource[name]);
+			if ('extends' in resource) {
+				// find resource in ancestors
 				for (var i = 0; i < resource['extends'].length; i++) {
 					var type = resource['extends'][i];
-					if (
-						zen_settings[type] && 
-						zen_settings[type][res_name] && 
-						zen_settings[type][res_name][abbr]
-					)
-						return zen_settings[type][res_name][abbr];
+					if (zen_settings[type] && zen_settings[type][name])
+						result.push(zen_settings[type][name]);
 				}
 			}
 		}
 		
+		return result;
+	}
+	
+	/**
+	 * Get resource collection from settings file for specified syntax. 
+	 * It follows inheritance chain if resource wasn't directly found in
+	 * syntax settings
+	 * @param {String} syntax Syntax name
+	 * @param {String} name Resource name
+	 */
+	function getResource(syntax, name) {
+		var chain = createResourceChain(syntax, name);
+		return chain[0];
+	}
+	
+	/**
+	 * Returns resurce value from data set with respect of inheritance
+	 * @param {String} syntax Resource syntax (html, css, ...)
+	 * @param {String} abbr Abbreviation name
+	 * @param {String} name Resource name ('snippets' or 'abbreviation')
+	 * @return {Object|null}
+	 */
+	function getSettingsResource(syntax, abbr, name) {
+		var chain = createResourceChain(syntax, name);
+		for (var i = 0, il = chain.length; i < il; i++) {
+			if (abbr in chain[i])
+				return chain[i][abbr];
+		}
 		
 		return null;
 	}
@@ -1073,100 +1100,24 @@
 	}
 	
 	/**
-	 * Creates HTML attributes string from tag according to profile settings
-	 * @param {SimpleTag} tag
-	 * @param {default_profile} profile
-	 */
-	function makeAttributesString(tag, profile) {
-		// make attribute string
-		var attrs = '',
-			attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
-			cursor = profile.place_cursor ? '|' : '',
-			attr_name;
-			
-		for (var i = 0; i < tag.attributes.length; i++) {
-			var a = tag.attributes[i];
-			attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : a.name.toLowerCase();
-			attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
-		}
-		
-		return attrs;
-	}
-	
-	/**
-	 * Preprocesses simplified tree before filtering. This function adds proper
-	 * nested element padding, as well as writes initial 
-	 * <code>start</code> and <code>end</code> tag properties
+	 * Applies filters to tree
 	 * @param {SimpleTag} tree
-	 * @param {String} profile_name
+	 * @param {String|Object} profile
+	 * @param {String[]} filter_list
+	 * @return {SimpleTag}
 	 */
-	function preprocessSimpleTree(tree, profile_name, level) {
-		var profile = profiles[profile_name] || profiles['plain'];
-		level = level || 0;
-		
-		for (var i = 0, il = tree.children.length; i < il; i++) {
-			/** @type {SimpleTag} */
-			var item = tree.children[i];
+	function applyFilters(tree, profile, filter_list) {
+		if (typeof(profile) == 'string')
+			profile = profiles[profile] || profiles['plain'];
 			
-			var attrs = makeAttributesString(item, profile), 
-				content = '', 
-				cursor = profile.place_cursor ? '|' : '',
-				self_closing = '',
-				
-				is_empty = (item.source.isEmpty() && !item.children.length);
-	
-			if (profile.self_closing_tag == 'xhtml')
-				self_closing = ' /';
-			else if (profile.self_closing_tag === true)
-				self_closing = '/';
-				
-			function allowNewline(tag) {
-				return (profile.tag_nl === true || (profile.tag_nl == 'decide' && tag.isBlock()))
+		for (var i = 0, il = filter_list.length; i < il; i++) {
+			var name = filter_list[i].toLowerCase();
+			if (name in filters) {
+				tree = filters[name](tree, profile);
 			}
-				
-			// define opening and closing tags
-			if (item.name) {
-				var tag_name = (profile.tag_case == 'upper') ? item.name.toUpperCase() : item.name.toLowerCase();
-				if (is_empty) {
-					item.start = '<' + tag_name + attrs + self_closing + '>';
-				} else {
-					item.start = '<' + tag_name + attrs + '>';
-					item.end = '</' + tag_name + '>';
-				}
-			}
-			
-			// formatting output
-			if (profile.tag_nl !== false) {
-				if (item.name) {
-					if (item.isBlock() || (profile.tag_nl === true && !is_empty))
-						item.end += getNewline();
-					
-					if (
-						item.hasBlockChildren() ||
-						(is_empty && item.nextSibling && item.nextSibling.isBlock()) ||
-						profile.tag_nl === true && item.hasChildren()
-					)
-						item.start += getNewline();
-						
-					if (item.isBlock() || profile.tag_nl === true || (item.parent && item.parent.hasBlockChildren()))
-						item.start = repeatString(getIndentation(), level) + item.start;
-						
-					// indent tree leafs
-					if (profile.tag_nl === true && !item.hasChildren() && !is_empty) {
-						item.start += getNewline() + repeatString(getIndentation(), level + 1);
-						item.end = getNewline() + repeatString(getIndentation(), level) + item.end;
-					} else if (profile.tag_nl === true && !is_empty) {
-						item.end = repeatString(getIndentation(), level) + item.end;
-					}
-						
-					if (!item.children.length && !is_empty)
-						item.start += cursor;
-				}
-			}
-			
-			item.start = item.start.replace(/\$/g, i + 1);
-			preprocessSimpleTree(item, profile_name, level + 1);
 		}
+		
+		return tree;
 	}
 	
 	// create default profiles
@@ -1399,11 +1350,56 @@
 			caret_placeholder = value;
 		},
 		
-		rolloutTree: function(tree, profile_name) {
-			tree = rolloutTree(tree);
-			preprocessSimpleTree(tree, profile_name);
-			return tree;
+		rolloutTree: rolloutTree,
+		
+		/**
+		 * Register new filter
+		 * @param {String} name Filter name
+		 * @param {Function} fn Filter function
+		 */
+		registerFilter: function(name, fn) {
+			filters[name] = fn;
 		},
+		
+		/**
+		 * @return {SimpleTag}
+		 */
+		simpleTagFactory: function() {
+			return new SimpleTag();
+		},
+		
+		/**
+		 * Applies filters to tree according to syntax
+		 * @param {SimpleTag} tree Tag tree to apply filters to
+		 * @param {String} syntax Syntax name ('html', 'css', etc.)
+		 * @param {String|Object} profile Profile or profile's name
+		 * @param {String|Array} [additional_filters] List or pipe-separated 
+		 * string of additional filters to apply
+		 * 
+		 * @return {SimpleTag}
+		 */
+		applyFilters: function(tree, syntax, profile, additional_filters){
+			var _filters = getResource(syntax, 'filters'),
+				cur_fillters = [];
+				
+			if (additional_filters)
+				_filters += '|' + ((typeof(additional_filters) == 'string') 
+					? additional_filters 
+					: additional_filters.join('|'));
+				
+			if (!_filters)
+				return tree;
+				
+			_filters = _filters.split('|');
+			for (var i = 0, il = _filters.length; i < il; i++) {
+				if (_filters[i])
+					cur_fillters.push(_filters[i]);
+			}
+			
+			return applyFilters(tree, profile, cur_fillters);
+		},
+		repeatString: repeatString,
+		getVariable: getVariable,
 		
 		settings_parser: (function(){
 			/**
