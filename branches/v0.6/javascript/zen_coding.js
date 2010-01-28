@@ -863,6 +863,256 @@
 		return root;
 	}
 	
+	/**
+	 * @class
+	 * Creates simplified tag from Zen Coding tag
+	 * @param {Tag} tag
+	 */
+	function SimpleTag(tag) {
+		
+		this.type = (tag instanceof Snippet) ? 'snippet' : 'tag';
+		this.name = tag.name;
+		this.attributes = tag.attributes;
+		this.parent = null;
+		this.children = [];
+		
+		/** @type {Tag} Source element from which current tag was created */
+		this.source = tag;
+		
+		// output params
+		this.start = '';
+		this.end = '';
+		this.content = '';
+		this.padding = '';
+	}
+	
+	SimpleTag.prototype = {
+		/**
+		 * @type {SimpleTag} tag
+		 */
+		addChild: function(tag) {
+			tag.parent = this;
+			this.children.push(tag);
+		},
+		
+		/**
+		 * Test if current tag is empty
+		 * @return {Boolean}
+		 */
+		isEmpty: function() {
+			return (this.source._abbr && this.source._abbr.value.is_empty) || (this.name in getElementsCollection(this._res, 'empty'));
+		},
+		
+		/**
+		 * Test if current tag is inline-level (like &lt;strong&gt;, &lt;img&gt;)
+		 * @return {Boolean}
+		 */
+		isInline: function() {
+			return (this.name in getElementsCollection(this.source._res, 'inline_level'));
+		},
+		
+		/**
+		 * Проверяет, является ли текущий элемент блочным
+		 * @return {Boolean}
+		 */
+		isBlock: function() {
+			return (this.name in getElementsCollection(this.source._res, 'block_level'));
+		},
+		
+		/**
+		 * This function tests if current tags' content contains xHTML tags. 
+		 * This function is mostly used for output formatting
+		 */
+		hasTagsInContent: function() {
+			return this.content && re_tag.test(this.content);
+		},
+		
+		/**
+		 * Test if current tag contains block-level children
+		 * @return {Boolean}
+		 */
+		hasBlockChildren: function() {
+			if (this.hasTagsInContent() && this.isBlock()) {
+				return true;
+			}
+			
+			for (var i = 0; i < this.children.length; i++) {
+				if (this.children[i].isBlock())
+					return true;
+			}
+			
+			return false;
+		},
+		
+		/**
+		 * Search for deepest and latest child of current element
+		 * @return {SimpleTag|null} Returns <code>null</code> if there's no children
+		 */
+		findDeepestChild: function() {
+			if (!this.children.length)
+				return null;
+				
+			var deepest_child = this;
+			while (true) {
+				deepest_child = deepest_child.children[ deepest_child.children.length - 1 ];
+				if (!deepest_child.children.length)
+					break;
+			}
+			
+			return deepest_child;
+		},
+		
+		/**
+		 * @return {String}
+		 */
+		toString: function() {
+			var content = '';
+			for (var i = 0, il = this.children.length; i < il; i++) {
+				content += this.children[i].toString();
+			}
+			return this.start + content + this.content + this.end;
+		}
+	}
+	
+	/**
+	 * Roll outs basic Zen Coding tree into simplified, DOM-like tree.
+	 * The simplified tree, for example, represents each multiplied element 
+	 * as a separate element sets with its own content, if exists.
+	 * 
+	 * The simplified tree element contains some meta info (tag name, attributes, 
+	 * etc.) as well as output strings, which are exactly what will be outputted
+	 * after expanding abbreviation. This tree is used for <i>filtering</i>:
+	 * you can apply filters that will alter output strings to get desired look
+	 * of expanded abbreviation.
+	 * 
+	 * @param {Tag} tree
+	 * @param {SimpleTag} [parent]
+	 */
+	function rolloutTree(tree, parent) {
+		parent = parent || new SimpleTag(tree);
+		var how_many = 1,
+			tag_content = '';
+		
+		for (var i = 0, il = tree.children.length; i < il; i++) {
+			/** @type {Tag} */
+			var child = tree.children[i];
+			how_many = child.count;
+			
+			if (child.repeat_by_lines) {
+				// it's a repeating element
+				tag_content = splitByLines(child.getContent(), true);
+				how_many = Math.max(tag_content.length, 1);
+			} else {
+				tag_content = child.getContent();
+			}
+			
+			for (var j = 0; j < how_many; j++) {
+				var tag = new SimpleTag(child);
+				parent.addChild(tag);
+				
+				if (child.children.length)
+					rolloutTree(child, tag);
+					
+				var add_point = tag.findDeepestChild() || tag;
+				add_point.content = (typeof(tag_content) == 'string') 
+					? tag_content 
+					: (tag_content[j] || '');
+			}
+		}
+		
+		return parent;
+	}
+	
+	/**
+	 * Creates HTML attributes string from tag according to profile settings
+	 * @param {SimpleTag} tag
+	 * @param {default_profile} profile
+	 */
+	function makeAttributesString(tag, profile) {
+		// make attribute string
+		var attrs = '',
+			attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
+			cursor = profile.place_cursor ? '|' : '',
+			attr_name;
+			
+		for (var i = 0; i < tag.attributes.length; i++) {
+			var a = tag.attributes[i];
+			attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : a.name.toLowerCase();
+			attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
+		}
+		
+		return attrs;
+	}
+	
+	/**
+	 * Preprocesses simplified tree before filtering. This function adds proper
+	 * nested element padding, as well as writes initial 
+	 * <code>start</code> and <code>end</code> tag properties
+	 * @param {SimpleTag} tree
+	 * @param {String} profile_name
+	 */
+	function preprocessSimpleTree(tree, profile_name) {
+		var profile = profiles[profile_name] || profiles['plain'];
+		
+		for (var i = 0, il = tree.children.length; i < il; i++) {
+			/** @type {SimpleTag} */
+			var item = tree.children[i];
+			
+			var attrs = makeAttributesString(item, profile), 
+				content = '', 
+				cursor = profile.place_cursor ? '|' : '',
+				self_closing = '',
+				
+				is_empty = (item.source.isEmpty() && !item.children.length);
+	
+			if (profile.self_closing_tag == 'xhtml')
+				self_closing = ' /';
+			else if (profile.self_closing_tag === true)
+				self_closing = '/';
+				
+			function allowNewline(tag) {
+				return (profile.tag_nl === true || (profile.tag_nl == 'decide' && tag.isBlock()))
+			}
+				
+			// define opening and closing tags
+			if (item.name) {
+				var tag_name = (profile.tag_case == 'upper') ? item.name.toUpperCase() : item.name.toLowerCase();
+				if (is_empty) {
+					item.start = '<' + tag_name + attrs + self_closing + '>';
+				} else {
+					item.start = '<' + tag_name + attrs + '>';
+					item.end = '</' + tag_name + '>';
+				}
+			}
+			
+			// formatting output
+			if (profile.tag_nl !== false) {
+				if (
+					item.name && 
+					(
+						profile.tag_nl === true || 
+						item.hasBlockChildren() 
+					)
+				) {
+					if (item.end) { // non-empty tag: add newlines
+						item.start += getNewline();
+						item.end = getNewline() + item.end;
+					}
+				}
+				
+				if (item.name) {
+					if (item.content)
+						item.content = padString(item.content, profile.indent ? 1 : 0);
+					else if (!is_empty)
+						item.start += cursor;
+				}
+			}
+			
+			item.start = item.start.replace(/\$/g, i + 1);
+			preprocessSimpleTree(item, profile_name);
+		}
+	}
+	
 	// create default profiles
 	setupProfile('xhtml');
 	setupProfile('html', {self_closing_tag: false});
@@ -907,7 +1157,7 @@
 			var group_root = splitByGroups(abbr),
 				tree_root = new Tag('', 1, type);
 			
-			// the recursively expand each group item
+			// then recursively expand each group item
 			for (var i = 0, il = group_root.children.length; i < il; i++) {
 				expandGroup(group_root.children[i], tree_root);
 			}
@@ -1091,6 +1341,12 @@
 		 */
 		setCaretPlaceholder: function(value) {
 			caret_placeholder = value;
+		},
+		
+		rolloutTree: function(tree, profile_name) {
+			tree = rolloutTree(tree);
+			preprocessSimpleTree(tree, profile_name);
+			return tree;
 		},
 		
 		settings_parser: (function(){
