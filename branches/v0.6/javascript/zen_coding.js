@@ -125,18 +125,30 @@
 	}
 	
 	/**
+	 * Repeats string <code>how_many</code> times
+	 * @param {String} str
+	 * @param {Number} how_many
+	 * @return {String}
+	 */
+	function repeatString(str, how_many) {
+		var result = '';
+		for (var i = 0; i < how_many; i++) 
+			result += str;
+			
+		return result;
+	}
+	
+	/**
 	 * Indents text with padding
 	 * @param {String} text Text to indent
 	 * @param {String|Number} pad Padding size (number) or padding itself (string)
 	 * @return {String}
 	 */
 	function padString(text, pad) {
-		var pad_str = '', result = '';
-		if (typeof(pad) == 'number')
-			for (var i = 0; i < pad; i++) 
-				pad_str += zen_settings.variables.indentation;
-		else
-			pad_str = pad;
+		var pad_str = (typeof(pad) == 'number') 
+				? repeatString(getIndentation(), pad) 
+				: pad, 
+			result = '';
 		
 		var lines = splitByLines(text),
 			nl = getNewline();
@@ -423,7 +435,7 @@
 					)
 				) {
 					if (end_tag) { // non-empty tag: add indentation
-						start_tag += getNewline() + zen_settings.variables.indentation;
+						start_tag += getNewline() + getIndentation();
 						end_tag = getNewline() + end_tag;
 					} else { // empty tag
 						
@@ -616,6 +628,22 @@
 	 */
 	function getSnippet(type, snippet_name) {
 		return getSettingsResource(type, snippet_name, 'snippets');
+	}
+	
+	/**
+	 * Returns variable value
+	 * @return {String}
+	 */
+	function getVariable(name) {
+		return zen_settings.variables[name];
+	}
+	
+	/**
+	 * Returns indentation string
+	 * @return {String}
+	 */
+	function getIndentation() {
+		return getVariable('indentation');
 	}
 	
 	/**
@@ -873,17 +901,23 @@
 		this.type = (tag instanceof Snippet) ? 'snippet' : 'tag';
 		this.name = tag.name;
 		this.attributes = tag.attributes;
-		this.parent = null;
 		this.children = [];
 		
 		/** @type {Tag} Source element from which current tag was created */
 		this.source = tag;
 		
+		// relations
+		/** @type {SimpleTag} */
+		this.parent = null;
+		/** @type {SimpleTag} */
+		this.nextSibling = null;
+		/** @type {SimpleTag} */
+		this.previousSibling = null;
+		
 		// output params
 		this.start = '';
 		this.end = '';
 		this.content = '';
-		this.padding = '';
 	}
 	
 	SimpleTag.prototype = {
@@ -892,6 +926,12 @@
 		 */
 		addChild: function(tag) {
 			tag.parent = this;
+			var last_child = this.children[this.children.length - 1];
+			if (last_child) {
+				tag.previousSibling = last_child;
+				last_child.nextSibling = tag;
+			}
+			
 			this.children.push(tag);
 		},
 		
@@ -925,6 +965,14 @@
 		 */
 		hasTagsInContent: function() {
 			return this.content && re_tag.test(this.content);
+		},
+		
+		/**
+		 * Check if tag has child elements
+		 * @return {Boolean}
+		 */
+		hasChildren: function() {
+			return !!this.children.length;
 		},
 		
 		/**
@@ -970,7 +1018,8 @@
 			for (var i = 0, il = this.children.length; i < il; i++) {
 				content += this.children[i].toString();
 			}
-			return this.start + content + this.content + this.end;
+			
+			return this.start + this.content + content + this.end;
 		}
 	}
 	
@@ -1051,8 +1100,9 @@
 	 * @param {SimpleTag} tree
 	 * @param {String} profile_name
 	 */
-	function preprocessSimpleTree(tree, profile_name) {
+	function preprocessSimpleTree(tree, profile_name, level) {
 		var profile = profiles[profile_name] || profiles['plain'];
+		level = level || 0;
 		
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {SimpleTag} */
@@ -1087,29 +1137,35 @@
 			
 			// formatting output
 			if (profile.tag_nl !== false) {
-				if (
-					item.name && 
-					(
-						profile.tag_nl === true || 
-						item.hasBlockChildren() 
-					)
-				) {
-					if (item.end) { // non-empty tag: add newlines
-						item.start += getNewline();
-						item.end = getNewline() + item.end;
-					}
-				}
-				
 				if (item.name) {
-					if (item.content)
-						item.content = padString(item.content, profile.indent ? 1 : 0);
-					else if (!is_empty)
+					if (item.isBlock() || (profile.tag_nl === true && !is_empty))
+						item.end += getNewline();
+					
+					if (
+						item.hasBlockChildren() ||
+						(is_empty && item.nextSibling && item.nextSibling.isBlock()) ||
+						profile.tag_nl === true && item.hasChildren()
+					)
+						item.start += getNewline();
+						
+					if (item.isBlock() || profile.tag_nl === true || (item.parent && item.parent.hasBlockChildren()))
+						item.start = repeatString(getIndentation(), level) + item.start;
+						
+					// indent tree leafs
+					if (profile.tag_nl === true && !item.hasChildren() && !is_empty) {
+						item.start += getNewline() + repeatString(getIndentation(), level + 1);
+						item.end = getNewline() + repeatString(getIndentation(), level) + item.end;
+					} else if (profile.tag_nl === true && !is_empty) {
+						item.end = repeatString(getIndentation(), level) + item.end;
+					}
+						
+					if (!item.children.length && !is_empty)
 						item.start += cursor;
 				}
 			}
 			
 			item.start = item.start.replace(/\$/g, i + 1);
-			preprocessSimpleTree(item, profile_name);
+			preprocessSimpleTree(item, profile_name, level + 1);
 		}
 	}
 	
