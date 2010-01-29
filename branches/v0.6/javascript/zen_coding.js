@@ -963,10 +963,13 @@
 		},
 		
 		/**
-		 * Test if current tag is empty
+		 * Test if current tag is unary (no closing tag)
 		 * @return {Boolean}
 		 */
-		isEmpty: function() {
+		isUnary: function() {
+			if (this.type == 'snippet')
+				return false;
+				
 			return (this.source._abbr && this.source._abbr.value.is_empty) || (this.name in getElementsCollection(this._res, 'empty'));
 		},
 		
@@ -983,7 +986,7 @@
 		 * @return {Boolean}
 		 */
 		isBlock: function() {
-			return (this.name in getElementsCollection(this.source._res, 'block_level'));
+			return this.type == 'snippet' || !this.isInline();
 		},
 		
 		/**
@@ -1400,6 +1403,7 @@
 		},
 		repeatString: repeatString,
 		getVariable: getVariable,
+		replaceVariables: replaceVariables,
 		
 		settings_parser: (function(){
 			/**
