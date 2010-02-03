@@ -38,7 +38,9 @@
 	var profiles = {};
 	
 	/** List of registered filters */
-	var filters = {};
+	var filters = {},
+		/** Filters that will be applied for unknown syntax */
+		basic_filters = 'html';
 	
 	/**
 	 * Проверяет, является ли символ допустимым в аббревиатуре
@@ -1111,15 +1113,18 @@
 	 * @return {SimpleTag}
 	 */
 	function runFilters(tree, profile, filter_list) {
-		if (typeof(profile) == 'string')
-			profile = profiles[profile] || profiles['plain'];
+		if (typeof(profile) == 'string' && profile in profiles)
+			profile = profiles[profile];
+		
+		if (!profile)
+			profile = profiles['plain'];
 			
 		if (typeof(filter_list) == 'string')
 			filter_list = filter_list.split(/[\|,]/g);
 			
 		for (var i = 0, il = filter_list.length; i < il; i++) {
 			var name = trim(filter_list[i].toLowerCase());
-			if (name in filters) {
+			if (name && name in filters) {
 				tree = filters[name](tree, profile);
 			}
 		}
@@ -1167,7 +1172,14 @@
 				}
 			}
 			
-			// first, split abbreviation by groups
+			// remove filters from abbreviation
+			var filter_list = '';
+			abbr = abbr.replace(/\|([\w\|\-]+)$/, function(str, p1){
+				filter_list = p1;
+				return '';
+			});
+			
+			// split abbreviation by groups
 			var group_root = splitByGroups(abbr),
 				tree_root = new Tag('', 1, type);
 			
@@ -1176,7 +1188,15 @@
 				expandGroup(group_root.children[i], tree_root);
 			}
 			
-			return !is_invalid ? replaceVariables(tree_root.toString(profile)) : '';
+			if (!is_invalid) {
+				var tree = rolloutTree(tree_root);
+				this.applyFilters(tree, type, profile, filter_list);
+				return tree.toString();
+			} else {
+				return '';
+			}
+			
+//			return !is_invalid ? replaceVariables(tree_root.toString(profile)) : '';
 		},
 		
 		/**
@@ -1394,7 +1414,9 @@
 					? additional_filters 
 					: additional_filters.join('|'));
 				
-			if (!_filters) return tree;
+			if (!_filters)
+				// looks like unknown syntax, apply basic filters
+				_filters = basic_filters;
 				
 			return runFilters(tree, profile, _filters);
 		},
