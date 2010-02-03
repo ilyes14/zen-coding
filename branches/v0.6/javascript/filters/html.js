@@ -58,24 +58,35 @@
 		item.start = parts[0] || '';
 		item.end = parts[1] || '';
 		
-		if (item.isBlock() || profile.tag_nl === true || (item.parent && item.parent.hasBlockChildren()))
-			item.start = zen_coding.repeatString(getIndentation(), level) + item.start;
-			
-		// formatting output
-		if (profile.tag_nl !== false) {
-			if (item.isBlock() || (profile.tag_nl === true && !is_empty))
-				item.end += getNewline();
+		var padding = (item.parent) 
+			? item.parent.padding
+			: zen_coding.repeatString(getIndentation(), level);
+		
+		if (item.parent) {
+			item.start = getNewline() + padding + zen_coding.padString(item.start, padding);
+			item.end = zen_coding.padString(item.end, padding);
 		}
 		
-		// substitute attributes
-		item.start = zen_coding.replaceVariables(item.start, item.attributes);
-		item.end = zen_coding.replaceVariables(item.end, item.attributes);
-			
-		if (item.source.getContent()) {
-			item.content = padString(item.source.getContent(), 1);
+		// adjust item formatting according to last line of <code>start</code> property
+		var lines = zen_coding.splitByLines(item.start),
+			padding_delta = getIndentation();
+		if (lines > 1) {
+			var m = lines[lines.length - 1].match(/^(\s+)/);
+			if (m)
+				padding_delta = m[1];
 		}
+		item.padding = padding + padding_delta;
 		
 		return item;
+	}
+	
+	/**
+	 * Test if passed node has block-level sibling element
+	 * @param {SimpleTag} item
+	 * @return {Boolean}
+	 */
+	function hasBlockSibling(item) {
+		return (item.parent && item.parent.hasBlockChildren());
 	}
 	
 	/**
@@ -93,7 +104,7 @@
 			content = '', 
 			cursor = profile.place_cursor ? zen_coding.getCaretPlaceholder() : '',
 			self_closing = '',
-			is_empty = (item.isUnary() && !item.children.length);
+			is_unary = (item.isUnary() && !item.children.length);
 			
 
 		if (profile.self_closing_tag == 'xhtml')
@@ -103,7 +114,7 @@
 			
 		// define opening and closing tags
 		var tag_name = (profile.tag_case == 'upper') ? item.name.toUpperCase() : item.name.toLowerCase();
-		if (is_empty) {
+		if (is_unary) {
 			item.start = '<' + tag_name + attrs + self_closing + '>';
 		} else {
 			item.start = '<' + tag_name + attrs + '>';
@@ -112,30 +123,28 @@
 		
 		// formatting output
 		if (profile.tag_nl !== false) {
-			if (item.isBlock() || (profile.tag_nl === true && !is_empty))
-				item.end += getNewline();
+			var padding = (item.parent) 
+				? item.parent.padding
+				: zen_coding.repeatString(getIndentation(), level);
 			
-			if (
-				item.hasBlockChildren() ||
-				(is_empty && item.nextSibling && item.nextSibling.isBlock()) ||
-				profile.tag_nl === true && item.hasChildren()
-			)
-				item.start += getNewline();
+			if ((item.isBlock() && item.parent) || profile.tag_nl === true) {
+				// formatting block-level elements
 				
-			if (item.isBlock() || profile.tag_nl === true || (item.parent && item.parent.hasBlockChildren()))
-				item.start = zen_coding.repeatString(getIndentation(), level) + item.start;
-				
-			// indent tree leaves
-			if (profile.tag_nl === true && !item.hasChildren() && !is_empty) {
-				item.start += getNewline() + zen_coding.repeatString(getIndentation(), level + 1);
-				item.end = getNewline() + zen_coding.repeatString(getIndentation(), level) + item.end;
-			} else if (profile.tag_nl === true && !is_empty) {
-				item.end = zen_coding.repeatString(getIndentation(), level) + item.end;
+				// snippet children should take different formatting
+				if (!item.parent || item.parent.type != 'snippet')
+					item.start = getNewline() + padding + item.start;
+					
+				if (item.hasBlockChildren())
+					item.end = getNewline() + padding + item.end;
+			} else if (item.isInline() && hasBlockSibling(item)) {
+				item.start = getNewline() + padding + item.start;
 			}
-				
-			if (!item.children.length && !is_empty)
-				item.start += cursor;
+			
+			item.padding = padding + getIndentation();
 		}
+		
+		if (!item.children.length && !is_unary)
+			item.start += cursor;
 		
 		return item;
 	}
