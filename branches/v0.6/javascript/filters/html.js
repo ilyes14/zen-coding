@@ -96,12 +96,11 @@
 			end = '</' + tag_name + '>';
 		}
 		
-		if (!item.children.length && !is_unary)
-			start += cursor;
-			
 		item.start = item.start.replace('%s', start);
 		item.end = item.end.replace('%s', end);
 		
+		if (!item.children.length && !is_unary)
+			item.start += cursor;
 		
 		return item;
 	}

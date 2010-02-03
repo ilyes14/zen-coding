@@ -19,6 +19,23 @@
 	}
 	
 	/**
+	 * Test if passed node has block-level sibling element
+	 * @param {SimpleTag} item
+	 * @return {Boolean}
+	 */
+	function hasBlockSibling(item) {
+		return (item.parent && item.parent.hasBlockChildren());
+	}
+	
+	/**
+	 * Test if passed itrem is very first child of the whole tree
+	 * @param {SimpleTag} tree
+	 */
+	function isVeryFirstChild(item) {
+		return item.parent && !item.parent.parent && !item.previousSibling;
+	}
+	
+	/**
 	 * Processes element with <code>snippet</code> type
 	 * @param {SimpleTag} item
 	 * @param {Object} profile
@@ -37,7 +54,7 @@
 			? item.parent.padding
 			: zen_coding.repeatString(getIndentation(), level);
 		
-		if (item.parent) {
+		if (!isVeryFirstChild(item)) {
 			item.start = getNewline() + padding + item.start;
 		}
 		
@@ -57,15 +74,6 @@
 	}
 	
 	/**
-	 * Test if passed node has block-level sibling element
-	 * @param {SimpleTag} item
-	 * @return {Boolean}
-	 */
-	function hasBlockSibling(item) {
-		return (item.parent && item.parent.hasBlockChildren());
-	}
-	
-	/**
 	 * Processes element with <code>tag</code> type
 	 * @param {SimpleTag} item
 	 * @param {Object} profile
@@ -77,22 +85,29 @@
 			return item;
 		
 		item.start = item.end = placeholder;
+		
+		var is_unary = (item.isUnary() && !item.children.length);
 			
 		// formatting output
 		if (profile.tag_nl !== false) {
 			var padding = (item.parent) 
-				? item.parent.padding
-				: zen_coding.repeatString(getIndentation(), level);
+					? item.parent.padding
+					: zen_coding.repeatString(getIndentation(), level),
+				force_nl = (profile.tag_nl === true);
 			
 			// formatting block-level elements
-			if ((item.isBlock() && item.parent) || profile.tag_nl === true) {
+			if ((item.isBlock() && item.parent) || force_nl) {
 				// snippet children should take different formatting
-				if (!item.parent || item.parent.type != 'snippet')
+				if (!item.parent || (item.parent.type != 'snippet' && !isVeryFirstChild(item)))
 					item.start = getNewline() + padding + item.start;
 					
-				if (item.hasBlockChildren())
+				if (item.hasBlockChildren() || (force_nl && !is_unary))
 					item.end = getNewline() + padding + item.end;
-			} else if (item.isInline() && hasBlockSibling(item)) {
+					
+				if (force_nl && !item.hasChildren() && !is_unary)
+					item.start += getNewline() + padding + getIndentation();
+				
+			} else if (item.isInline() && hasBlockSibling(item) && !isVeryFirstChild(item)) {
 				item.start = getNewline() + padding + item.start;
 			}
 			
