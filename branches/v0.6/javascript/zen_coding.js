@@ -1104,18 +1104,21 @@
 	}
 	
 	/**
-	 * Applies filters to tree
+	 * Runs filters on tree
 	 * @param {SimpleTag} tree
 	 * @param {String|Object} profile
-	 * @param {String[]} filter_list
+	 * @param {String[]|String} filter_list
 	 * @return {SimpleTag}
 	 */
-	function applyFilters(tree, profile, filter_list) {
+	function runFilters(tree, profile, filter_list) {
 		if (typeof(profile) == 'string')
 			profile = profiles[profile] || profiles['plain'];
 			
+		if (typeof(filter_list) == 'string')
+			filter_list = filter_list.split(/[\|,]/g);
+			
 		for (var i = 0, il = filter_list.length; i < il; i++) {
-			var name = filter_list[i].toLowerCase();
+			var name = trim(filter_list[i].toLowerCase());
 			if (name in filters) {
 				tree = filters[name](tree, profile);
 			}
@@ -1391,17 +1394,13 @@
 					? additional_filters 
 					: additional_filters.join('|'));
 				
-			if (!_filters)
-				return tree;
+			if (!_filters) return tree;
 				
-			_filters = _filters.split('|');
-			for (var i = 0, il = _filters.length; i < il; i++) {
-				if (_filters[i])
-					cur_fillters.push(_filters[i]);
-			}
-			
-			return applyFilters(tree, profile, cur_fillters);
+			return runFilters(tree, profile, _filters);
 		},
+		
+		runFilters: runFilters,
+		
 		repeatString: repeatString,
 		getVariable: getVariable,
 		replaceVariables: replaceVariables,
