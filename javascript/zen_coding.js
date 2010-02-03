@@ -945,6 +945,7 @@
 		this.start = '';
 		this.end = '';
 		this.content = '';
+		this.padding = '';
 	}
 	
 	SimpleTag.prototype = {
