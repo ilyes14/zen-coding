@@ -10,7 +10,7 @@
 	
 	/**
 	 * Creates HTML attributes string from tag according to profile settings
-	 * @param {SimpleTag} tag
+	 * @param {ZenNode} tag
 	 * @param {default_profile} profile
 	 */
 	function makeAttributesString(tag, profile) {
@@ -31,7 +31,7 @@
 	
 	/**
 	 * Processes element with <code>snippet</code> type
-	 * @param {SimpleTag} item
+	 * @param {ZenNode} item
 	 * @param {Object} profile
 	 * @param {Number} [level] Depth level
 	 */
@@ -55,7 +55,7 @@
 	
 	/**
 	 * Test if passed node has block-level sibling element
-	 * @param {SimpleTag} item
+	 * @param {ZenNode} item
 	 * @return {Boolean}
 	 */
 	function hasBlockSibling(item) {
@@ -64,7 +64,7 @@
 	
 	/**
 	 * Processes element with <code>tag</code> type
-	 * @param {SimpleTag} item
+	 * @param {ZenNode} item
 	 * @param {Object} profile
 	 * @param {Number} [level] Depth level
 	 */
@@ -107,7 +107,7 @@
 	
 	/**
 	 * Processes simplified tree, making it suitable for output as HTML structure
-	 * @param {SimpleTag} tree
+	 * @param {ZenNode} tree
 	 * @param {Object} profile
 	 * @param {Number} [level] Depth level
 	 */
@@ -117,7 +117,7 @@
 			tree = zen_coding.runFilters(tree, profile, '_format');
 		
 		for (var i = 0, il = tree.children.length; i < il; i++) {
-			/** @type {SimpleTag} */
+			/** @type {ZenNode} */
 	
 			var item = tree.children[i];
 			item = (item.type == 'tag') 

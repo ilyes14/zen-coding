@@ -662,7 +662,7 @@
 	 * Creates simplified tag from Zen Coding tag
 	 * @param {Tag} tag
 	 */
-	function SimpleTag(tag) {
+	function ZenNode(tag) {
 		
 		this.type = (tag instanceof Snippet) ? 'snippet' : 'tag';
 		this.name = tag.name;
@@ -673,11 +673,11 @@
 		this.source = tag;
 		
 		// relations
-		/** @type {SimpleTag} */
+		/** @type {ZenNode} */
 		this.parent = null;
-		/** @type {SimpleTag} */
+		/** @type {ZenNode} */
 		this.nextSibling = null;
-		/** @type {SimpleTag} */
+		/** @type {ZenNode} */
 		this.previousSibling = null;
 		
 		// output params
@@ -687,9 +687,9 @@
 		this.padding = '';
 	}
 	
-	SimpleTag.prototype = {
+	ZenNode.prototype = {
 		/**
-		 * @type {SimpleTag} tag
+		 * @type {ZenNode} tag
 		 */
 		addChild: function(tag) {
 			tag.parent = this;
@@ -764,7 +764,7 @@
 		
 		/**
 		 * Search for deepest and latest child of current element
-		 * @return {SimpleTag|null} Returns <code>null</code> if there's no children
+		 * @return {ZenNode|null} Returns <code>null</code> if there's no children
 		 */
 		findDeepestChild: function() {
 			if (!this.children.length)
@@ -805,10 +805,10 @@
 	 * of expanded abbreviation.
 	 * 
 	 * @param {Tag} tree
-	 * @param {SimpleTag} [parent]
+	 * @param {ZenNode} [parent]
 	 */
 	function rolloutTree(tree, parent) {
-		parent = parent || new SimpleTag(tree);
+		parent = parent || new ZenNode(tree);
 		var how_many = 1,
 			tag_content = '';
 		
@@ -826,7 +826,7 @@
 			}
 			
 			for (var j = 0; j < how_many; j++) {
-				var tag = new SimpleTag(child);
+				var tag = new ZenNode(child);
 				parent.addChild(tag);
 				
 				if (child.children.length)
@@ -846,10 +846,10 @@
 	
 	/**
 	 * Runs filters on tree
-	 * @param {SimpleTag} tree
+	 * @param {ZenNode} tree
 	 * @param {String|Object} profile
 	 * @param {String[]|String} filter_list
-	 * @return {SimpleTag}
+	 * @return {ZenNode}
 	 */
 	function runFilters(tree, profile, filter_list) {
 		if (typeof(profile) == 'string' && profile in profiles)
@@ -1158,21 +1158,21 @@
 		},
 		
 		/**
-		 * @return {SimpleTag}
+		 * @return {ZenNode}
 		 */
 		simpleTagFactory: function() {
-			return new SimpleTag();
+			return new ZenNode();
 		},
 		
 		/**
 		 * Applies filters to tree according to syntax
-		 * @param {SimpleTag} tree Tag tree to apply filters to
+		 * @param {ZenNode} tree Tag tree to apply filters to
 		 * @param {String} syntax Syntax name ('html', 'css', etc.)
 		 * @param {String|Object} profile Profile or profile's name
 		 * @param {String|Array} [additional_filters] List or pipe-separated 
 		 * string of additional filters to apply
 		 * 
-		 * @return {SimpleTag}
+		 * @return {ZenNode}
 		 */
 		applyFilters: function(tree, syntax, profile, additional_filters){
 			var _filters = getResource(syntax, 'filters'),
