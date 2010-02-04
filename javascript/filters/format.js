@@ -20,7 +20,7 @@
 	
 	/**
 	 * Test if passed node has block-level sibling element
-	 * @param {SimpleTag} item
+	 * @param {ZenNode} item
 	 * @return {Boolean}
 	 */
 	function hasBlockSibling(item) {
@@ -29,7 +29,7 @@
 	
 	/**
 	 * Test if passed itrem is very first child of the whole tree
-	 * @param {SimpleTag} tree
+	 * @param {ZenNode} tree
 	 */
 	function isVeryFirstChild(item) {
 		return item.parent && !item.parent.parent && !item.previousSibling;
@@ -37,7 +37,7 @@
 	
 	/**
 	 * Processes element with <code>snippet</code> type
-	 * @param {SimpleTag} item
+	 * @param {ZenNode} item
 	 * @param {Object} profile
 	 * @param {Number} [level] Depth level
 	 */
@@ -75,7 +75,7 @@
 	
 	/**
 	 * Processes element with <code>tag</code> type
-	 * @param {SimpleTag} item
+	 * @param {ZenNode} item
 	 * @param {Object} profile
 	 * @param {Number} [level] Depth level
 	 */
@@ -119,7 +119,7 @@
 	
 	/**
 	 * Processes simplified tree, making it suitable for output as HTML structure
-	 * @param {SimpleTag} tree
+	 * @param {ZenNode} tree
 	 * @param {Object} profile
 	 * @param {Number} [level] Depth level
 	 */
@@ -127,7 +127,7 @@
 		level = level || 0;
 		
 		for (var i = 0, il = tree.children.length; i < il; i++) {
-			/** @type {SimpleTag} */
+			/** @type {ZenNode} */
 			var item = tree.children[i];
 			item = (item.type == 'tag') 
 				? processTag(item, profile, level) 
