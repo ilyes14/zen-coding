@@ -84,9 +84,6 @@
 			.replace(/\n/g, nl)
 			.split(nl);
 		
-//		var nl = getNewline(), 
-//			lines = text.split(new RegExp('\\r?\\n|\\n\\r|\\r|' + nl));
-			
 		if (remove_empty) {
 			for (var i = lines.length; i >= 0; i--) {
 				if (!trim(lines[i]))
@@ -164,6 +161,22 @@
 			
 		return result;
 	}
+	
+	/**
+	 * Class inheritance method
+	 * @param {Function} derived Derived class
+	 * @param {Function} from Base class
+	 */
+	function inherit(derived, from) {
+		var Inheritance = function(){};
+	
+		Inheritance.prototype = from.prototype;
+	
+		derived.prototype = new Inheritance();
+		derived.prototype.constructor = derived;
+		derived.baseConstructor = from;
+		derived.superClass = from.prototype;
+	};
 	
 	/**
 	 * Check if passed abbreviation is snippet
@@ -280,31 +293,6 @@
 				this._attr_hash[name] = a
 				this.attributes.push(a);
 			}
-			
-		},
-		
-		/**
-		 * Test if current tag is empty
-		 * @return {Boolean}
-		 */
-		isEmpty: function() {
-			return (this._abbr && this._abbr.value.is_empty) || (this.name in getElementsCollection(this._res, 'empty'));
-		},
-		
-		/**
-		 * Test if current tag is inline-level (like &lt;strong&gt;, &lt;img&gt;)
-		 * @return {Boolean}
-		 */
-		isInline: function() {
-			return (this.name in getElementsCollection(this._res, 'inline_level'));
-		},
-		
-		/**
-		 * Проверяет, является ли текущий элемент блочным
-		 * @return {Boolean}
-		 */
-		isBlock: function() {
-			return (this.name in getElementsCollection(this._res, 'block_level'));
 		},
 		
 		/**
@@ -313,23 +301,6 @@
 		 */
 		hasTagsInContent: function() {
 			return this.getContent() && re_tag.test(this.getContent());
-		},
-		
-		/**
-		 * Test if current tag contains block-level children
-		 * @return {Boolean}
-		 */
-		hasBlockChildren: function() {
-			if (this.hasTagsInContent() && this.isBlock()) {
-				return true;
-			}
-			
-			for (var i = 0; i < this.children.length; i++) {
-				if (this.children[i].isBlock())
-					return true;
-			}
-			
-			return false;
 		},
 		
 		/**
@@ -364,135 +335,9 @@
 			}
 			
 			return deepest_child;
-		},
-		
-		/**
-		 * Transforms and formats tag into string using profile
-		 * @param {String} profile Profile name
-		 * @return {String}
-		 * TODO Function is too large, need refactoring
-		 */
-		toString: function(profile_name) {
-			
-			var result = [], 
-				profile = (profile_name in profiles) ? profiles[profile_name] : profiles['plain'],
-				attrs = '', 
-				content = '', 
-				start_tag = '', 
-				end_tag = '',
-				cursor = profile.place_cursor ? '|' : '',
-				self_closing = '',
-				attr_quote = profile.attr_quotes == 'single' ? "'" : '"',
-				attr_name,
-				
-				is_empty = (this.isEmpty() && !this.children.length);
-
-			if (profile.self_closing_tag == 'xhtml')
-				self_closing = ' /';
-			else if (profile.self_closing_tag === true)
-				self_closing = '/';
-				
-			function allowNewline(tag) {
-				return (profile.tag_nl === true || (profile.tag_nl == 'decide' && tag.isBlock()))
-			}
-				
-			// make attribute string
-			for (var i = 0; i < this.attributes.length; i++) {
-				var a = this.attributes[i];
-				attr_name = (profile.attr_case == 'upper') ? a.name.toUpperCase() : a.name.toLowerCase();
-				attrs += ' ' + attr_name + '=' + attr_quote + (a.value || cursor) + attr_quote;
-			}
-			
-			var deepest_child = this.findDeepestChild();
-			
-			// output children
-			if (!is_empty) {
-				if (deepest_child && this.repeat_by_lines)
-					deepest_child.setContent(content_placeholder);
-				
-				for (var j = 0; j < this.children.length; j++) {
-//					
-					content += this.children[j].toString(profile_name);
-					if (
-						(j != this.children.length - 1) &&
-						( allowNewline(this.children[j]) || allowNewline(this.children[j + 1]) )
-					)
-						content += getNewline();
-				}
-			}
-			
-			// define opening and closing tags
-			if (this.name) {
-				var tag_name = (profile.tag_case == 'upper') ? this.name.toUpperCase() : this.name.toLowerCase();
-				if (is_empty) {
-					start_tag = '<' + tag_name + attrs + self_closing + '>';
-				} else {
-					start_tag = '<' + tag_name + attrs + '>';
-					end_tag = '</' + tag_name + '>';
-				}
-			}
-			
-			// formatting output
-			if (profile.tag_nl !== false) {
-				if (
-					this.name && 
-					(
-						profile.tag_nl === true || 
-						this.hasBlockChildren() 
-					)
-				) {
-					if (end_tag) { // non-empty tag: add indentation
-						start_tag += getNewline() + getIndentation();
-						end_tag = getNewline() + end_tag;
-					} else { // empty tag
-						
-					}
-						
-				}
-				
-				if (this.name) {
-					if (content)
-						content = padString(content, profile.indent ? 1 : 0);
-					else if (!is_empty)
-						start_tag += cursor;
-				}
-					
-			}
-			
-			// repeat tag by lines count
-			var cur_content = '';
-			if (this.repeat_by_lines) {
-				var lines = splitByLines( trim(this.getContent()) , true);
-				for (var j = 0; j < lines.length; j++) {
-					cur_content = deepest_child ? '' : content_placeholder;
-					if (content && !deepest_child)
-						cur_content += getNewline();
-						
-					var elem_str = start_tag.replace(/\$/g, j + 1) + cur_content + content + end_tag;
-					result.push(elem_str.replace(content_placeholder, trim(lines[j])));
-				}
-			}
-			
-			// repeat tag output
-			if (!result.length) {
-				if (this.getContent()) {
-					var pad = (profile.tag_nl === true || (this.hasTagsInContent() && this.isBlock())) ? 1 : 0;
-					content = padString(this.getContent(), pad) + content;
-				}
-				
-				for (var i = 0; i < this.count; i++) 
-					result.push(start_tag.replace(/\$/g, i + 1) + content + end_tag);
-			}
-			
-			var glue = '';
-			if (allowNewline(this))
-				glue = getNewline();
-				
-			return result.join(glue);
 		}
 	};
 	
-	// TODO inherit from Tag
 	function Snippet(name, count, type) {
 		/** @type {String} */
 		this.name = name;
@@ -505,119 +350,7 @@
 		this.parent = null;
 	}
 	
-	Snippet.prototype = {
-		/**
-		 * Adds new child
-		 * @param {Tag} tag
-		 */
-		addChild: function(tag) {
-			tag.parent = this;
-			this.children.push(tag);
-		},
-		
-		addAttribute: function(name, value){
-			this.attributes[name] = value;
-		},
-		
-		isBlock: function() {
-			return true; 
-		},
-		
-		/**
-		 * Set textual content for snippet
-		 * @param {String} str Tag's content
-		 */
-		setContent: function(str) {
-			this._content = str;
-		},
-		
-		/**
-		 * Returns snippet's textual content
-		 * @return {String}
-		 */
-		getContent: function() {
-			return this._content;
-		},
-		
-		/**
-		 * Search for deepest and latest child of current element
-		 * @return {Tag|null} Returns null if there's no children
-		 */
-		findDeepestChild: function() {
-			if (!this.children.length)
-				return null;
-				
-			var deepest_child = this;
-			while (true) {
-				deepest_child = deepest_child.children[ deepest_child.children.length - 1 ];
-				if (!deepest_child.children.length)
-					break;
-			}
-			
-			return deepest_child;
-		},
-		
-		toString: function(profile_name) {
-			var content = '', 
-				profile = (profile_name in profiles) ? profiles[profile_name] : profiles['plain'],
-				result = [],
-				data = this.value,
-				begin = '',
-				end = '',
-				child_padding = '',
-				child_token = '${child}';
-			
-			if (data) {
-				if (profile.tag_nl !== false) {
-					var nl = getNewline();
-					data = data.replace(/\n/g, nl);
-					// figuring out indentation for children
-					var lines = data.split(nl), m;
-					for (var j = 0; j < lines.length; j++) {
-						if (lines[j].indexOf(child_token) != -1) {
-							child_padding =  (m = lines[j].match(/(^\s+)/)) ? m[1] : '';
-							break;
-						}
-					}
-				}
-				
-				var parts = data.split(child_token);
-				begin = parts[0] || '';
-				end = parts[1] || '';
-			}
-			
-			for (var i = 0; i < this.children.length; i++) {
-				content += this.children[i].toString(profile_name);
-				if (
-					i != this.children.length - 1 &&
-					(
-						profile.tag_nl === true || 
-						(profile.tag_nl == 'decide' && this.children[i].isBlock())
-					)
-				)
-					content += getNewline();
-			}
-			
-			if (child_padding)
-				content = padString(content, child_padding);
-			
-			
-			// substitute attributes
-			begin = replaceVariables(begin, this.attributes);
-			end = replaceVariables(end, this.attributes);
-				
-			if (this.getContent()) {
-				content = padString(this.getContent(), 1) + content;
-			}
-			
-			// output tag
-			for (var i = 0; i < this.count; i++) 
-				result.push(begin + content + end);
-//				result.push(begin.replace(/\$(?!\{)/g, i + 1) + content + end);
-			
-			return result.join((profile.tag_nl !== false) ? getNewline() : '');
-		}
-	}
+	inherit(Snippet, Tag);
 	
 	/**
 	 * Returns abbreviation value from data set
