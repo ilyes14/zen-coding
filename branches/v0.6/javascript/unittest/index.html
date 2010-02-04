@@ -86,6 +86,8 @@
 				 
 				 "test counters":  function(){ with (this) {
 					assertEqual('<ul id="nav"><li class="item1"></li><li class="item2"></li><li class="item3"></li></ul>', expandAbbr('ul#nav>li.item$*3'));
+					assertEqual('<ul id="nav"><li class="item001"></li><li class="item002"></li><li class="item003"></li></ul>', expandAbbr('ul#nav>li.item$$$*3'));
+					assertEqual('<ul id="nav"><li class="01item001"></li><li class="02item002"></li><li class="03item003"></li></ul>', expandAbbr('ul#nav>li.$$item$$$*3'));
 				 }},
 				 
 				 "test user-defined settings":  function(){ with (this) {
@@ -160,6 +162,16 @@
 					assertEqual('<div id="head"></div><p><p></p></p><div id="footer"></div>', expandAbbr('div#head+(p>p)+div#footer'));
 					assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3+(div.subnav>p)+(div.othernav))+div#footer'));
 					assertEqual('<div id="head"><ul id="nav"><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li></ul><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer'));
+				 }},
+				 
+				 "test escaping":  function(){ with (this) {
+					assertEqual('<xsl:apply-templates select="\\$item \\| other"/>', zen_coding.escapeText('<xsl:apply-templates select="$item | other"/>'));
+					assertEqual('<xsl:apply-templates select="item \\\\\\\\\\| other"/>', zen_coding.escapeText('<xsl:apply-templates select="item \\\\| other"/>'));
+				 }},
+				 
+				 "test unescaping":  function(){ with (this) {
+					assertEqual('<xsl:apply-templates select="$item | other"/>', zen_coding.unescapeText('<xsl:apply-templates select="\\$item \\| other"/>'));
+					assertEqual('<xsl:apply-templates select="item \\\\| other"/>', zen_coding.unescapeText('<xsl:apply-templates select="item \\\\\\\\\\| other"/>'));
 				 }}
 				 
 			});
