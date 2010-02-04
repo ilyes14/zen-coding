@@ -345,7 +345,7 @@
 		this.children = [];
 		this._content = '';
 		this.repeat_by_lines = false;
-		this.attributes = {'id': '|', 'class': '|'};
+		this.attributes = {'id': caret_placeholder, 'class': caret_placeholder};
 		this.value = getSnippet(type, name);
 		this.parent = null;
 	}
@@ -903,7 +903,7 @@
 			
 			if (has_expando)
 				tag_name += '+';
-			
+				
 			var current = isShippet(tag_name, type) ? new Snippet(tag_name, multiplier, type) : new Tag(tag_name, multiplier, type);
 			if (attrs) {
 				attrs = parseAttributes(attrs);
@@ -971,6 +971,19 @@
 				expandGroup(group.children[j], type, add_point);
 			}
 		}
+	}
+	
+	/**
+	 * Pad string with zeroes
+	 * @param {String} str
+	 * @param {Number} pad
+	 */
+	function zeroPadString(str, pad) {
+		var padding = '', 
+			il = str.length;
+			
+		while (pad > il++) padding += '0';
+		return padding + str; 
 	}
 	
 	// create default profiles
@@ -1158,10 +1171,13 @@
 		},
 		
 		/**
+		 * Factory method that produces <code>ZenNode</code> instance
+		 * @param {String} name Node name
+		 * @param {Array} [attrs] Array of attributes as key/value objects  
 		 * @return {ZenNode}
 		 */
-		simpleTagFactory: function() {
-			return new ZenNode();
+		nodeFactory: function(name, attrs) {
+			return new ZenNode({name: name, attributes: attrs || []});
 		},
 		
 		/**
@@ -1195,6 +1211,65 @@
 		repeatString: repeatString,
 		getVariable: getVariable,
 		replaceVariables: replaceVariables,
+		
+		/**
+		 * Escapes special characters used in Zen Coding, like '$', '|', etc.
+		 * Use this method before passing to actions like "Wrap with Abbreviation"
+		 * to make sure that existing spacial characters won't be altered
+		 * @param {String} text
+		 * @return {String}
+		 */
+		escapeText: function(text) {
+			return text.replace(/([\$\|\\])/g, '\\$1');
+		},
+		
+		/**
+		 * Unescapes special characters used in Zen Coding, like '$', '|', etc.
+		 * @param {String} text
+		 * @return {String}
+		 */
+		unescapeText: function(text) {
+			return text.replace(/\\(.)/g, '$1');
+		},
+		
+		/**
+		 * Replaces '$' character in string assuming it might be escaped with '\'
+		 * @param {String} str
+		 * @param {String|Number} value
+		 * @return {String}
+		 */
+		replaceCounter: function(str, value) {
+			var i = 0,
+				il = str.length,
+				ch,
+				j;
+				
+			value = String(value);
+			
+			while (i < il) {
+				ch = str.charAt(i);
+				switch (ch) {
+					case '\\':
+						// escape symbol, skip next character
+						i += 2;
+						break;
+					case '$':
+						// replace sequense of $ symbols with padded number  
+						j = i + 1;
+						while(str.charAt(j) == '$') j++;
+						var new_value = zeroPadString(value, j - i);
+						str = str.substring(0, i) + new_value + str.substring(j);
+						// adjust indexes
+						il = str.length;
+						i += new_value.length;
+						break;
+					default:
+						i++;
+				}
+			}
+			
+			return str;
+		},
 		
 		settings_parser: (function(){
 			/**

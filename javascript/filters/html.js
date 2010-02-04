@@ -80,7 +80,7 @@
 			is_unary = (item.isUnary() && !item.children.length),
 			start= '',
 			end = '';
-			
+		
 		if (profile.self_closing_tag == 'xhtml')
 			self_closing = ' /';
 		else if (profile.self_closing_tag === true)
@@ -96,8 +96,15 @@
 			end = '</' + tag_name + '>';
 		}
 		
-		item.start = item.start.replace('%s', start);
-		item.end = item.end.replace('%s', end);
+		var placeholder = '%s';
+		// We can't just replace placeholder with new value because
+		// JavaScript will treat double $ character as a single one, assuming
+		// we're using RegExp literal. 
+		var pos = item.start.indexOf(placeholder);
+		item.start = item.start.substring(0, pos) + start + item.start.substring(pos + placeholder.length);
+		
+		pos = item.end.indexOf(placeholder);
+		item.end = item.end.substring(0, pos) + end + item.end.substring(pos + placeholder.length);
 		
 		if (!item.children.length && !is_unary)
 			item.start += cursor;
@@ -124,7 +131,8 @@
 				? processTag(item, profile, level) 
 				: processSnippet(item, profile, level);
 			
-			item.start = item.start.replace(/\$/g, i + 1);
+//			item.start = item.start.replace(/\$/g, i + 1);
+			item.start = zen_coding.replaceCounter(item.start, i + 1);
 			process(item, profile, level + 1);
 		}
 		
