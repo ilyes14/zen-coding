@@ -10,6 +10,10 @@ function onOK() {
 }
 
 function objectTag() {
+	// определяем собственные профили html/xhtml в которых не будет вставляться позиция курсора
+	zen_coding.setupProfile("ts_xhtml", {place_cursor: false});
+	zen_coding.setupProfile("ts_html", {place_cursor: false, self_closing_tag: false});
+
 	var 
 		// получаем аббревиатуру
 		abbr = document.forms[0].tagname.value, 
@@ -21,7 +25,7 @@ function objectTag() {
 		type = ts.hasParent('style', '', '') ? 'css' : 'html',
 
 		// опеределяем тип документа: HTML/xHTML 
-		profile = ts.isXHTML() ? 'xhtml' : 'html', 
+		profile = ts.isXHTML() ? 'ts_xhtml' : 'ts_html', 
 	
 		// заворачиваем выделение в аббревиатуру
 		text = zen_coding.wrapWithAbbreviation(abbr, selection, type, profile);
