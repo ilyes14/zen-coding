@@ -49,7 +49,7 @@
 	 */
 	function isAllowedChar(ch) {
 		var char_code = ch.charCodeAt(0),
-			special_chars = '#.>+*:$-_!@[]';
+			special_chars = '#.>+*:$-_!@[]()';
 		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter
@@ -236,6 +236,7 @@
 		this._res = zen_settings[type];
 		this._content = '';
 		this.repeat_by_lines = false;
+		this.parent = null;
 		
 		// add default attributes
 		if (this._abbr && this._abbr.value.attributes) {
@@ -254,6 +255,7 @@
 		 * @param {Tag} tag
 		 */
 		addChild: function(tag) {
+			tag.parent = this;
 			this.children.push(tag);
 		},
 		
@@ -500,6 +502,7 @@
 		this.repeat_by_lines = false;
 		this.attributes = {'id': '|', 'class': '|'};
 		this.value = getSnippet(type, name);
+		this.parent = null;
 	}
 	
 	Snippet.prototype = {
@@ -508,6 +511,7 @@
 		 * @param {Tag} tag
 		 */
 		addChild: function(tag) {
+			tag.parent = this;
 			this.children.push(tag);
 		},
 		
@@ -1096,9 +1100,11 @@
 					rolloutTree(child, tag);
 					
 				var add_point = tag.findDeepestChild() || tag;
-				add_point.content = (typeof(tag_content) == 'string') 
-					? tag_content 
-					: (tag_content[j] || '');
+				if (tag_content) {
+					add_point.content = (typeof(tag_content) == 'string') 
+						? tag_content 
+						: (tag_content[j] || '');
+				}
 			}
 		}
 		
@@ -1132,6 +1138,108 @@
 		return tree;
 	}
 	
+	/**
+	 * Transforms abbreviation into a primary internal tree. This tree should'n 
+	 * be used ouside of this scope
+	 * @param {String} abbr Abbreviation
+	 * @param {String} [type] Document type (xsl, html, etc.)
+	 * @return {Tag}
+	 */
+	function abbrToPrimaryTree(abbr, type) {
+		type = type || 'html';
+		var root = new Tag('', 1, type),
+			parent = root,
+			last = null,
+			multiply_elem = null,
+			res = zen_settings[type],
+			re = /([\+>])?([a-z@\!][a-z0-9:\-]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
+//				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
+		
+		if (!abbr)
+			return null;
+		
+		// replace expandos
+		abbr = abbr.replace(/([a-z][\w\:\-]*)\+$/i, function(str){
+			var a = getAbbreviation(type, str);
+			return a ? a.value : str;
+		});
+		
+		abbr = abbr.replace(re, function(str, operator, tag_name, attrs, has_multiplier, multiplier, has_expando){
+			var multiply_by_lines = (has_multiplier && !multiplier);
+			multiplier = multiplier ? parseInt(multiplier) : 1;
+			
+			if (has_expando)
+				tag_name += '+';
+			
+			var current = isShippet(tag_name, type) ? new Snippet(tag_name, multiplier, type) : new Tag(tag_name, multiplier, type);
+			if (attrs) {
+				attrs = parseAttributes(attrs);
+				for (var i = 0, il = attrs.length; i < il; i++) {
+					current.addAttribute(attrs[i].name, attrs[i].value);
+				}
+			}
+			
+			// dive into tree
+			if (operator == '>' && last)
+				parent = last;
+				
+			parent.addChild(current);
+			
+			last = current;
+			
+			if (multiply_by_lines)
+				multiply_elem = current;
+			
+			return '';
+		});
+		
+		root.last = last;
+		root.multiply_elem = multiply_elem;
+		
+		// empty 'abbr' string means that abbreviation was successfully expanded,
+		// if not — abbreviation wasn't valid 
+		return (!abbr) ? root : null;	
+	}
+	
+	/**
+	 * Expand single group item 
+	 * @param {abbrGroup} group
+	 * @param {String} type
+	 * @param {Tag} parent
+	 * @param {Tag} parent
+	 */
+	function expandGroup(group, type, parent) {
+		var tree = abbrToPrimaryTree(group.expr, type),
+			/** @type {Tag} */
+			last_item = null;
+			
+		if (tree) {
+			for (var i = 0, il = tree.children.length; i < il; i++) {
+				last_item = tree.children[i];
+				parent.addChild(last_item);
+			}
+		} else {
+			throw new Error('InvalidGroup');
+		}
+		
+		// set repeating element to the topmost node
+		var root = parent;
+		while (root.parent)
+			root = root.parent;
+		
+		root.last = tree.last;
+		if (tree.multiply_elem)
+			root.multiply_elem = tree.multiply_elem;
+			
+		// process child groups
+		if (group.children.length) {
+			var add_point = last_item.findDeepestChild() || last_item;
+			for (var j = 0, jl = group.children.length; j < jl; j++) {
+				expandGroup(group.children[j], type, add_point);
+			}
+		}
+	}
+	
 	// create default profiles
 	setupProfile('xhtml');
 	setupProfile('html', {self_closing_tag: false});
@@ -1142,61 +1250,14 @@
 	return {
 		expandAbbreviation: function(abbr, type, profile) {
 			type = type || 'html';
-			var is_invalid = false,
-				context = this;
-			
-			/**
-			 * @param {abbrGroup} group
-			 * @param {Tag} parent
-			 */
-			function expandGroup(group, parent) {
-				var tree = context.parseIntoTree(group.expr, type),
-					/** @type {Tag} */
-					last_item = null;
-					
-				if (tree) {
-					for (var i = 0, il = tree.children.length; i < il; i++) {
-						last_item = tree.children[i];
-						parent.addChild(last_item);
-					}
-				} else {
-					is_invalid = true;
-					return;
-				}
-				
-				if (group.children.length) {
-					var add_point = last_item.findDeepestChild() || last_item;
-					for (var j = 0, jl = group.children.length; j < jl; j++) {
-						expandGroup(group.children[j], add_point);
-					}
-				}
-			}
-			
-			// remove filters from abbreviation
-			var filter_list = '';
-			abbr = abbr.replace(/\|([\w\|\-]+)$/, function(str, p1){
-				filter_list = p1;
-				return '';
-			});
-			
-			// split abbreviation by groups
-			var group_root = splitByGroups(abbr),
-				tree_root = new Tag('', 1, type);
-			
-			// then recursively expand each group item
-			for (var i = 0, il = group_root.children.length; i < il; i++) {
-				expandGroup(group_root.children[i], tree_root);
-			}
-			
-			if (!is_invalid) {
+			var tree_root = this.parseIntoTree(abbr, type);
+			if (tree_root) {
 				var tree = rolloutTree(tree_root);
-				this.applyFilters(tree, type, profile, filter_list);
-				return tree.toString();
-			} else {
-				return '';
+				this.applyFilters(tree, type, profile, tree_root.filters);
+				return replaceVariables(tree.toString());
 			}
 			
-//			return !is_invalid ? replaceVariables(tree_root.toString(profile)) : '';
+			return '';
 		},
 		
 		/**
@@ -1239,58 +1300,29 @@
 		 */
 		parseIntoTree: function(abbr, type) {
 			type = type || 'html';
-			var root = new Tag('', 1, type),
-				parent = root,
-				last = null,
-				multiply_elem = null,
-				res = zen_settings[type],
-				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
-//				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
-			
-			if (!abbr)
-				return null;
-			
-			// replace expandos
-			abbr = abbr.replace(/([a-z][\w\:\-]*)\+$/i, function(str){
-				var a = getAbbreviation(type, str);
-				return a ? a.value : str;
-			});
-			
-			abbr = abbr.replace(re, function(str, operator, tag_name, attrs, has_multiplier, multiplier, has_expando){
-				var multiply_by_lines = (has_multiplier && !multiplier);
-				multiplier = multiplier ? parseInt(multiplier) : 1;
-				
-				if (has_expando)
-					tag_name += '+';
-				
-				var current = isShippet(tag_name, type) ? new Snippet(tag_name, multiplier, type) : new Tag(tag_name, multiplier, type);
-				if (attrs) {
-					attrs = parseAttributes(attrs);
-					for (var i = 0, il = attrs.length; i < il; i++) {
-						current.addAttribute(attrs[i].name, attrs[i].value);
-					}
-				}
-				
-				// dive into tree
-				if (operator == '>' && last)
-					parent = last;
-					
-				parent.addChild(current);
-				
-				last = current;
-				
-				if (multiply_by_lines)
-					multiply_elem = current;
-				
+			// remove filters from abbreviation
+			var filter_list = '';
+			abbr = abbr.replace(/\|([\w\|\-]+)$/, function(str, p1){
+				filter_list = p1;
 				return '';
 			});
 			
-			root.last = last;
-			root.multiply_elem = multiply_elem;
+			// split abbreviation by groups
+			var group_root = splitByGroups(abbr),
+				tree_root = new Tag('', 1, type);
 			
-			// empty 'abbr' string means that abbreviation was successfully expanded,
-			// if not — abbreviation wasn't valid 
-			return (!abbr) ? root : null;
+			// then recursively expand each group item
+			try {
+				for (var i = 0, il = group_root.children.length; i < il; i++) {
+					expandGroup(group_root.children[i], type, tree_root);
+				}
+			} catch(e) {
+				// there's invalid group, stop parsing
+				return null;
+			}
+			
+			tree_root.filters = filter_list;
+			return tree_root;
 		},
 		
 		/**
@@ -1319,15 +1351,19 @@
 		 * @return {String}
 		 */
 		wrapWithAbbreviation: function(abbr, text, type, profile) {
-			var tree = this.parseIntoTree(abbr, type || 'html');
-			if (tree) {
-				var repeat_elem = tree.multiply_elem || tree.last;
+			type = type || 'html';
+			var tree_root = this.parseIntoTree(abbr, type);
+			if (tree_root) {
+				var repeat_elem = tree_root.multiply_elem || tree_root.last;
 				repeat_elem.setContent(text);
-				repeat_elem.repeat_by_lines = !!tree.multiply_elem;
-				return tree.toString(profile);
-			} else {
-				return null;
+				repeat_elem.repeat_by_lines = !!tree_root.multiply_elem;
+				
+				var tree = rolloutTree(tree_root);
+				this.applyFilters(tree, type, profile, tree_root.filters);
+				return replaceVariables(tree.toString());
 			}
+			
+			return null;
 		},
 		
 		splitByLines: splitByLines,
