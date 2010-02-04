@@ -83,7 +83,7 @@ outline-width:
 [os: | ]
 outline-style:
 [oc: | ]
-outline-color:#000;
+outline-color:
 [bd: | ]
 border:
 [bd+: | ]
@@ -93,7 +93,7 @@ border-break:
 [bdcl: | ]
 border-collapse:
 [bdc: | ]
-border-color:#000;
+border-color:
 [bdi: | ]
 border-image:url();
 [bdti: | ]
@@ -133,7 +133,7 @@ border-top-width:
 [bdts: | ]
 border-top-style:
 [bdtc: | ]
-border-top-color:#000;
+border-top-color:
 [bdr: | ]
 border-right:
 [bdr+: | ]
@@ -143,7 +143,7 @@ border-right-width:
 [bdrs: | ]
 border-right-style:
 [bdrc: | ]
-border-right-color:#000;
+border-right-color:
 [bdb: | ]
 border-bottom:
 [bdb+: | ]
@@ -153,7 +153,7 @@ border-bottom-width:
 [bdbs: | ]
 border-bottom-style:
 [bdbc: | ]
-border-bottom-color:#000;
+border-bottom-color:
 [bdl: | ]
 border-left:
 [bdl+: | ]
@@ -163,7 +163,7 @@ border-left-width:
 [bdls: | ]
 border-left-style:
 [bdlc: | ]
-border-left-color:#000;
+border-left-color:
 [bdrs: | ]
 border-radius:
 [bdtrrs: | ]
@@ -179,7 +179,7 @@ background:
 [bg+: | ]
 background:#FFF url() 0 0 no-repeat;
 [bgc: | ]
-background-color:#FFF;
+background-color:
 [bgi: | ]
 background-image:url();
 [bgr: | ]
@@ -187,7 +187,7 @@ background-repeat:
 [bga: | ]
 background-attachment:
 [bgp: | ]
-background-position:0 0;
+background-position:
 [bgpx: | ]
 background-position-x:
 [bgpy: | ]
@@ -201,7 +201,7 @@ background-origin:
 [bgz: | ]
 background-size:
 [c: | ]
-color:#000;
+color:
 [tbl: | ]
 table-layout:
 [cps: | ]
