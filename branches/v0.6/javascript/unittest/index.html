@@ -172,6 +172,16 @@
 				 "test unescaping":  function(){ with (this) {
 					assertEqual('<xsl:apply-templates select="$item | other"/>', zen_coding.unescapeText('<xsl:apply-templates select="\\$item \\| other"/>'));
 					assertEqual('<xsl:apply-templates select="item \\\\| other"/>', zen_coding.unescapeText('<xsl:apply-templates select="item \\\\\\\\\\| other"/>'));
+				 }},
+				 
+				 "test extract":  function(){ with (this) {
+				 	var abbr = 'ul#nav>li.$$item$$$*3>a+span',
+				 		abbr2 = 'table>tr>td[colspan=2 title="Hello world"]>span';
+					assertEqual(abbr, zen_coding.extractAbbreviation(abbr));
+					assertEqual(abbr, zen_coding.extractAbbreviation('<p>' +  abbr));
+					assertEqual(abbr, zen_coding.extractAbbreviation('hello ' + abbr));
+					assertEqual(abbr2, zen_coding.extractAbbreviation('<div>' + abbr2));
+					assertEqual(abbr2, zen_coding.extractAbbreviation('hello ' + abbr2));
 				 }}
 				 
 			});
