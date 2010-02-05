@@ -49,7 +49,7 @@
 	 */
 	function isAllowedChar(ch) {
 		var char_code = ch.charCodeAt(0),
-			special_chars = '#.>+*:$-_!@[]()';
+			special_chars = '#.>+*:$-_!@[]()"\'\\=';
 		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter
@@ -1013,21 +1013,32 @@
 		 */
 		extractAbbreviation: function(str) {
 			var cur_offset = str.length,
-				start_index = -1;
+				start_index = -1,
+				brace_count = 0;
 			
 			while (true) {
 				cur_offset--;
 				if (cur_offset < 0) {
-					// дошли до начала строки
+					// moved to the beginning of the line
 					start_index = 0;
 					break;
 				}
 				
 				var ch = str.charAt(cur_offset);
 				
-				if (!isAllowedChar(ch) || (ch == '>' && isEndsWithTag(str.substring(0, cur_offset + 1)))) {
-					start_index = cur_offset + 1;
-					break;
+				if (ch == ']')
+					brace_count++;
+				else if (ch == '[')
+					brace_count--;
+				else {
+					if (ch == ' ' && brace_count) 
+						// respect spaces inside attribute sets
+						continue;
+					else if (!isAllowedChar(ch) || (ch == '>' && isEndsWithTag(str.substring(0, cur_offset + 1)))) {
+						// found stop symbol
+						start_index = cur_offset + 1;
+						break;
+					}
 				}
 			}
 			
