@@ -49,7 +49,7 @@
 	 */
 	function isAllowedChar(ch) {
 		var char_code = ch.charCodeAt(0),
-			special_chars = '#.>+*:$-_!@[]()"\'\\=';
+			special_chars = '#.>+*:$-_!@[]()';
 		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter
@@ -1031,8 +1031,8 @@
 				else if (ch == '[')
 					brace_count--;
 				else {
-					if (ch == ' ' && brace_count) 
-						// respect spaces inside attribute sets
+					if (brace_count) 
+						// respect all characters inside attribute sets
 						continue;
 					else if (!isAllowedChar(ch) || (ch == '>' && isEndsWithTag(str.substring(0, cur_offset + 1)))) {
 						// found stop symbol
