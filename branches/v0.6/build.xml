@@ -14,6 +14,7 @@
 		<file name="html_matcher.js"/>
 		<file name="filters/format.js"/>
 		<file name="filters/html.js"/>
+		<file name="filters/haml.js"/>
 	</filelist>
 	
 	<target name="init">

@@ -711,5 +711,10 @@ var zen_settings = {
 			//expandos
 			'choose+': 'xsl:choose>xsl:when+xsl:otherwise'
 		}
+	},
+	
+	'haml': {
+		'filters': 'haml',
+		'extends': 'html'
 	}
 };
