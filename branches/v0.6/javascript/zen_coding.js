@@ -1015,6 +1015,24 @@
 			this.actions[name] = fn;
 		},
 		
+		/**
+		 * Runs Zen Coding action. For list of available actions and their
+		 * arguments see <code>zen_actions.js</code> file.
+		 * @param {String} Action name 
+		 * @param {...} args Additional arguments. It may be array of arguments
+		 * or inline arguments. The first argument should be <code>zen_editor</code> instance
+		 * @example
+		 * zen_coding.runActions('expandAbbreviation', zen_editor);  
+		 * zen_coding.runActions('wrapWithAbbreviation', [zen_editor, 'div']);  
+		 */
+		runAction: function(name, args) {
+			if (!(args instanceof Array))
+				args = Array.prototype.slice.call(arguments, 1);
+			
+			if (name in this.actions)
+				return this.actions[name].apply(this, args);
+		},
+		
 		expandAbbreviation: function(abbr, type, profile) {
 			type = type || 'html';
 			var tree_root = this.parseIntoTree(abbr, type);

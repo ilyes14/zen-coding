@@ -411,6 +411,7 @@ function toggleComment(editor) {
 	switch (editor.getSyntax()) {
 		case 'html':
 		case 'xml':
+		case 'xsl':
 		case 'xhtml':
 			return toggleHTMLComment(editor);
 	}
@@ -518,13 +519,21 @@ function toggleHTMLComment(editor) {
 }
 
 // register all actions
-zen_coding.registerAction('expandAbbreviation', expandAbbreviation);
-zen_coding.registerAction('expandAbbreviationWithTab', expandAbbreviationWithTab);
-zen_coding.registerAction('matchPair', matchPair);
-zen_coding.registerAction('wrapWithAbbreviation', wrapWithAbbreviation);
-zen_coding.registerAction('prevEditPoint', prevEditPoint);
-zen_coding.registerAction('nextEditPoint', nextEditPoint);
-zen_coding.registerAction('insertFormattedNewline', insertFormattedNewline);
-zen_coding.registerAction('selectLine', selectLine);
-zen_coding.registerAction('goToMatchingPair', goToMatchingPair);
-zen_coding.registerAction('mergeLines', toggleComment);
+zen_coding.registerAction('expand_abbreviation', expandAbbreviation);
+zen_coding.registerAction('expand_abbreviation_with_tab', expandAbbreviationWithTab);
+zen_coding.registerAction('match_pair', matchPair);
+zen_coding.registerAction('match_pair_inward', function(editor){
+	matchPair(editor, 'in');
+});
+
+zen_coding.registerAction('match_pair_outward', function(editor){
+	matchPair(editor, 'out');
+});
+zen_coding.registerAction('wrap_with_abbreviation', wrapWithAbbreviation);
+zen_coding.registerAction('prev_edit_point', prevEditPoint);
+zen_coding.registerAction('next_edit_point', nextEditPoint);
+zen_coding.registerAction('insert_formatted_line_break', insertFormattedNewline);
+zen_coding.registerAction('select_line', selectLine);
+zen_coding.registerAction('matching_pair', goToMatchingPair);
+zen_coding.registerAction('merge_lines', mergeLines);
+zen_coding.registerAction('toggle_comment', toggleComment);
