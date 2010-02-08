@@ -18,14 +18,6 @@
  */
 var zen_editor = {
 	/**
-	 * Depreacted name of <code>setContext</code> method
-	 * @deprecated
-	 * @alias zen_editor#setContext
-	 * @param {Object} obj Context editor
-	 */
-	setTarget: function(obj) {},
-	
-	/**
 	 * Setup underlying editor context. You should call this method 
 	 * <code>before</code> using any Zen Coding action.
 	 * @param {Object} context
@@ -86,6 +78,7 @@ var zen_editor = {
 	
 	/**
 	 * Set new caret position
+	 * @param {Number} pos Caret position
 	 */
 	setCaretPos: function(pos){},
 	
@@ -123,7 +116,7 @@ var zen_editor = {
 	getContent: function(){},
 	
 	/**
-	 * Returns current editpr's syntax mode
+	 * Returns current editor's syntax mode
 	 * @return {String}
 	 */
 	getSyntax: function(){
