@@ -2,11 +2,11 @@
  * High-level editor interface which communicates with other editor (like 
  * TinyMCE, CKEditor, etc.) or browser.
  * Before using any of editor's methods you should initialize it with
- * <code>editor.setTarget(elem)</code> method and pass reference to 
+ * <code>editor.setContext(elem)</code> method and pass reference to 
  * &lt;textarea&gt; element.
  * @example
  * var textarea = document.getElemenetsByTagName('textarea')[0];
- * editor.setTarget(textarea);
+ * editor.setContext(textarea);
  * //now you are ready to use editor object
  * editor.getSelectionRange() 
  * 
@@ -18,7 +18,20 @@ var zen_editor = (function(){
 	/** @param {Element} Source element */
 	var target = null,
 		/** Textual placeholder that identifies cursor position in pasted text */
-		caret_placeholder = '|';
+		caret_placeholder = '|',
+		
+		default_options = {
+			profile: 'xhtml',
+			syntax: 'html',
+			use_tab: false,
+			pretty_break: false
+		},
+		
+		/** Zen Coding parameter name/value regexp for getting options from element */
+		re_param = /\bzc\-(\w+)\-(\w+)/g,
+		
+		/** @type {default_options} Current options */
+		options = null;
 	
 		
 	// different browser uses different newlines, so we have to figure out
@@ -147,8 +160,43 @@ var zen_editor = (function(){
 		return (str.match(/^(\s+)/) || [''])[0];
 	}
 	
+	/**
+	 * Get Zen Coding options from element's class name
+	 */
+	function getOptionsFromContext() {
+		var param_str = target.className || '',
+			m,
+			result = copyOptions(options);
+			
+		while ( (m = re_param.exec(param_str)) ) {
+			var key = m[1].toLowerCase(),
+				value = m[2].toLowerCase();
+			
+			if (value == 'true' || value == 'yes' || value == '1')
+				value = true;
+			else if (value == 'false' || value == 'no' || value == '0')
+				value = false;
+				
+			result[key] = value;
+		}
+		
+		return result;
+	}
+	
+	function copyOptions(opt) {
+		opt = opt || {};
+		var result = {};
+		for (var p in default_options) if (default_options.hasOwnProperty(p)) {
+			result[p] = (p in opt) ? opt[p] : default_options[p];
+		}
+		
+		return result;
+	}
+	
+	options = copyOptions();
+	
 	return {
-		setTarget: function(elem) {
+		setContext: function(elem) {
 			target = elem;
 		},
 		
@@ -171,6 +219,14 @@ var zen_editor = (function(){
 		 * @return {Number}
 		 */
 		getCaretPos: getCaretPos,
+		
+		/**
+		 * Set new caret position
+		 * @param {Number} pos Caret position
+		 */
+		setCaretPos: function(pos) {
+			createSelection(pos);
+		},
 		
 		/**
 		 * Returns content of current line
@@ -234,7 +290,41 @@ var zen_editor = (function(){
 		 * Returns editor's content
 		 * @return {String}
 		 */
-		getContent: getContent
+		getContent: getContent,
+		
+		/**
+		 * Returns current editor's syntax mode
+		 * @return {String}
+		 */
+		getSyntax: function(){
+			return this.getOption('syntax');
+		},
+		
+		/**
+		 * Returns current output profile name (@see zen_coding#setupProfile)
+		 * @return {String}
+		 */
+		getProfileName: function() {
+			return this.getOption('profile');
+		},
+		
+		/**
+		 * Custom editor method: set default options (like syntax, tabs, 
+		 * etc.) for editor
+		 * @param {Object} opt
+		 */
+		setOptions: function(opt) {
+			options = copyOptions(opt);
+		},
+		
+		/**
+		 * Custom method: returns current context's option value
+		 * @param {String} name Option name
+		 * @return {String} 
+		 */
+		getOption: function(name) {
+			return getOptionsFromContext()[name];
+		}
 	}
 })();
  
