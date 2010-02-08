@@ -4,8 +4,8 @@
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  * 
- * @include "actions.js"
- * @include "editor.js"
+ * @include "../../javascript/zen_coding.js"
+ * @include "zen_editor.js"
  * @include "shortcut.js"
  */zen_textarea = (function(){ // should be global
 	var mac_char_map = {
@@ -23,6 +23,14 @@
 	pc_char_map = {
 		'left': '←',
 		'right': '→'
+	},
+	
+	/** Actions aliases */
+	aliases = {
+		balance_tag_inward: 'match_pair_inward',
+		balance_tag_outward: 'match_pair_outward',
+		previous_edit_point: 'prev_edit_point',
+		pretty_break: 'insert_formatted_line_break'
 	},
 	
 	shortcuts = {},
@@ -92,59 +100,37 @@
 		if (target_elem && target_elem.nodeType == 1 && target_elem.nodeName == 'TEXTAREA') {
 			zen_editor.setContext(target_elem);
 			
-			var syntax = zen_editor.getSyntax(),
-				profile_name = zen_editor.getProfileName();
+			var action_name = aliases[name] || name,
+				args = [zen_editor];
 			
-			switch (name) {
+			switch (action_name) {
 				case 'expand_abbreviation':
 					if (key_code == 9) {
 						if (zen_editor.getOption('use_tab'))
-							expandAbbreviationWithTab(zen_editor, syntax, profile_name);
+							action_name = 'expand_abbreviation_with_tab';
 						else
 							// user pressed Tab key but it's forbidden in 
 							// Zen Coding: bubble up event
 							return true;
-							
-					} else {
-						expandAbbreviation(zen_editor, syntax, profile_name);
 					}
-					break;
-				case 'match_pair_inward':
-				case 'balance_tag_inward':
-					matchPair(zen_editor, 'in');
-					break;
-				case 'match_pair_outward':
-				case 'balance_tag_outward':
-					matchPair(zen_editor, 'out');
 					break;
 				case 'wrap_with_abbreviation':
 					var abbr = prompt('Enter abbreviation', 'div');
-					if (abbr)
-						wrapWithAbbreviation(zen_editor, abbr, syntax, profile_name);
+					if (!abbr)
+						return false;
+					else
+						args.push(abbr);
 					break;
-				case 'next_edit_point':
-					nextEditPoint(zen_editor);
-					break;
-				case 'previous_edit_point':
-				case 'prev_edit_point':
-					prevEditPoint(zen_editor);
-					break;
-				case 'pretty_break':
-				case 'format_line_break':
-					if (key_code == 13) {
-						if (zen_editor.getOption('pretty_break'))
-							insertFormattedNewline(zen_editor);
-						else
-							// user pressed Enter but it's forbidden in 
-							// Zen Coding: bubble up event
-							return true;
-					} else {
-						insertFormattedNewline(zen_editor);
+				case 'insert_formatted_line_break':
+					if (key_code == 13 && !zen_editor.getOption('pretty_break')) {
+						// user pressed Enter but it's forbidden in 
+						// Zen Coding: bubble up event
+						return true;
 					}
 					break;
-				case 'select_line':
-					selectLine(zen_editor);
 			}
+			
+			zen_coding.runAction(action_name, args);
 		} else {
 			// allow event bubbling
 			return true;
@@ -173,7 +159,9 @@
 	addShortcut('Ctrl+Alt+RIGHT', 'Next Edit Point');
 	addShortcut('Ctrl+Alt+LEFT', 'Previous Edit Point');
 	addShortcut('Meta+L', 'Select Line');
-	addShortcut('Enter', 'Format Line Break');
+	addShortcut('Meta+Shift+M', 'Merge Lines');
+	addShortcut('Meta+/', 'Toggle Comment');
+	addShortcut('Enter', 'Insert Formatted Line Break');
 	
 	
 	return {
