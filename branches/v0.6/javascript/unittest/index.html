@@ -183,7 +183,14 @@
 					assertEqual(abbr, zen_coding.extractAbbreviation('hello ' + abbr));
 					assertEqual(abbr2, zen_coding.extractAbbreviation('<div>' + abbr2));
 					assertEqual(abbr2, zen_coding.extractAbbreviation('hello ' + abbr2));
-				 }}
+				 }},
+				 
+				 "test short notation":  function(){ with (this) {
+					assertEqual('<div id="content"></div>', expandAbbr('#content'));
+					assertEqual('<div class="content"></div>', expandAbbr('.content'));
+					assertEqual('<div id="content" class="demo"></div>', expandAbbr('#content.demo'));
+					assertEqual('<div class="demo" title="test"></div>', expandAbbr('.demo[title=test]'));
+				 }},
 				 
 			});
 		</script>

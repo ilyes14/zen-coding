@@ -16,7 +16,8 @@
 		
 		content_placeholder = '{%::zen-content::%}',
 		caret_placeholder = '|',
-		newline = '\n';
+		newline = '\n',
+		default_tag = 'div';
 		
 	var default_profile = {
 		tag_case: 'lower',
@@ -885,7 +886,7 @@
 			last = null,
 			multiply_elem = null,
 			res = zen_settings[type],
-			re = /([\+>])?([a-z@\!][a-z0-9:\-]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
+			re = /([\+>])?([a-z@\!\#\.][a-z0-9:\-]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
 //				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
 		
 		if (!abbr)
@@ -900,6 +901,12 @@
 		abbr = abbr.replace(re, function(str, operator, tag_name, attrs, has_multiplier, multiplier, has_expando){
 			var multiply_by_lines = (has_multiplier && !multiplier);
 			multiplier = multiplier ? parseInt(multiplier) : 1;
+			
+			var tag_ch = tag_name.charAt(0);
+			if (tag_ch == '#' || tag_ch == '.') {
+				attrs = tag_name + (attrs || '');
+				tag_name = default_tag;
+			}
 			
 			if (has_expando)
 				tag_name += '+';
