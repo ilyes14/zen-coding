@@ -21,6 +21,7 @@
 		<script src="../zen_coding.js" type="text/javascript"></script>
 		<script type="text/javascript" src="../filters/format.js"></script>
 		<script type="text/javascript" src="../filters/html.js"></script>
+		<script type="text/javascript" src="../filters/escape.js"></script>
 	</head>
 	<body>
 		<div id="content">
@@ -191,6 +192,11 @@
 					assertEqual('<div id="content" class="demo"></div>', expandAbbr('#content.demo'));
 					assertEqual('<div class="demo" title="test"></div>', expandAbbr('.demo[title=test]'));
 				 }},
+				 
+				 "test filters":  function(){ with (this) {
+					assertEqual('&lt;div id="content"&gt;&lt;/div&gt;', expandAbbr('#content|e'));
+					assertEqual('&amp;lt;div id="content"&amp;gt;&amp;lt;/div&amp;gt;', expandAbbr('#content|e|e'));
+				 }}
 				 
 			});
 		</script>
