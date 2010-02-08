@@ -8,14 +8,7 @@
  * @include "editor.js"
  * @include "shortcut.js"
  */zen_textarea = (function(){ // should be global
-	var default_options = {
-		profile: 'xhtml',
-		syntax: 'html',
-		use_tab: false,
-		pretty_break: false
-	},
-	
-	mac_char_map = {
+	var mac_char_map = {
 		'ctrl': '⌃',
 		'control': '⌃',
 		'meta': '⌘',
@@ -33,25 +26,7 @@
 	},
 	
 	shortcuts = {},
-	is_mac = /mac\s+os/i.test(navigator.userAgent),
-	
-	/** Zen Coding parameter name/value regexp for getting options from element */
-	re_param = /\bzc\-(\w+)\-(\w+)/g;
-	
-	/** @type {default_options} */
-	var options = {};
-	
-	function copyOptions(opt) {
-		opt = opt || {};
-		var result = {};
-		for (var p in default_options) if (default_options.hasOwnProperty(p)) {
-			result[p] = (p in opt) ? opt[p] : default_options[p];
-		}
-		
-		return result;
-	}
-	
-	options = copyOptions();
+	is_mac = /mac\s+os/i.test(navigator.userAgent);
 	
 	/**
 	 * Makes first letter of string in uppercase
@@ -92,31 +67,6 @@
 		return result;
 	}
 	
-	
-	/**
-	 * Get Zen Coding options from element's class name
-	 * @param {Element} elem
-	 */
-	function getOptionsFromElement(elem) {
-		var param_str = elem.className || '',
-			m,
-			result = copyOptions(options);
-			
-		while ( (m = re_param.exec(param_str)) ) {
-			var key = m[1].toLowerCase(),
-				value = m[2].toLowerCase();
-			
-			if (value == 'true' || value == 'yes' || value == '1')
-				value = true;
-			else if (value == 'false' || value == 'no' || value == '0')
-				value = false;
-				
-			result[key] = value;
-		}
-		
-		return result;
-	}
-	
 	/**
 	 * Returns normalized action name
 	 * @param {String} name Action name (like 'Expand Abbreviation')
@@ -140,16 +90,15 @@
 			key_code = evt.keyCode || evt.which;
 			
 		if (target_elem && target_elem.nodeType == 1 && target_elem.nodeName == 'TEXTAREA') {
-			zen_editor.setTarget(target_elem);
+			zen_editor.setContext(target_elem);
 			
-			var options = getOptionsFromElement(target_elem),
-				syntax = options.syntax,
-				profile_name = options.profile;
+			var syntax = zen_editor.getSyntax(),
+				profile_name = zen_editor.getProfileName();
 			
 			switch (name) {
 				case 'expand_abbreviation':
 					if (key_code == 9) {
-						if (options.use_tab)
+						if (zen_editor.getOption('use_tab'))
 							expandAbbreviationWithTab(zen_editor, syntax, profile_name);
 						else
 							// user pressed Tab key but it's forbidden in 
@@ -183,7 +132,7 @@
 				case 'pretty_break':
 				case 'format_line_break':
 					if (key_code == 13) {
-						if (options.pretty_break)
+						if (zen_editor.getOption('pretty_break'))
 							insertFormattedNewline(zen_editor);
 						else
 							// user pressed Enter but it's forbidden in 
@@ -246,14 +195,14 @@
 		 * <code>default_options</code>
 		 */
 		setup: function(opt) {
-			options = copyOptions(opt);
+			zen_editor.setOptions(opt);
 		},
 		
 		/**
 		 * Returns option value
 		 */
 		getOption: function(name) {
-			return options[name];
+			return zen_editor.getOption(name);
 		},
 		
 		/**
@@ -283,7 +232,6 @@
 			message += 'More info on http://code.google.com/p/zen-coding/';
 			
 			alert(message);
-			
 		}
 	}
 })();

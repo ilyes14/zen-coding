@@ -3,6 +3,7 @@
 	<property file="build.properties"/>
 	<import file="${webtasks_path}"/>
 	<import file="${zencoding_plugins_source}/TextMate/build.xml"/>
+	<import file="${zencoding_plugins_source}/textarea/build.xml"/>
 	
 	
 	<!-- List of Zen Coding JavaScript files -->
@@ -11,6 +12,8 @@
 		<file name="zen_coding.js"/>
 		<file name="zen_actions.js"/>
 		<file name="html_matcher.js"/>
+		<file name="filters/format.js"/>
+		<file name="filters/html.js"/>
 	</filelist>
 	
 	<target name="init">
@@ -49,7 +52,7 @@
 	</target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="aptana_plugin, install_textmate_bundle">
+	<target name="main" depends="aptana_plugin, textarea_plugin, install_textmate_bundle">
 		<echo>Done</echo>
 	</target>
 </project>
