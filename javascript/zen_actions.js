@@ -30,20 +30,21 @@ function findAbbreviation(editor) {
 /**
  * Find from current caret position and expand abbreviation in editor
  * @param {zen_editor} editor Editor instance
- * @param {String} type Syntax type (html, css, etc.)
- * @param {String} profile_name Output profile name (html, xml, xhtml)
+ * @param {String} [syntax] Syntax type (html, css, etc.)
+ * @param {String} [profile_name] Output profile name (html, xml, xhtml)
  * @return {Boolean} Returns <code>true</code> if abbreviation was expanded 
  * successfully
  */
-function expandAbbreviation(editor, type, profile_name) {
-	profile_name = profile_name || 'xhtml';
+function expandAbbreviation(editor, syntax, profile_name) {
+	syntax = syntax || editor.getSyntax();
+	profile_name = profile_name || editor.getProfileName();
 	
 	var caret_pos = editor.getSelectionRange().end,
 		abbr,
 		content = '';
 		
 	if ( (abbr = findAbbreviation(editor)) ) {
-		content = zen_coding.expandAbbreviation(abbr, type, profile_name);
+		content = zen_coding.expandAbbreviation(abbr, syntax, profile_name);
 		if (content) {
 			editor.replaceContent(content, caret_pos - abbr.length, caret_pos);
 			return true;
@@ -57,12 +58,14 @@ function expandAbbreviation(editor, type, profile_name) {
  * A special version of <code>expandAbbreviation</code> function: if it can't
  * find abbreviation, it will place Tab character at caret position
  * @param {zen_editor} editor Editor instance
- * @param {String} type Syntax type (html, css, etc.)
+ * @param {String} syntax Syntax type (html, css, etc.)
  * @param {String} profile_name Output profile name (html, xml, xhtml)
  */
-function expandAbbreviationWithTab(editor, type, profile_name) {
-	if (!expandAbbreviation(editor, type, profile_name))
-		editor.replaceContent('\t', editor.getCaretPos());
+function expandAbbreviationWithTab(editor, syntax, profile_name) {
+	syntax = syntax || editor.getSyntax();
+	profile_name = profile_name || editor.getProfileName();
+	if (!expandAbbreviation(editor, syntax, profile_name))
+		editor.replaceContent(zen_coding.getVariable('indentation'), editor.getCaretPos());
 }
 
 /**
@@ -113,7 +116,6 @@ function matchPair(editor, direction) {
 	}
 	
 	if (range !== null && range[0] != -1) {
-//		alert(range[0] + ', '+ range[1]);
 		editor.createSelection(range[0], range[1]);
 		return true;
 	} else {
@@ -124,11 +126,13 @@ function matchPair(editor, direction) {
 /**
  * Wraps content with abbreviation
  * @param {zen_editor} Editor instance
- * @param {String} type Syntax type (html, css, etc.)
- * @param {String} profile_name Output profile name (html, xml, xhtml)
+ * @param {String} abbr Abbreviation to wrap with
+ * @param {String} [syntax] Syntax type (html, css, etc.)
+ * @param {String} [profile_name] Output profile name (html, xml, xhtml)
  */
-function wrapWithAbbreviation(editor, abbr, type, profile_name) {
-	profile_name = profile_name || 'xhtml';
+function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
+	syntax = syntax || editor.getSyntax();
+	profile_name = profile_name || editor.getProfileName();
 	
 	var range = editor.getSelectionRange(),
 		start_offset = range.start,
@@ -173,7 +177,7 @@ function wrapWithAbbreviation(editor, abbr, type, profile_name) {
 	}
 	
 	var new_content = content.substring(start_offset, end_offset),
-		result = zen_coding.wrapWithAbbreviation(abbr, unindent(editor, new_content), type, profile_name);
+		result = zen_coding.wrapWithAbbreviation(abbr, unindent(editor, new_content), syntax, profile_name);
 	
 	if (result) {
 		editor.setCaretPos(end_offset);
@@ -513,4 +517,14 @@ function toggleHTMLComment(editor) {
 	return false;
 }
 
-
+// register all actions
+zen_coding.registerAction('expandAbbreviation', expandAbbreviation);
+zen_coding.registerAction('expandAbbreviationWithTab', expandAbbreviationWithTab);
+zen_coding.registerAction('matchPair', matchPair);
+zen_coding.registerAction('wrapWithAbbreviation', wrapWithAbbreviation);
+zen_coding.registerAction('prevEditPoint', prevEditPoint);
+zen_coding.registerAction('nextEditPoint', nextEditPoint);
+zen_coding.registerAction('insertFormattedNewline', insertFormattedNewline);
+zen_coding.registerAction('selectLine', selectLine);
+zen_coding.registerAction('goToMatchingPair', goToMatchingPair);
+zen_coding.registerAction('mergeLines', toggleComment);

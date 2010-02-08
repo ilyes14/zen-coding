@@ -1001,6 +1001,20 @@
 	
 	
 	return {
+		/** Hash of all available actions */
+		actions: {},
+		
+		/**
+		 * Adds new Zen Coding action. This action will be available in
+		 * <code>zen_settings.actions</code> object.
+		 * @param {String} name Action's name
+		 * @param {Function} fn Action itself. The first argument should be
+		 * <code>zen_editor</code> instance.
+		 */
+		registerAction: function(name, fn) {
+			this.actions[name] = fn;
+		},
+		
 		expandAbbreviation: function(abbr, type, profile) {
 			type = type || 'html';
 			var tree_root = this.parseIntoTree(abbr, type);
