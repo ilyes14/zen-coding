@@ -36,6 +36,46 @@
 	}
 	
 	/**
+	 * Need to add line break before element
+	 * @param {ZenNode} node
+	 * @param {Object} profile
+	 * @return {Boolean}
+	 */
+	function shouldBreakLine(node, profile) {
+		if (!profile.inline_break)
+			return false;
+			
+		// find toppest non-inline sibling
+		while (node.previousSibling && node.previousSibling.isInline())
+			node = node.previousSibling;
+		
+		if (!node.isInline())
+			return false;
+			
+		// calculate how many inline siblings we have
+		var node_count = 1;
+		while (node = node.nextSibling) {
+			if (node.isInline())
+				node_count++;
+			else
+				break;
+		}
+		
+		return node_count >= profile.inline_break;
+	}
+	
+	/**
+	 * Need to add newline because <code>item</code> has too many inline children
+	 * @param {ZenNode} node
+	 * @param {Object} profile
+	 */
+	function shouldBreakChild(node, profile) {
+		// we need to test only one child element, because 
+		// hasBlockChildren() method will do the rest
+		return (node.children.length && shouldBreakLine(node.children[0], profile));
+	}
+	
+	/**
 	 * Processes element with <code>snippet</code> type
 	 * @param {ZenNode} item
 	 * @param {Object} profile
@@ -93,15 +133,16 @@
 			var padding = (item.parent) 
 					? item.parent.padding
 					: zen_coding.repeatString(getIndentation(), level),
-				force_nl = (profile.tag_nl === true);
+				force_nl = (profile.tag_nl === true),
+				should_break = shouldBreakLine(item, profile);
 			
 			// formatting block-level elements
-			if ((item.isBlock() && item.parent) || force_nl) {
+			if (( (item.isBlock() || should_break) && item.parent) || force_nl) {
 				// snippet children should take different formatting
 				if (!item.parent || (item.parent.type != 'snippet' && !isVeryFirstChild(item)))
 					item.start = getNewline() + padding + item.start;
 					
-				if (item.hasBlockChildren() || (force_nl && !is_unary))
+				if (item.hasBlockChildren() || shouldBreakChild(item, profile) || (force_nl && !is_unary))
 					item.end = getNewline() + padding + item.end;
 					
 				if (force_nl && !item.hasChildren() && !is_unary)

@@ -158,6 +158,11 @@
 					assertEqual('<img src="|" alt="|" />\n<p>|</p>', expandAbbr('img+p', 'html', 'xhtml'));
 					assertEqual('<xsl:variable name="|" select="|"/>', expandAbbr('vare', 'xsl', 'xml'));
 					assertEqual('<xsl:variable name="|" select="|"/>\n<p>\n\t|\n</p>', expandAbbr('vare+p', 'xsl', 'xml'));
+					
+					assertEqual('<div><span>|</span><span>|</span></div>', expandAbbr('div>span*2', 'html', 'xhtml'));
+					assertEqual('<div>\n\t<span>|</span>\n\t<span>|</span>\n\t<span>|</span>\n</div>', expandAbbr('div>span*3', 'html', 'xhtml'));
+					assertEqual('<span>|</span><span>|</span>', expandAbbr('span*2', 'html', 'xhtml'));
+					assertEqual('<span>|</span>\n<span>|</span>\n<span>|</span>', expandAbbr('span*3', 'html', 'xhtml'));
 				 }},
 				 
 				 "test groups":  function(){ with (this) {
