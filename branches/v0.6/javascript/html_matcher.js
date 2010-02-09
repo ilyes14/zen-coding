@@ -20,6 +20,9 @@
 	// (and which close themselves)
 	var close_self = makeMap("colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr");
 	
+	/** Current matching mode */
+	var cur_mode = 'xhtml';
+	
 	/** Last matched HTML pair */
 	var last_match = {
 		opening_tag: null, // tag() or comment() object
@@ -28,6 +31,10 @@
 		end_ix: -1
 	};
 	
+	function setMode(new_mode) {
+		cur_mode = new_mode;
+	}
+	
 	function tag(match, ix) {
 		var name = match[1].toLowerCase();
 		return  {
@@ -35,9 +42,9 @@
 			full_tag: match[0],
 			start: ix,
 			end: ix + match[0].length,
-			unary: Boolean(match[3]) || (name in empty),
+			unary: Boolean(match[3]) || (name in empty && cur_mode == 'html'),
 			type: 'tag',
-			close_self: (name in close_self)
+			close_self: (name in close_self && cur_mode == 'html')
 		};
 	}
 	
@@ -115,7 +122,10 @@
 	 * @param {Function} action Function that creates selection range
 	 * @return {Array|null}
 	 */
-	function findPair(html, start_ix, action) {
+	function findPair(html, start_ix, mode, action) {
+		if (!mode || mode != 'html')
+			mode = 'xhtml';
+			
 		action = action || makeRange;
 		
 		var forward_stack = [],
@@ -130,6 +140,8 @@
 			ix,
 			tmp_tag;
 			
+		setMode(mode);	
+		
 		forward_stack.last = backward_stack.last = function() {
 			return this[this.length - 1];
 		}
@@ -230,8 +242,8 @@
 	 * 
 	 * @return {Array|null}
 	 */
-	var HTMLPairMatcher = this.HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix){
-		return findPair(html, start_ix, saveMatch);
+	var HTMLPairMatcher = this.HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix, /*  */ mode){
+		return findPair(html, start_ix, mode, saveMatch);
 	}
 	
 	HTMLPairMatcher.start_tag = start_tag;
@@ -244,8 +256,8 @@
 	 * method doesn't save matched result in <code>last_match</code> property.
 	 * This method is generally used for lookups 
 	 */
-	HTMLPairMatcher.find = function(html, start_ix) {
-		return findPair(html, start_ix);
+	HTMLPairMatcher.find = function(html, start_ix, mode) {
+		return findPair(html, start_ix, mode);
 	};
 	
 	/**
@@ -256,8 +268,8 @@
 	 * and returns array of opening and closing tags
 	 * This method is generally used for lookups 
 	 */
-	HTMLPairMatcher.getTags = function(html, start_ix) {
-		return findPair(html, start_ix, function(opening_tag, closing_tag){
+	HTMLPairMatcher.getTags = function(html, start_ix, mode) {
+		return findPair(html, start_ix, mode, function(opening_tag, closing_tag){
 			return [opening_tag, closing_tag];
 		});
 	};
