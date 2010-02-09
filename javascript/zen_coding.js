@@ -997,6 +997,49 @@
 		return padding + str; 
 	}
 	
+	/**
+	 * Replaces unescaped symbols in <code>str</code>. For example, the '$' symbol
+	 * will be replaced in 'item$count', but not in 'item\$count'.
+	 * @param {String} str Original string
+	 * @param {String} symbol Symbol to replace
+	 * @param {String|Function} replace Symbol replacement
+	 * @return {String}
+	 */
+	function replaceUnescapedSymbol(str, symbol, replace) {
+		var i = 0,
+			il = str.length,
+			sl = symbol.length,
+			match_count = 0;
+			
+		while (i < il) {
+			if (str.charAt(i) == '\\') {
+				// escaped symbol, skip next character
+				i += sl + 1;
+			} else if (str.substr(i, sl) == symbol) {
+				// have match
+				match_count++;
+				var new_value = replace;
+				if (typeof(replace) !== 'string') {
+					new_value = replace(str, symbol, i, match_count);
+				}
+				
+				if (new_value === false) { // skip replacement
+					i++;
+					continue;
+				}
+				
+				str = str.substring(0, i) + new_value + str.substring(i + new_value.length);
+				// adjust indexes
+				il = str.length;
+				i += new_value.length;
+			} else {
+				i++;
+			}
+		}
+		
+		return str;
+	}
+	
 	// create default profiles
 	setupProfile('xhtml');
 	setupProfile('html', {self_closing_tag: false});
@@ -1293,41 +1336,19 @@
 		 * @return {String}
 		 */
 		replaceCounter: function(str, value) {
-			var i = 0,
-				il = str.length,
-				ch,
-				j;
-				
+			var symbol = '$';
 			value = String(value);
-			
-			while (i < il) {
-				ch = str.charAt(i);
-				switch (ch) {
-					case '\\':
-						// escape symbol, skip next character
-						i += 2;
-						break;
-					case '$':
-						if (str.charAt(i + 1) == '{') {
-							// it's a variable, skip it
-							i++;
-							break;
-						}
-						// replace sequense of $ symbols with padded number  
-						j = i + 1;
-						while(str.charAt(j) == '$' && str.charAt(j + 1) != '{') j++;
-						var new_value = zeroPadString(value, j - i);
-						str = str.substring(0, i) + new_value + str.substring(j);
-						// adjust indexes
-						il = str.length;
-						i += new_value.length;
-						break;
-					default:
-						i++;
+			return replaceUnescapedSymbol(str, symbol, function(str, symbol, pos, match_num){
+				if (str.charAt(pos + 1) == '{') {
+					// it's a variable, skip it
+					return false;
 				}
-			}
-			
-			return str;
+				
+				// replace sequense of $ symbols with padded number  
+				var j = pos + 1;
+				while(str.charAt(j) == '$' && str.charAt(j + 1) != '{') j++;
+				return zeroPadString(value, j - pos);
+			});
 		},
 		
 		settings_parser: (function(){
