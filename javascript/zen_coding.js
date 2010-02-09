@@ -15,7 +15,7 @@
 		TYPE_REFERENCE = 'zen-reference',
 		
 		content_placeholder = '{%::zen-content::%}',
-		caret_placeholder = '|',
+		caret_placeholder = '{%::zen-caret::%}',
 		newline = '\n',
 		default_tag = 'div';
 		
@@ -283,6 +283,10 @@
 		 * @param {String} value Attribute's value
 		 */
 		addAttribute: function(name, value) {
+			// the only place in Tag where pipe (caret) character may exist
+			// is the attribute: escape it with internal placeholder
+			value = replaceUnescapedSymbol(value, '|', caret_placeholder);
+			
 			var a;
 			if (name in this._attr_hash) {
 				// attribute already exists, decide what to do
@@ -351,7 +355,7 @@
 		this._content = '';
 		this.repeat_by_lines = false;
 		this.attributes = {'id': caret_placeholder, 'class': caret_placeholder};
-		this.value = getSnippet(type, name);
+		this.value = replaceUnescapedSymbol(getSnippet(type, name), '|', caret_placeholder);
 		this.parent = null;
 	}
 	

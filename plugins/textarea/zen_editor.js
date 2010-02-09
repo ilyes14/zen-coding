@@ -12,7 +12,7 @@
  * 
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- * @include "../../aptana/lib/zen_coding.js"
+ * @include "../../javascript/zen_coding.js"
  */
 var zen_editor = (function(){
 	/** @param {Element} Source element */
@@ -198,6 +198,7 @@ var zen_editor = (function(){
 	return {
 		setContext: function(elem) {
 			target = elem;
+			caret_placeholder = zen_coding.getCaretPlaceholder();
 		},
 		
 		getSelectionRange: getSelectionRange,
