@@ -1308,9 +1308,14 @@
 						i += 2;
 						break;
 					case '$':
+						if (str.charAt(i + 1) == '{') {
+							// it's a variable, skip it
+							i++;
+							break;
+						}
 						// replace sequense of $ symbols with padded number  
 						j = i + 1;
-						while(str.charAt(j) == '$') j++;
+						while(str.charAt(j) == '$' && str.charAt(j + 1) != '{') j++;
 						var new_value = zeroPadString(value, j - i);
 						str = str.substring(0, i) + new_value + str.substring(j);
 						// adjust indexes
