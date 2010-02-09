@@ -1292,7 +1292,7 @@
 		 * @return {ZenNode}
 		 */
 		applyFilters: function(tree, syntax, profile, additional_filters){
-			var _filters = getResource(syntax, 'filters'),
+			var _filters = getResource(syntax, 'filters') || basic_filters,
 				cur_fillters = [];
 				
 			if (additional_filters)
