@@ -74,8 +74,9 @@ function expandAbbreviationWithTab(editor, syntax, profile_name) {
  * @param {String} [direction] Direction of pair matching: 'in' or 'out'. 
  * Default is 'out'
  */
-function matchPair(editor, direction) {
+function matchPair(editor, direction, syntax) {
 	direction = (direction || 'out').toLowerCase();
+	syntax = syntax || editor.getSyntax();
 	
 	var range = editor.getSelectionRange(),
 		cursor = range.end,
@@ -97,9 +98,9 @@ function matchPair(editor, direction) {
 		} else if (old_open_tag.start == range_start) {
 			if (content.charAt(old_open_tag.end) == '<') {
 //				test if the first inward tag matches the entire parent tag's content
-				_r = HTMLPairMatcher.find(content, old_open_tag.end + 1);
+				_r = HTMLPairMatcher.find(content, old_open_tag.end + 1, syntax);
 				if (_r[0] == old_open_tag.end && _r[1] == old_close_tag.start) {
-					range = HTMLPairMatcher(content, old_open_tag.end + 1);
+					range = HTMLPairMatcher(content, old_open_tag.end + 1, syntax);
 				} else {
 					range = [old_open_tag.end, old_close_tag.start];
 				}
@@ -109,10 +110,10 @@ function matchPair(editor, direction) {
 		} else {
 			var new_cursor = content.substring(0, old_close_tag.start).indexOf('<', old_open_tag.end);
 			var search_pos = new_cursor != -1 ? new_cursor + 1 : old_open_tag.end;
-			range = HTMLPairMatcher(content, search_pos);
+			range = HTMLPairMatcher(content, search_pos, syntax);
 		}
 	} else {
-		range = HTMLPairMatcher(content, cursor);
+		range = HTMLPairMatcher(content, cursor, syntax);
 	}
 	
 	if (range !== null && range[0] != -1) {
