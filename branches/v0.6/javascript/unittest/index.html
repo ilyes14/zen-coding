@@ -22,6 +22,7 @@
 		<script type="text/javascript" src="../filters/format.js"></script>
 		<script type="text/javascript" src="../filters/html.js"></script>
 		<script type="text/javascript" src="../filters/escape.js"></script>
+		<script type="text/javascript" src="../filters/format-css.js"></script>
 	</head>
 	<body>
 		<div id="content">
@@ -202,6 +203,9 @@
 				 "test filters":  function(){ with (this) {
 					assertEqual('&lt;div id="content"&gt;&lt;/div&gt;', expandAbbr('#content|e'));
 					assertEqual('&amp;lt;div id="content"&amp;gt;&amp;lt;/div&amp;gt;', expandAbbr('#content|e|e'));
+					
+					assertEqual('float: right;', expandAbbr('fl:r|fc', 'css'));
+					assertEqual('float: right;\ndisplay: none;', expandAbbr('fl:r+d:n|fc', 'css'));
 				 }}
 				 
 			});
