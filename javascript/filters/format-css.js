@@ -19,6 +19,8 @@
 			item.end = zen_coding.replaceCounter(item.end, i + 1);
 			process(item, profile);
 		}
+		
+		return tree;
 	}
 	
 	zen_coding.registerFilter('fc', process);
