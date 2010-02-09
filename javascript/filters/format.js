@@ -145,7 +145,7 @@
 				if (item.hasBlockChildren() || shouldBreakChild(item, profile) || (force_nl && !is_unary))
 					item.end = getNewline() + padding + item.end;
 					
-				if (force_nl && !item.hasChildren() && !is_unary)
+				if (item.hasTagsInContent() || (force_nl && !item.hasChildren() && !is_unary))
 					item.start += getNewline() + padding + getIndentation();
 				
 			} else if (item.isInline() && hasBlockSibling(item) && !isVeryFirstChild(item)) {
