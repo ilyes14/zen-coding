@@ -32,6 +32,10 @@
 		// indent tags
 		indent: true,
 		
+		// how many inline elements should be to force line break 
+		// (set to 0 to disable)
+		inline_break: 3,
+		
 		// use self-closing style for writing empty elements, e.g. <br /> or <br>
 		self_closing_tag: 'xhtml'
 	};
