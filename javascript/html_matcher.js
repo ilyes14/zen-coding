@@ -263,4 +263,9 @@
 	};
 	
 	HTMLPairMatcher.last_match = last_match;
+	
+	try {
+		zen_coding.html_matcher = HTMLPairMatcher;
+	} catch(e){}
+	
 })();
