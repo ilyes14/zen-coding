@@ -688,7 +688,8 @@ var zen_settings = {
 	},
 	
 	'xsl': {
-		'extends': 'html', 
+		'extends': 'html',
+		'filters': 'html, xsl',
 		'abbreviations': {
 			'tm': '<xsl:template match="" mode=""></xsl:template>',
 			'tmatch': 'tm',
@@ -706,6 +707,7 @@ var zen_settings = {
 			'val': '<xsl:value-of select=""/>',
 			'co': '<xsl:copy-of select=""/>',
 			'each': '<xsl:for-each select=""></xsl:for-each>',
+			'for': 'each',
 			'ap': '<xsl:apply-templates select="" mode=""/>',
 			
 			//expandos
