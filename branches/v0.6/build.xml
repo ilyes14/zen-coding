@@ -15,6 +15,9 @@
 		<file name="filters/format.js"/>
 		<file name="filters/html.js"/>
 		<file name="filters/haml.js"/>
+		<file name="filters/escape.js"/>
+		<file name="filters/format-css.js"/>
+		<file name="filters/comment.js"/>
 	</filelist>
 	
 	<target name="init">

@@ -298,12 +298,16 @@ var zen_editor = (function(){
 		 * @return {String}
 		 */
 		getSyntax: function(){
-			var syntax = this.getOption('syntax');
+			var syntax = this.getOption('syntax'),
+				caret_pos = this.getCaretPos();
+				
 			if (syntax == 'html') {
 				// get the context tag
-				var pair = zen_coding.html_matcher.getTags(this.getContent(), this.getCaretPos());
+				var pair = zen_coding.html_matcher.getTags(this.getContent(), caret_pos);
 				if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
-					syntax = 'css';
+					// check that we're actually inside the tag
+					if (pair[0].end <= caret_pos && pair[1].start >= caret_pos)
+						syntax = 'css';
 				}
 			}
 			return syntax;
