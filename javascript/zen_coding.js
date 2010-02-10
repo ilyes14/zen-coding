@@ -14,7 +14,6 @@
 		/** Reference to another abbreviation or tag */
 		TYPE_REFERENCE = 'zen-reference',
 		
-		content_placeholder = '{%::zen-content::%}',
 		caret_placeholder = '{%::zen-caret::%}',
 		newline = '\n',
 		default_tag = 'div';
@@ -78,7 +77,6 @@
 	 * @return {Array}
 	 */
 	function splitByLines(text, remove_empty) {
-		
 		// IE fails to split string by regexp, 
 		// need to normalize newlines first
 		// Also, Mozilla's Rhiho JS engine has a wierd newline bug
@@ -1086,9 +1084,13 @@
 		runAction: function(name, args) {
 			if (!(args instanceof Array))
 				args = Array.prototype.slice.call(arguments, 1);
-			
-			if (name in this.actions)
-				return this.actions[name].apply(this, args);
+				
+			try {
+				if (name in this.actions)
+					return this.actions[name].apply(this, args);
+			} catch(e){
+				return false; 
+			}
 		},
 		
 		expandAbbreviation: function(abbr, type, profile) {
