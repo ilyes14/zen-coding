@@ -298,7 +298,15 @@ var zen_editor = (function(){
 		 * @return {String}
 		 */
 		getSyntax: function(){
-			return this.getOption('syntax');
+			var syntax = this.getOption('syntax');
+			if (syntax == 'html') {
+				// get the context tag
+				var pair = zen_coding.html_matcher.getTags(this.getContent(), this.getCaretPos());
+				if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
+					syntax = 'css';
+				}
+			}
+			return syntax;
 		},
 		
 		/**
