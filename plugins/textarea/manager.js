@@ -83,7 +83,7 @@
 	function normalizeActionName(name) {
 		return name
 			.replace(/(^\s+|\s+$)/g, '') // remove trailing spaces
-			.replace(/\s+/g, '_')
+			.replace(/[\s\\\/]+/g, '_')
 			.toLowerCase();
 	}
 	
@@ -161,6 +161,7 @@
 	addShortcut('Meta+L', 'Select Line');
 	addShortcut('Meta+Shift+M', 'Merge Lines');
 	addShortcut('Meta+/', 'Toggle Comment');
+	addShortcut('Meta+J', 'Split/Join Tag');
 	addShortcut('Enter', 'Insert Formatted Line Break');
 	
 	

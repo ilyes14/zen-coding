@@ -1355,6 +1355,14 @@
 			});
 		},
 		
+		/**
+		 * Get profile by it's name. If profile wasn't found, returns 'plain'
+		 * profile
+		 */
+		getProfile: function(name) {
+			return (name in profiles) ? profiles[name] : profiles['plain'];
+		},
+		
 		settings_parser: (function(){
 			/**
 			 * Unified object for parsed data

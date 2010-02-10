@@ -579,6 +579,55 @@ function genericCommentToggle(editor, comment_start, comment_end, range_start, r
 	return false;
 }
 
+/**
+ * Splits or joins tag, e.g. transforms it into a short notation and vice versa:<br>
+ * &lt;div&gt;&lt;/div&gt; → &lt;div /&gt; : join<br>
+ * &lt;div /&gt; → &lt;div&gt;&lt;/div&gt; : split
+ * @param {zen_editor} editor Editor instance
+ * @param {String} [profile_name] Profile name
+ */
+function splitJoinTag(editor, profile_name) {
+	var caret_pos = editor.getCaretPos(),
+		profile = zen_coding.getProfile(profile_name || editor.getProfileName()),
+		content = zen_editor.getContent();
+
+	// find tag at current position
+	var pair = zen_coding.html_matcher.getTags(editor.getContent(), caret_pos);
+	if (pair && pair[0]) {
+		var new_content = pair[0].full_tag;
+		
+		if (pair[1]) { // join tag
+			var closing_slash = '';
+			if (profile.self_closing_tag === true)
+				closing_slash = '/';
+			else if (profile.self_closing_tag === 'xhtml')
+				closing_slash = ' /';
+				
+			new_content = new_content.replace(/\s*>$/, closing_slash + '>');
+			editor.replaceContent(new_content, pair[0].start, pair[1].end);
+
+			// adjust caret position
+			editor.setCaretPos(Math.min(caret_pos, pair[0].end));
+		} else { // split tag
+			var nl = zen_coding.getNewline(),
+				pad = zen_coding.getVariable('indentation'),
+				caret = zen_coding.getCaretPlaceholder();
+			
+			// define tag content depending on profile
+			var tag_content = (profile.tag_nl === true)
+					? nl + pad +caret + nl
+					: caret;
+					
+			new_content = new_content.replace(/\s*\/>$/, '>') + tag_content + '</' + pair[0].name + '>';
+			editor.replaceContent(new_content, pair[0].start, pair[0].end);
+		}
+		
+		return true;
+	} else {
+		return false;
+	}
+}
+
 // register all actions
 zen_coding.registerAction('expand_abbreviation', expandAbbreviation);
 zen_coding.registerAction('expand_abbreviation_with_tab', expandAbbreviationWithTab);
@@ -598,3 +647,4 @@ zen_coding.registerAction('select_line', selectLine);
 zen_coding.registerAction('matching_pair', goToMatchingPair);
 zen_coding.registerAction('merge_lines', mergeLines);
 zen_coding.registerAction('toggle_comment', toggleComment);
+zen_coding.registerAction('split_join_tag', splitJoinTag);
