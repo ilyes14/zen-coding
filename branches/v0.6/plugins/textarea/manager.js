@@ -162,6 +162,7 @@
 	addShortcut('Meta+Shift+M', 'Merge Lines');
 	addShortcut('Meta+/', 'Toggle Comment');
 	addShortcut('Meta+J', 'Split/Join Tag');
+	addShortcut('Meta+K', 'Remove Tag');
 	addShortcut('Enter', 'Insert Formatted Line Break');
 	
 	

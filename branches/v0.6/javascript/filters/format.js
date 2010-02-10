@@ -6,6 +6,8 @@
  * of abbreviation.
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
+ * 
+ * @include "../zen_coding.js"
  */(function(){
 	var child_token = '${child}',
 		placeholder = '%s';
@@ -108,6 +110,7 @@
 			if (m)
 				padding_delta = m[1];
 		}
+		
 		item.padding = padding + padding_delta;
 		
 		return item;
@@ -173,6 +176,9 @@
 			item = (item.type == 'tag') 
 				? processTag(item, profile, level) 
 				: processSnippet(item, profile, level);
+				
+			if (item.content)
+				item.content = zen_coding.padString(item.content, item.padding);
 				
 			process(item, profile, level + 1);
 		}

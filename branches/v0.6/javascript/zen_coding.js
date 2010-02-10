@@ -83,7 +83,7 @@
 		// need to normalize newlines first
 		// Also, Mozilla's Rhiho JS engine has a wierd newline bug
 		var nl = getNewline();
-		var lines = text
+		var lines = (text || '')
 			.replace(/\r\n/g, '\n')
 			.replace(/\n\r/g, '\n')
 			.replace(/\n/g, nl)
@@ -1021,10 +1021,17 @@
 				i += sl + 1;
 			} else if (str.substr(i, sl) == symbol) {
 				// have match
+				var cur_sl = sl;
 				match_count++;
 				var new_value = replace;
 				if (typeof(replace) !== 'string') {
-					new_value = replace(str, symbol, i, match_count);
+					var replace_data = replace(str, symbol, i, match_count);
+					if (replace_data) {
+						cur_sl = replace_data[0].length;
+						new_value = replace_data[1];
+					} else {
+						new_value = false;
+					}
 				}
 				
 				if (new_value === false) { // skip replacement
@@ -1032,7 +1039,7 @@
 					continue;
 				}
 				
-				str = str.substring(0, i) + new_value + str.substring(i + new_value.length);
+				str = str.substring(0, i) + new_value + str.substring(i + cur_sl);
 				// adjust indexes
 				il = str.length;
 				i += new_value.length;
@@ -1351,7 +1358,7 @@
 				// replace sequense of $ symbols with padded number  
 				var j = pos + 1;
 				while(str.charAt(j) == '$' && str.charAt(j + 1) != '{') j++;
-				return zeroPadString(value, j - pos);
+				return [str.substring(pos, j), zeroPadString(value, j - pos)];
 			});
 		},
 		

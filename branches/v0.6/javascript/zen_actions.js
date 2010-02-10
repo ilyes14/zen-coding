@@ -125,6 +125,38 @@ function matchPair(editor, direction, syntax) {
 }
 
 /**
+ * Narrow down text indexes, adjusting selection to non-space characters
+ * @param {String} text
+ * @param {Number} start
+ * @param {Number} end
+ * @return {Array}
+ */
+function narrowToNonSpace(text, start, end) {
+	// narrow down selection until first non-space character
+	var re_space = /\s|\n|\r/;
+	function isSpace(ch) {
+		return re_space.test(ch);
+	}
+	
+	while (start < end) {
+		if (!isSpace(text.charAt(start)))
+			break;
+			
+		start++;
+	}
+	
+	while (end > start) {
+		end--;
+		if (!isSpace(text.charAt(end))) {
+			end++;
+			break;
+		}
+	}
+	
+	return [start, end];
+}
+
+/**
  * Wraps content with abbreviation
  * @param {zen_editor} Editor instance
  * @param {String} abbr Abbreviation to wrap with
@@ -150,31 +182,11 @@ function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
 		
 		if (!range || range[0] == -1) // nothing to wrap
 			return null;
-			
-		start_offset = range[0];
-		end_offset = range[1];
-			
-		// narrow down selection until first non-space character
-		var re_space = /\s|\n|\r/;
-		function isSpace(ch) {
-			return re_space.test(ch);
-		}
 		
-		while (start_offset < end_offset) {
-			if (!isSpace(content.charAt(start_offset)))
-				break;
-				
-			start_offset++;
-		}
+		var narrowed_sel = narrowToNonSpace(content, range[0], range[1]);
 		
-		while (end_offset > start_offset) {
-			end_offset--;
-			if (!isSpace(content.charAt(end_offset))) {
-				end_offset++;
-				break;
-			}
-		}
-			
+		start_offset = narrowed_sel[0];
+		end_offset = narrowed_sel[1];
 	}
 	
 	var new_content = content.substring(start_offset, end_offset),
@@ -193,7 +205,15 @@ function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
  * @return {String}
  */
 function unindent(editor, text) {
-	var pad = getCurrentLinePadding(editor);
+	return unindentText(text, getCurrentLinePadding(editor));
+}
+
+/**
+ * Removes padding at the beginning of each text's line
+ * @param {String} text
+ * @param {String} pad
+ */
+function unindentText(text, pad) {
 	var lines = zen_coding.splitByLines(text);
 	for (var i = 0; i < lines.length; i++) {
 		if (lines[i].search(pad) == 0)
@@ -209,7 +229,16 @@ function unindent(editor, text) {
  * @return {String}
  */
 function getCurrentLinePadding(editor) {
-	return (editor.getCurrentLine().match(/^(\s+)/) || [''])[0];
+	return getLinePadding(editor.getCurrentLine());
+}
+
+/**
+ * Returns line padding
+ * @param {String} line
+ * @return {String}
+ */
+function getLinePadding(line) {
+	return (line.match(/^(\s+)/) || [''])[0];
 }
 
 /**
@@ -628,6 +657,67 @@ function splitJoinTag(editor, profile_name) {
 	}
 }
 
+/**
+ * Returns line bounds for specific character position
+ * @param {String} text
+ * @param {Number} from Where to start searching
+ * @return {Object}
+ */
+function getLineBounds(text, from) {
+	var len = text.length,
+		start = 0,
+		end = len - 1;
+	
+	// search left
+	for (var i = from - 1; i > 0; i--) {
+		var ch = text.charAt(i);
+		if (ch == '\n' || ch == '\r') {
+			start = i + 1;
+			break;
+		}
+	}
+	// search right
+	for (var j = from; j < len; j++) {
+		var ch = text.charAt(j);
+		if (ch == '\n' || ch == '\r') {
+			end = j;
+			break;
+		}
+	}
+	
+	return {start: start, end: end};
+}
+
+/**
+ * Gracefully removes tag under cursor
+ * @param {zen_editor} editor
+ */
+function removeTag(editor) {
+	var caret_pos = editor.getCaretPos(),
+		content = editor.getContent();
+		
+	// search for tag
+	var pair = zen_coding.html_matcher.getTags(content, caret_pos);
+	if (pair && pair[0]) {
+		if (!pair[1]) {
+			// simply remove unary tag
+			editor.replaceContent(zen_coding.getCaretPlaceholder(), pair[0].start, pair[0].end);
+		} else {
+			var tag_content_range = narrowToNonSpace(content, pair[0].end, pair[1].start),
+				start_line_bounds = getLineBounds(content, tag_content_range[0]),
+				start_line_pad = getLinePadding(content.substring(start_line_bounds.start, start_line_bounds.end)),
+				tag_content = content.substring(tag_content_range[0], tag_content_range[1]);
+				
+			tag_content = unindentText(tag_content, start_line_pad);
+			editor.replaceContent(zen_coding.getCaretPlaceholder() + tag_content, pair[0].start, pair[1].end);
+		}
+		
+		return true;
+	} else {
+		return false;
+	}
+}
+
 // register all actions
 zen_coding.registerAction('expand_abbreviation', expandAbbreviation);
 zen_coding.registerAction('expand_abbreviation_with_tab', expandAbbreviationWithTab);
@@ -648,3 +738,4 @@ zen_coding.registerAction('matching_pair', goToMatchingPair);
 zen_coding.registerAction('merge_lines', mergeLines);
 zen_coding.registerAction('toggle_comment', toggleComment);
 zen_coding.registerAction('split_join_tag', splitJoinTag);
+zen_coding.registerAction('remove_tag', removeTag);
