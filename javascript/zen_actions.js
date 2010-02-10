@@ -325,7 +325,7 @@ function insertFormattedNewline(editor, mode) {
 			var pair = HTMLPairMatcher.getTags(editor.getContent(), editor.getCaretPos());
 			
 			if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caret_pos && pair[1].start == caret_pos) {
-				editor.replaceContent('\n\t|\n', caret_pos);
+				editor.replaceContent('\n\t' + zen_coding.getCaretPlaceholder() + '\n', caret_pos);
 			} else {
 				insert_nl();
 			}
@@ -410,10 +410,9 @@ function mergeLines(editor) {
  */
 function toggleComment(editor) {
 	switch (editor.getSyntax()) {
-		case 'html':
-		case 'xml':
-		case 'xsl':
-		case 'xhtml':
+		case 'css':
+			return toggleCSSComment(editor);
+		default:
 			return toggleHTMLComment(editor);
 	}
 }
@@ -425,26 +424,7 @@ function toggleComment(editor) {
  */
 function toggleHTMLComment(editor) {
 	var rng = editor.getSelectionRange(),
-		content = editor.getContent(),
-		caret_pos = editor.getCaretPos(),
-		new_content = null;
-		
-	/**
-	 * Remove comment markers from string
-	 * @param {Sting} str
-	 * @return {String}
-	 */
-	function removeComment(str) {
-		return str
-			.replace(/^<!--\s*/, function(str){
-				caret_pos -= str.length;
-				return '';
-			}).replace(/\s*-->$/, '');
-	}
-	
-	function hasMatch(str, start) {
-		return content.substr(start, str.length) == str;
-	}
+		content = editor.getContent();
 		
 	if (rng.start == rng.end) {
 		// no selection, find matching tag
@@ -455,65 +435,145 @@ function toggleHTMLComment(editor) {
 		}
 	}
 	
-	if (rng.start != rng.end) {
-		if (hasMatch('<!--', rng.start)) {
-			// should remove comment
-			new_content = removeComment(content.substring(rng.start, rng.end)); 
-		} else {
-			// looks like we found tag
-			// first, we need to make sure that this tag is not inside 
-			// comment
-			
-			var from = rng.start,
-				comment_start = -1,
-				comment_end = -1;
-			
-			// search for comment start
-			while (from--) {
-				if (content.charAt(from) == '<' && hasMatch('<!--', from)) {
-					comment_start = from;
-					break;
-				}
-			}
-			
-			if (comment_start != -1) {
-				// search for comment end
-				from = comment_start;
-				var content_len = content.length;
-				while (content_len >= from++) {
-					if (content.charAt(from) == '-' && hasMatch('-->', from)) {
-						comment_end = from + 3;
-						break;
-					}
-				}
-			}
-			
-			if (comment_start < rng.start && comment_end > rng.end) {
-				// that tag we found is inside comment so we have to remove 
-				// comment, not add it
-				rng.start = comment_start;
-				rng.end = comment_end;
-				
-				new_content = removeComment(content.substring(comment_start, comment_end));
-			} else {
-				// should add comment
-				// make sure that there's no comment inside selection
-				new_content = '<!-- ' + 
-					content.substring(rng.start, rng.end).replace(/<!--\s+|\s+-->/g, '') +
-					' -->';
-					
-				// adjust caret position
-				caret_pos += 5;
-			}
-		}
+	return genericCommentToggle(editor, '<!--', '-->', rng.start, rng.end);
+}
+
+/**
+ * Simple CSS commenting
+ * @param {zen_editor} editor
+ * @return {Boolean} Returns <code>true</code> if comment was toggled
+ */
+function toggleCSSComment(editor) {
+	var rng = editor.getSelectionRange(),
+		content = editor.getContent();
 		
-		// replace editor content
-		if (new_content !== null) {
-			editor.setCaretPos(rng.start);
-			editor.replaceContent(unindent(editor, new_content), rng.start, rng.end);
-			editor.setCaretPos(caret_pos);
-			return true;
+	if (rng.start == rng.end) {
+		// no selection, get current line
+		rng = editor.getCurrentLineRange();
+
+		// adjust start index till first non-space character
+		var re_pad = /^\s+/;
+		var m = re_pad.exec(editor.getCurrentLine());
+		if (m)
+			rng.start += m[0].length
+	}
+	
+	return genericCommentToggle(editor, '/*', '*/', rng.start, rng.end);
+}
+
+/**
+ * Search for nearest comment in <code>str</code>, starting from index <code>from</code>
+ * @param {String} text Where to search
+ * @param {Number} from Search start index
+ * @param {String} start_token Comment start string
+ * @param {String} end_token Comment end string
+ * @return {Array|null} Returns null if comment wasn't found
+ */
+function searchComment(text, from, start_token, end_token) {
+	var start_ch = start_token.charAt(0),
+		end_ch = end_token.charAt(0),
+		comment_start = -1,
+		comment_end = -1;
+	
+	function hasMatch(str, start) {
+		return text.substr(start, str.length) == str;
+	}
+		
+	// search for comment start
+	while (from--) {
+		if (text.charAt(from) == start_ch && hasMatch(start_token, from)) {
+			comment_start = from;
+			break;
 		}
+	}
+	
+	if (comment_start != -1) {
+		// search for comment end
+		from = comment_start;
+		var content_len = text.length;
+		while (content_len >= from++) {
+			if (text.charAt(from) == end_ch && hasMatch(end_token, from)) {
+				comment_end = from + end_token.length;
+				break;
+			}
+		}
+	}
+	
+	return (comment_start != -1 && comment_end != -1) 
+		? [comment_start, comment_end] 
+		: null;
+}
+
+/**
+ * Escape special regexp chars in string, making it usable for creating dynamic
+ * regular expressions
+ * @param {String} str
+ * @return {String}
+ */
+function escapeForRegexp(str) {
+  var specials = new RegExp("[.*+?|()\\[\\]{}\\\\]", "g"); // .*+?|()[]{}\
+  return str.replace(specials, "\\$&");
+}
+
+/**
+ * Generic comment toggling routine
+ * @param {zen_editor} editor
+ * @param {String} comment_start Comment start token
+ * @param {String} comment_end Comment end token
+ * @param {Number} range_start Start selection range
+ * @param {Number} range_end End selection range
+ * @return {Boolean}
+ */
+function genericCommentToggle(editor, comment_start, comment_end, range_start, range_end) {
+	var content = editor.getContent(),
+		caret_pos = editor.getCaretPos(),
+		new_content = null;
+		
+	/**
+	 * Remove comment markers from string
+	 * @param {Sting} str
+	 * @return {String}
+	 */
+	function removeComment(str) {
+		return str
+			.replace(new RegExp('^' + escapeForRegexp(comment_start) + '\\s*'), function(str){
+				caret_pos -= str.length;
+				return '';
+			}).replace(new RegExp('\\s*' + escapeForRegexp(comment_end) + '$'), '');
+	}
+	
+	function hasMatch(str, start) {
+		return content.substr(start, str.length) == str;
+	}
+		
+	// first, we need to make sure that this substring is not inside 
+	// comment
+	var comment_range = searchComment(content, caret_pos, comment_start, comment_end);
+	
+	if (comment_range && comment_range[0] <= range_start && comment_range[1] >= range_end) {
+		// we're inside comment, remove it
+		range_start = comment_range[0];
+		range_end = comment_range[1];
+		
+		new_content = removeComment(content.substring(range_start, range_end));
+	} else {
+		// should add comment
+		// make sure that there's no comment inside selection
+		new_content = comment_start + ' ' + 
+			content.substring(range_start, range_end)
+				.replace(new RegExp(escapeForRegexp(comment_start) + '\\s*|\\s*' + escapeForRegexp(comment_end), 'g'), '') +
+			' ' + comment_end;
+			
+		// adjust caret position
+		caret_pos += comment_start.length + 1;
+	}
+
+	// replace editor content
+	if (new_content !== null) {
+		editor.setCaretPos(range_start);
+		editor.replaceContent(unindent(editor, new_content), range_start, range_end);
+		editor.setCaretPos(caret_pos);
+		return true;
 	}
 	
 	return false;
