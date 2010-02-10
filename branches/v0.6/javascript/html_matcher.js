@@ -179,7 +179,7 @@
 					
 					if (tmp_tag.unary) {
 						if (tmp_tag.start < start_ix && tmp_tag.end > start_ix) // exact match
-							return saveMatch(tmp_tag, null, start_ix);
+							return action(tmp_tag, null, start_ix);
 					} else if (backward_stack.last() && backward_stack.last().name == tmp_tag.name) {
 						backward_stack.pop();
 					} else { // found nearest unclosed tag
@@ -189,7 +189,7 @@
 				} else if (check_str.indexOf('<!--') == 0) { // found comment start
 					var end_ix = check_str.search('-->') + ix + 3;
 					if (ix < start_ix && end_ix >= start_ix)
-						return saveMatch( comment(ix, end_ix) );
+						return action( comment(ix, end_ix) );
 				}
 			} else if (ch == '-' && hasMatch('-->')) { // found comment end
 				// search left until comment start is reached
