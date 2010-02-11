@@ -14,9 +14,6 @@
 				item.start = item.start.replace(/([\w\-]+\s*:)\s*/, '$1 ');
 			}
 			
-			// replace counters
-			item.start = zen_coding.replaceCounter(item.start, i + 1);
-			item.end = zen_coding.replaceCounter(item.end, i + 1);
 			process(item, profile);
 		}
 		

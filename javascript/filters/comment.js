@@ -1,31 +1,16 @@
 /**
- * Comment important tags (wit 'id' and 'class' attributes)
+ * Comment important tags (with 'id' and 'class' attributes)
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  */(function(){
-	/**
-	 * Get attribute's value
-	 * @param {ZenNode} node
-	 * @param {String} attr_name
-	 */
-	function getAttribute(node, attr_name) {
-		attr_name = attr_name.toLowerCase();
-		for (var i = 0, il = node.attributes.length; i < il; i++) {
-			if (node.attributes[i].name.toLowerCase() == attr_name)
-				return node.attributes[i].value;
-		}
-		
-		return null;
-	}
-	
 	/**
 	 * Add comments to tag
 	 * @param {ZenNode} node
 	 */
 	function addComments(node, i) {
-		var id_attr = getAttribute(node, 'id'),
-			class_attr = getAttribute(node, 'class'),
-			nl = zen_coding.getNewline();;
+		var id_attr = node.getAttribute('id'),
+			class_attr = node.getAttribute('class'),
+			nl = zen_coding.getNewline();
 			
 		if (id_attr || class_attr) {
 			var comment_str = '',

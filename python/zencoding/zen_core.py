@@ -27,6 +27,7 @@ Created on Apr 17, 2009
 from zen_settings import zen_settings
 import re
 import stparser
+from filters import *
 
 newline = '\n'
 "Newline symbol"
@@ -1175,6 +1176,19 @@ class ZenNode(object):
 			last_child.next_sibling = tag
 		
 		self.children.append(tag)
+		
+	def get_attribute(self, name):
+		"""
+		Get attribute's value.
+		@type name: str
+		@return: None if attribute wasn't found
+		"""
+		name = name.lower()
+		for attr in self.attributes:
+			if attr['name'].lower() == name:
+				return attr['value']
+		
+		return None
 	
 	def is_unary(self):
 		"""
