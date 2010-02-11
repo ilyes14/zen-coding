@@ -342,25 +342,23 @@ function nextEditPoint(editor) {
  */
 function insertFormattedNewline(editor, mode) {
 	mode = mode || 'html';
-	var caret_pos = editor.getCaretPos();
+	var caret_pos = editor.getCaretPos(),
+		nl = zen_coding.getNewline(),
+		pad = zen_coding.getVariable('indentation');
 		
-	function insert_nl() {
-		editor.replaceContent('\n', caret_pos);
-	}
-	
 	switch (mode) {
 		case 'html':
 			// let's see if we're breaking newly created tag
 			var pair = HTMLPairMatcher.getTags(editor.getContent(), editor.getCaretPos());
 			
 			if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caret_pos && pair[1].start == caret_pos) {
-				editor.replaceContent('\n\t' + zen_coding.getCaretPlaceholder() + '\n', caret_pos);
+				editor.replaceContent(nl + pad + zen_coding.getCaretPlaceholder() + nl, caret_pos);
 			} else {
-				insert_nl();
+				editor.replaceContent(nl, caret_pos);
 			}
 			break;
 		default:
-			insert_nl();
+			editor.replaceContent(nl, caret_pos);
 	}
 }
 
@@ -385,12 +383,12 @@ function goToMatchingPair(editor) {
 		// looks like caret is outside of tag pair  
 		caret_pos++;
 		
-	var range = HTMLPairMatcher(content, caret_pos);
+	var tags = zen_coding.html_matcher.getTags(content, caret_pos);
 		
-	if (range && range[0] != -1) {
+	if (tags && tags[0]) {
 		// match found
-		var open_tag = HTMLPairMatcher.last_match.opening_tag,
-			close_tag = HTMLPairMatcher.last_match.closing_tag;
+		var open_tag = tags[0],
+			close_tag = tags[1];
 			
 		if (close_tag) { // exclude unary tags
 			if (open_tag.start <= caret_pos && open_tag.end >= caret_pos)
@@ -473,18 +471,16 @@ function toggleHTMLComment(editor) {
  * @return {Boolean} Returns <code>true</code> if comment was toggled
  */
 function toggleCSSComment(editor) {
-	var rng = editor.getSelectionRange(),
-		content = editor.getContent();
+	var rng = editor.getSelectionRange();
 		
 	if (rng.start == rng.end) {
 		// no selection, get current line
 		rng = editor.getCurrentLineRange();
 
 		// adjust start index till first non-space character
-		var re_pad = /^\s+/;
-		var m = re_pad.exec(editor.getCurrentLine());
-		if (m)
-			rng.start += m[0].length
+		var _r = narrowToNonSpace(editor.getContent(), rng.start, rng.end);
+		rng.start = _r[0];
+		rng.end = _r[1];
 	}
 	
 	return genericCommentToggle(editor, '/*', '*/', rng.start, rng.end);
@@ -617,8 +613,7 @@ function genericCommentToggle(editor, comment_start, comment_end, range_start, r
  */
 function splitJoinTag(editor, profile_name) {
 	var caret_pos = editor.getCaretPos(),
-		profile = zen_coding.getProfile(profile_name || editor.getProfileName()),
-		content = zen_editor.getContent();
+		profile = zen_coding.getProfile(profile_name || editor.getProfileName());
 
 	// find tag at current position
 	var pair = zen_coding.html_matcher.getTags(editor.getContent(), caret_pos);
