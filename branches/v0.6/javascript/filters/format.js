@@ -105,7 +105,7 @@
 			lines = zen_coding.splitByLines(parts[0] || ''),
 			padding_delta = getIndentation();
 			
-		if (lines > 1) {
+		if (lines.length > 1) {
 			var m = lines[lines.length - 1].match(/^(\s+)/);
 			if (m)
 				padding_delta = m[1];

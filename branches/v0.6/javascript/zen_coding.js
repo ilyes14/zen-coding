@@ -709,6 +709,21 @@
 		},
 		
 		/**
+		 * Get attribute's value.
+		 * @param {String} name
+		 * @return {String|null} Returns <code>null</code> if attribute wasn't found
+		 */
+		getAttribute: function(name) {
+			name = name.toLowerCase();
+			for (var i = 0, il = this.attributes.length; i < il; i++) {
+				if (this.attributes[i].name.toLowerCase() == name)
+					return this.attributes[i].value;
+			}
+			
+			return null;
+		},
+		
+		/**
 		 * Test if current tag is unary (no closing tag)
 		 * @return {Boolean}
 		 */
