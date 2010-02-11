@@ -632,11 +632,10 @@
 					if (operator == '>') {
 						stack.push(cur_item);
 						last_parent = cur_item;
-						cur_item = null;
 					} else {
 						stack.push(last_parent);
-						cur_item = null;
 					}
+					cur_item = null;
 					break;
 				case ')':
 					last_parent = stack.pop();
@@ -717,7 +716,7 @@
 			if (this.type == 'snippet')
 				return false;
 				
-			return (this.source._abbr && this.source._abbr.value.is_empty) || (this.name in getElementsCollection(this._res, 'empty'));
+			return (this.source._abbr && this.source._abbr.value.is_empty) || (this.name in getElementsCollection(this.source._res, 'empty'));
 		},
 		
 		/**
@@ -729,7 +728,7 @@
 		},
 		
 		/**
-		 * Проверяет, является ли текущий элемент блочным
+		 * Test if current element is block-level
 		 * @return {Boolean}
 		 */
 		isBlock: function() {
@@ -952,7 +951,6 @@
 	 * @param {abbrGroup} group
 	 * @param {String} type
 	 * @param {Tag} parent
-	 * @param {Tag} parent
 	 */
 	function expandGroup(group, type, parent) {
 		var tree = abbrToPrimaryTree(group.expr, type),
@@ -1074,12 +1072,12 @@
 		/**
 		 * Runs Zen Coding action. For list of available actions and their
 		 * arguments see <code>zen_actions.js</code> file.
-		 * @param {String} Action name 
-		 * @param {...} args Additional arguments. It may be array of arguments
+		 * @param {String} name Action name 
+		 * @param {Array} args Additional arguments. It may be array of arguments
 		 * or inline arguments. The first argument should be <code>zen_editor</code> instance
 		 * @example
-		 * zen_coding.runActions('expandAbbreviation', zen_editor);  
-		 * zen_coding.runActions('wrapWithAbbreviation', [zen_editor, 'div']);  
+		 * zen_coding.runActions('expand_abbreviation', zen_editor);  
+		 * zen_coding.runActions('wrap_with_abbreviation', [zen_editor, 'div']);  
 		 */
 		runAction: function(name, args) {
 			if (!(args instanceof Array))
@@ -1255,7 +1253,9 @@
 		 * @return {String}
 		 */
 		getCaretPlaceholder: function() {
-			return caret_placeholder;
+			return (typeof(caret_placeholder) != 'string') 
+				? caret_placeholder()
+				: caret_placeholder
 		},
 		
 		/**
@@ -1263,7 +1263,7 @@
 		 * You may use a function as a placeholder generator. For example,
 		 * TextMate uses ${0}, ${1}, ..., ${n} natively for quick Tab-switching
 		 * between them.
-		 * @param {String|Function}
+		 * @param {String|Function} value
 		 */
 		setCaretPlaceholder: function(value) {
 			caret_placeholder = value;
@@ -1301,8 +1301,7 @@
 		 * @return {ZenNode}
 		 */
 		applyFilters: function(tree, syntax, profile, additional_filters){
-			var _filters = getResource(syntax, 'filters') || basic_filters,
-				cur_fillters = [];
+			var _filters = getResource(syntax, 'filters') || basic_filters;
 				
 			if (additional_filters)
 				_filters += '|' + ((typeof(additional_filters) == 'string') 
