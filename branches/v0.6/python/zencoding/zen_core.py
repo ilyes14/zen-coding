@@ -38,9 +38,7 @@ default_tag = 'div'
 re_tag = re.compile(r'<\/?[\w:\-]+(?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:\'[^\']*\')|[^>\s]+))?)*\s*(\/?)>$')
 
 profiles = {}
-
-actions = {}
-"Dictionary of all available actions"
+"Available output profiles"
 
 default_profile = {
 	'tag_case': 'lower',         # values are 'lower', 'upper'
@@ -58,9 +56,6 @@ default_profile = {
 	'self_closing_tag': 'xhtml'  # use self-closing style for writing empty elements, e.g. <br /> or <br>. 
                                  # values are True, False, 'xhtml'
 }
-
-_zen_filters = {}
-"List of registered filters"
 
 basic_filters = 'html';
 "Filters that will be applied for unknown syntax"
@@ -745,16 +740,6 @@ def replace_unescaped_symbol(text, symbol, replace):
 			i += 1
 	
 	return text
-
-def register_action(name, fn):
-	"""
-	Adds new Zen Coding action. This action will be available in actions object.
-	@param name: Action's name
-	@type name: str
-	@param fn: Action itself. The first argument should be zen_editor instance.
-	@param fn: function
-	"""
-	actions[name] = fn
 	
 def run_action(name, *args, **kwargs):
 	"""
@@ -769,11 +754,13 @@ def run_action(name, *args, **kwargs):
 	 zen_coding.run_actions('expand_abbreviation', zen_editor)
 	 zen_coding.run_actions('wrap_with_abbreviation', zen_editor, 'div')  
 	"""
-	try:
-		if name in actions:
-			return actions[name](*args, **kwargs)
-	except:
-		return False
+	import zen_actions
+	
+#	try:
+	if hasattr(zen_actions, name):
+		return getattr(zen_actions, name)(*args, **kwargs)
+#	except:
+#		return False
 
 def expand_abbreviation(abbr, syntax='html', profile_name='plain'):
 	"""

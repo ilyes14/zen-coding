@@ -610,20 +610,6 @@ def remove_tag(editor):
 		return True
 	else:
 		return False
-
-# register all actions
-zen_coding.register_action('expand_abbreviation', expand_abbreviation)
-zen_coding.register_action('expand_abbreviation_with_tab', expand_abbreviation_with_tab)
-zen_coding.register_action('match_pair', match_pair)
-zen_coding.register_action('match_pair_inward', lambda editor: match_pair(editor, 'in'))
-zen_coding.register_action('match_pair_outward', lambda editor: match_pair(editor, 'out'))
-zen_coding.register_action('wrap_with_abbreviation', wrap_with_abbreviation)
-zen_coding.register_action('prev_edit_point', prev_edit_point)
-zen_coding.register_action('next_edit_point', next_edit_point)
-zen_coding.register_action('insert_formatted_line_break', insert_formatted_newline)
-zen_coding.register_action('select_line', select_line)
-zen_coding.register_action('matching_pair', go_to_matching_pair)
-zen_coding.register_action('merge_lines', merge_lines)
-zen_coding.register_action('toggle_comment', toggle_comment)
-zen_coding.register_action('split_join_tag', split_join_tag)
-zen_coding.register_action('remove_tag', remove_tag)
+	
+def demo_action(a1, a2):
+	return a1 + ' ' + a2
