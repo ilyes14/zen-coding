@@ -60,13 +60,13 @@ def should_break_line(node, profile):
 		
 	# calculate how many inline siblings we have
 	node_count = 1
+	node = node.next_sibling
 	while node:
 		if node.is_inline():
 			node_count += 1
 		else:
 			break
 		node = node.next_sibling
-	
 	
 	return node_count >= profile['inline_break']
 

@@ -23,9 +23,9 @@ def trim_attribute(node):
 	"""
 	node.start = re_attr.sub('', node.start)
 
-def process(tree):
+def process(tree, profile):
 	for item in tree.children:
 		if item.type == 'tag' and item.name.lower() in tags and item.children:
 			trim_attribute(item)
 		
-		process(item)
+		process(item, profile)

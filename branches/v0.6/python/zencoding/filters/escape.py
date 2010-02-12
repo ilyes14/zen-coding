@@ -20,9 +20,9 @@ char_map = {
 re_chars = re.compile(r'[<>&]')
 
 def escape_chars(text):
-	return re_chars.sub(lambda m: char_map[m.group(1)], text)
+	return re_chars.sub(lambda m: char_map[m.group(0)], text)
 
-def process(tree, profile, level):
+def process(tree, profile=None):
 	for item in tree.children:
 		item.start = escape_chars(item.start)
 		item.end = escape_chars(item.end)

@@ -38,19 +38,20 @@ class Test(unittest.TestCase):
 		self.assertEqual('<p id="myid" class="name_with-dash32 otherclass"></p>', expandAbbr('p#myid.name_with-dash32.otherclass'))
 		self.assertEqual('<span class="one two three"></span>', expandAbbr('span.one.two.three'))
 		
-		self.assertEqual('<span class="one" id="two"></span>', expandAbbr('span.one#two'));
-		self.assertEqual('<span class="one two" id="three"></span>', expandAbbr('span.one.two#three'));
+		self.assertEqual('<span class="one" id="two"></span>', expandAbbr('span.one#two'))
+		self.assertEqual('<span class="one two" id="three"></span>', expandAbbr('span.one.two#three'))
 		
 		self.assertEqual('<span title=""></span>', expandAbbr('span[title]'));
-		self.assertEqual('<span title="" data=""></span>', expandAbbr('span[title data]'));
-		self.assertEqual('<span class="test" title="" data=""></span>', expandAbbr('span.test[title data]'));
-		self.assertEqual('<span id="one" class="two" title="" data=""></span>', expandAbbr('span#one.two[title data]'));
-		self.assertEqual('<span title="Hello"></span>', expandAbbr('span[title=Hello]'));
-		self.assertEqual('<span title="Hello world"></span>', expandAbbr('span[title="Hello world"]'));
-		self.assertEqual('<span title="Hello world"></span>', expandAbbr('span[title=\'Hello world\']'));
-		self.assertEqual('<span title="Hello world" data="other"></span>', expandAbbr('span[title="Hello world" data=other]'));
-		self.assertEqual('<span title="Hello world" data="other" attr2="" attr3=""></span>', expandAbbr('span[title="Hello world" data=other attr2 attr3]'));
-		self.assertEqual('<span title="Hello world" data="other" attr2="" attr3=""><em></em></span>', expandAbbr('span[title="Hello world" data=other attr2 attr3]>em'));
+		self.assertEqual('<span title="" data=""></span>', expandAbbr('span[title data]'))
+		self.assertEqual('<span class="test" title="" data=""></span>', expandAbbr('span.test[title data]'))
+		self.assertEqual('<span id="one" class="two" title="" data=""></span>', expandAbbr('span#one.two[title data]'))
+		self.assertEqual('<span title="Hello"></span>', expandAbbr('span[title=Hello]'))
+		self.assertEqual('<span title="Hello world"></span>', expandAbbr('span[title="Hello world"]'))
+		self.assertEqual('<span title="Hello world"></span>', expandAbbr('span[title=\'Hello world\']'))
+		self.assertEqual('<span title="Hello world" data="other"></span>', expandAbbr('span[title="Hello world" data=other]'))
+		self.assertEqual('<span title="Hello world" data="other" attr2="" attr3=""></span>', expandAbbr('span[title="Hello world" data=other attr2 attr3]'))
+		self.assertEqual('<span title="Hello world" data="other" attr2="" attr3=""><em></em></span>', expandAbbr('span[title="Hello world" data=other attr2 attr3]>em'))
+		self.assertEqual('<filelist id="javascript.files"></filelist>', expandAbbr('filelist[id=javascript.files]'));
 		
 	def testExpandos(self):
 		self.assertEqual('<dl><dt></dt><dd></dd></dl>', expandAbbr('dl+'))
@@ -59,6 +60,8 @@ class Test(unittest.TestCase):
 	
 	def testCounters(self):
 		self.assertEqual('<ul id="nav"><li class="item1"></li><li class="item2"></li><li class="item3"></li></ul>', expandAbbr('ul#nav>li.item$*3'))
+		self.assertEqual('<ul id="nav"><li class="item001"></li><li class="item002"></li><li class="item003"></li></ul>', expandAbbr('ul#nav>li.item$$$*3'));
+		self.assertEqual('<ul id="nav"><li class="01item001"></li><li class="02item002"></li><li class="03item003"></li></ul>', expandAbbr('ul#nav>li.$$item$$$*3'));
 		
 	def testShortTags(self):
 		self.assertEqual('<blockquote><p></p></blockquote>', expandAbbr('bq>p'))
@@ -112,6 +115,39 @@ class Test(unittest.TestCase):
 		self.assertEqual('<img src="|" alt="|" />\n<p>|</p>', expandAbbr('img+p', 'html', 'xhtml'));
 		self.assertEqual('<xsl:variable name="|" select="|"/>', expandAbbr('vare', 'xsl', 'xml'));
 		self.assertEqual('<xsl:variable name="|" select="|"/>\n<p>\n\t|\n</p>', expandAbbr('vare+p', 'xsl', 'xml'));
+		
+		self.assertEqual('<div><span>|</span><span>|</span></div>', expandAbbr('div>span*2', 'html', 'xhtml'))
+		self.assertEqual('<div>\n\t<span>|</span>\n\t<span>|</span>\n\t<span>|</span>\n</div>', expandAbbr('div>span*3', 'html', 'xhtml'))
+		self.assertEqual('<span>|</span><span>|</span>', expandAbbr('span*2', 'html', 'xhtml'))
+		self.assertEqual('<span>|</span>\n<span>|</span>\n<span>|</span>', expandAbbr('span*3', 'html', 'xhtml'))
+		
+	def testGroups(self):
+		self.assertEqual('<div id="head"></div><p><p></p></p><div id="footer"></div>', expandAbbr('div#head+(p>p)+div#footer'))
+		self.assertEqual('<div id="head"><ul id="nav"><li></li><li></li><li></li></ul><div class="subnav"><p></p></div><div class="othernav"></div><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3+(div.subnav>p)+(div.othernav))+div#footer'))
+		self.assertEqual('<div id="head"><ul id="nav"><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li><li><div class="subnav"><p></p></div><div class="othernav"></div></li></ul><div id="footer"></div></div>', expandAbbr('div#head>(ul#nav>li*3>(div.subnav>p)+(div.othernav))+div#footer'))
+	
+	def testExtract(self):
+		abbr = 'ul#nav>li.$$item$$$*3>a+span'
+		abbr2 = 'table>tr>td[colspan=2 title="Hello world"]>span'
+		
+		self.assertEqual(abbr, zen.extract_abbreviation(abbr));
+		self.assertEqual(abbr, zen.extract_abbreviation('<p>' +  abbr))
+		self.assertEqual(abbr, zen.extract_abbreviation('hello ' + abbr))
+		self.assertEqual(abbr2, zen.extract_abbreviation('<div>' + abbr2))
+		self.assertEqual(abbr2, zen.extract_abbreviation('hello ' + abbr2))
+	
+	def testShortNotation(self):
+		self.assertEqual('<div id="content"></div>', expandAbbr('#content'))
+		self.assertEqual('<div class="content"></div>', expandAbbr('.content'))
+		self.assertEqual('<div id="content" class="demo"></div>', expandAbbr('#content.demo'))
+		self.assertEqual('<div class="demo" title="test"></div>', expandAbbr('.demo[title=test]'))
+	
+	def testFilters(self):
+		self.assertEqual('&lt;div id="content"&gt;&lt;/div&gt;', expandAbbr('#content|e'))
+		self.assertEqual('&amp;lt;div id="content"&amp;gt;&amp;lt;/div&amp;gt;', expandAbbr('#content|e|e'))
+		
+		self.assertEqual('float: right;', expandAbbr('fl:r|fc', 'css'))
+		self.assertEqual('float: right;\ndisplay: none;', expandAbbr('fl:r+d:n|fc', 'css'))
 
 if __name__ == "__main__":
 	#import sys;sys.argv = ['', 'Test.testAbbreviations']
