@@ -508,7 +508,9 @@ def split_by_groups(abbr):
 			if ch == '+' or ch == '>':
 				# skip operator if it's followed by parenthesis
 				next_char = char_at(abbr, i + 1)
-				if next_char == '(': continue
+				if next_char == '(':
+					i += 1 
+					continue
 			
 			if not cur_item:
 				cur_item = last_parent.add_child()
@@ -940,6 +942,7 @@ def apply_filters(tree, syntax, profile, additional_filters=None):
 	_filters = get_resource(syntax, 'filters') or basic_filters
 		
 	if additional_filters:
+		_filters += '|'
 		if isinstance(additional_filters, basestring):
 			_filters += additional_filters
 		else:
@@ -1237,6 +1240,3 @@ setup_profile('plain', {'tag_nl': False, 'indent': False, 'place_cursor': False}
 # Comment this line if you want to load data from other resources (like editor's 
 # native snippet) 
 update_settings(stparser.get_settings())
-
-if __name__ == '__main__':
-	print expand_abbreviation('p+p')
