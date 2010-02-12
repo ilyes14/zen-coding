@@ -8,7 +8,11 @@ Comment important tags (with 'id' and 'class' attributes)
 '''
 from zencoding import zen_core as zen_coding
 
+alias = 'c'
+"Filter name alias (if not defined, ZC will use module name)"
+
 def add_comments(node, i):
+	
 	"""
 	Add comments to tag
 	@type node: ZenNode
@@ -41,5 +45,3 @@ def process(tree, profile):
 		process(item, profile)
 	
 	return tree
-
-zen_coding.register_filter('c', process)

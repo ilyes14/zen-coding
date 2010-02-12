@@ -7,8 +7,10 @@ padding:0; -> padding: 0;
 @author Sergey Chikuyonok (serge.che@gmail.com)
 @link http://chikuyonok.ru
 '''
-from zencoding import zen_core as zen_coding
 import re
+
+alias = 'fc'
+"Filter name alias (if not defined, ZC will use module name)"
 
 re_css_prop = re.compile(r'([\w\-]+\s*:)\s*')
 
@@ -21,5 +23,3 @@ def process(tree, profile):
 		process(item, profile)
 		
 	return tree
-
-zen_coding.register_filter('fc', process)

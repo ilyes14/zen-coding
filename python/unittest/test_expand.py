@@ -7,13 +7,15 @@ import unittest
 
 from zencoding import zen_core as zen
 
+zen.set_caret_placeholder('|')
+
 #zen.update_settings(stparser.get_settings())
 
 def expandAbbr(abbr, doc_type='html', profile_name='plain'):
 	return zen.expand_abbreviation(abbr, doc_type, profile_name)
 
 def extractAbbr(line):
-	return zen.find_abbr_in_line(line, len(line))[0]
+	return zen.extract_abbreviation(line)
 
 class Test(unittest.TestCase):
 	

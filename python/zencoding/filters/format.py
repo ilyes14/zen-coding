@@ -10,8 +10,11 @@ of abbreviation.
 @author Sergey Chikuyonok (serge.che@gmail.com)
 @link http://chikuyonok.ru
 """
-from zencoding import zen_core as zen_coding
 import re
+from zencoding import zen_core as zen_coding
+
+alias = '_format'
+"Filter name alias (if not defined, ZC will use module name)"
 
 child_token = '${child}'
 placeholder = '%s'
@@ -92,7 +95,8 @@ def process_snippet(item, profile, level=0):
 		# snippet wasn't found, process it as tag
 		return process_tag(item, profile, level)
 		
-	item.start = item.end = placeholder
+	item.start = placeholder
+	item.end = placeholder
 	
 	padding = item.parent.padding if item.parent else get_indentation() * level 
 	
@@ -107,7 +111,7 @@ def process_snippet(item, profile, level=0):
 	if len(lines) > 1:
 		m = re.match(r'^(\s+)', lines[-1])
 		if m:
-			padding_delta = m[1];
+			padding_delta = m.group(1)
 	
 	item.padding = padding + padding_delta
 	
@@ -125,7 +129,8 @@ def process_tag(item, profile, level=0):
 		# looks like it's a root element
 		return item
 	
-	item.start = item.end = placeholder
+	item.start = placeholder
+	item.end = placeholder
 	
 	is_unary = item.is_unary() and not item.children
 		
@@ -175,6 +180,3 @@ def process(tree, profile, level=0):
 		process(item, profile, level + 1)
 	
 	return tree
-
-
-zen_coding.register_filter('_format', process)

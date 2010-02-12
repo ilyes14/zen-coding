@@ -27,20 +27,11 @@ Created on Apr 17, 2009
 from zen_settings import zen_settings
 import re
 import stparser
-from filters import *
 
 newline = '\n'
 "Newline symbol"
 
 caret_placeholder = '{%::zen-caret::%}'
-
-insertion_point = caret_placeholder
-"Symbol which refers to cursor position"
-
-sub_insertion_point = caret_placeholder
-"""@deprecated: Symbol which refers to cursor position (for editors which support multiple placeholders)"""
-
-content_placeholder = '{%::zen-content::%}'
 
 default_tag = 'div'
 
@@ -68,7 +59,7 @@ default_profile = {
                                  # values are True, False, 'xhtml'
 }
 
-filters = {}
+_zen_filters = {}
 "List of registered filters"
 
 basic_filters = 'html';
@@ -99,9 +90,12 @@ def has_deep_key(obj, key):
 		
 	last_obj = obj
 	for v in key:
-		if not last_obj.has_key(v):
+		if hasattr(last_obj, v):
+			last_obj = getattr(last_obj, v)
+		elif last_obj.has_key(v):
+			last_obj = last_obj[v]
+		else:
 			return False
-		last_obj = last_obj[v]
 	
 	return True
 		
@@ -292,16 +286,16 @@ def create_resource_chain(syntax, name):
 	@type name: str
 	@return: list
 	"""
-	resource = zen_settings[syntax]
 	result = []
 	
-	if resource:
+	if syntax in zen_settings:
+		resource = zen_settings[syntax]
 		if name in resource:
 			result.append(resource[name])
 		if 'extends' in resource:
 			# find resource in ancestors
 			for type in resource['extends']:
-				if zen_settings[type] and zen_settings[type][name]:
+				if  has_deep_key(zen_settings, [type, name]):
 					result.append(zen_settings[type][name])
 				
 	return result
@@ -316,7 +310,8 @@ def get_resource(syntax, name):
 	@param name: Resource name
 	@type name: str
 	"""
-	return create_resource_chain(syntax, name)[0]
+	chain = create_resource_chain(syntax, name)
+	return chain[0] if chain else None
 
 def get_settings_resource(syntax, abbr, name):
 	"""
@@ -580,6 +575,8 @@ def run_filters(tree, profile, filter_list):
 	@param filter_list: str, list
 	@return: ZenNode
 	"""
+	import filters
+	
 	if isinstance(profile, basestring) and profile in profiles:
 		profile = profiles[profile];
 	
@@ -591,8 +588,8 @@ def run_filters(tree, profile, filter_list):
 		
 	for name in filter_list:
 		name = name.strip()
-		if name and name in filters:
-			tree = filters[name](tree, profile)
+		if name and name in filters.filter_map:
+			tree = filters.filter_map[name](tree, profile)
 			
 	return tree
 
@@ -680,7 +677,7 @@ def expand_group(group, doc_type, parent):
 	if tree:
 		for item in tree.children:
 			last_item = item
-			parent.addChild(last_item)
+			parent.add_child(last_item)
 	else:
 		raise Exception('InvalidGroup')
 	
@@ -712,7 +709,7 @@ def replace_unescaped_symbol(text, symbol, replace):
 	@type replace: str, function 
 	@return: str
 	"""
-	i = 0,
+	i = 0
 	il = len(text)
 	sl = len(symbol)
 	match_count = 0
@@ -721,7 +718,7 @@ def replace_unescaped_symbol(text, symbol, replace):
 		if text[i] == '\\':
 			# escaped symbol, skip next character
 			i += sl + 1
-		elif text.substr[i, i + sl] == symbol:
+		elif text[i:i + sl] == symbol:
 			# have match
 			cur_sl = sl
 			match_count += 1
@@ -738,7 +735,7 @@ def replace_unescaped_symbol(text, symbol, replace):
 				i += 1
 				continue
 			
-			text = text[0, i] + new_value + text[i + cur_sl:]
+			text = text[0:i] + new_value + text[i + cur_sl:]
 			# adjust indexes
 			il = len(text)
 			i += len(new_value)
@@ -859,28 +856,6 @@ def parse_into_tree(abbr, doc_type='html'):
 	tree_root.filters = ''.join(filter_list)
 	return tree_root
 
-def find_abbr_in_line(line, index = 0):
-	"""
-	Search for abbreviation inside line of code and returns it
-	@param line: Line of code
-	@type line: str
-	
-	@param index: Caret position inside line (where to start searching)
-	@type index: int
-	
-	@return: str
-	"""
-	start_index = 0
-	cur_index = index - 1
-	while cur_index >= 0:
-		ch = line[cur_index]
-		if not is_allowed_char(ch) or (ch == '>' and is_ends_with_tag(line[0:cur_index + 1])):
-			start_index = cur_index + 1
-			break
-		cur_index = cur_index - 1
-		
-	return line[start_index:index], start_index
-
 def is_inside_tag(html, cursor_pos):
 	re_tag = re.compile(r'^<\/?\w[\w\:\-]*.*?>')
 	
@@ -945,17 +920,8 @@ def set_caret_placeholder(value):
 	between them.
 	@param {String|Function}
 	"""
+	global caret_placeholder
 	caret_placeholder = value
-
-def register_filter(name, fn):
-	"""
-	Register new filter
-	@param name: Filter name
-	@type name: str
-	@param fn: Filter function
-	@type fn: callable
-	"""
-	filters[name] = fn
 
 def apply_filters(tree, syntax, profile, additional_filters=None):
 	"""
@@ -1016,9 +982,6 @@ def get_profile(name):
 def update_settings(settings):
 	globals()['zen_settings'] = settings
 	
-def set_insertion_point(ins_point):
-	globals()['insertion_point'] = ins_point
-
 class Tag(object):
 	def __init__(self, name, count=1, doc_type='html'):
 		"""
@@ -1198,7 +1161,7 @@ class ZenNode(object):
 		if self.type == 'snippet':
 			return False
 			
-		return (self.source._abbr and has_deep_key(self.source._abbr, 'value.is_empty')) or (self.name in get_elements_collection(self.source._res, 'empty'))
+		return (self.source._abbr and self.source._abbr.value['is_empty']) or (self.name in get_elements_collection(self.source._res, 'empty'))
 	
 	def is_inline(self):
 		"""
@@ -1274,3 +1237,6 @@ setup_profile('plain', {'tag_nl': False, 'indent': False, 'place_cursor': False}
 # Comment this line if you want to load data from other resources (like editor's 
 # native snippet) 
 update_settings(stparser.get_settings())
+
+if __name__ == '__main__':
+	print expand_abbreviation('p+p')

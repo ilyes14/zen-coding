@@ -43,6 +43,12 @@ def make_attributes_string(tag, profile):
 	
 	return attrs
 
+def _replace(placeholder, value):
+	if placeholder:
+		return placeholder % value
+	else:
+		return value		
+
 def process_snippet(item, profile, level=0):
 	"""
 	Processes element with <code>snippet</code> type
@@ -56,15 +62,19 @@ def process_snippet(item, profile, level=0):
 		# snippet wasn't found, process it as tag
 		return process_tag(item, profile, level)
 		
-	start, end = data.split(child_token)
-	if not end: end = ''
+	tokens = data.split(child_token)
+	if len(tokens) < 2:
+		start = tokens[0]
+		end = ''
+	else:
+		start, end = tokens
+	
 	padding = item.parent and item.parent.padding or ''
 		
-	item.start = item.start % zen_coding.pad_string(start, padding)
-	item.end = item.end % zen_coding.pad_string(end, padding)
+	item.start = _replace(item.start, zen_coding.pad_string(start, padding))
+	item.end = _replace(item.end, zen_coding.pad_string(end, padding))
 	
 	return item
-
 
 def has_block_sibling(item):
 	"""
@@ -101,7 +111,7 @@ def process_tag(item, profile, level=0):
 		tag_name = ''
 		
 	item.end = ''
-	item.start = item.start % (tag_name + attrs + self_closing,)
+	item.start = _replace(item.start, tag_name + attrs + self_closing)
 	
 	if not item.children and not is_unary:
 		item.start += cursor
@@ -131,5 +141,3 @@ def process(tree, profile, level=0):
 		process(item, profile, level + 1)
 		
 	return tree
-
-zen_coding.register_filter('haml', process)
