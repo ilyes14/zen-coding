@@ -7,7 +7,6 @@ child elements
 @author Sergey Chikuyonok (serge.che@gmail.com)
 @link http://chikuyonok.ru
 '''
-from zencoding import zen_core as zen_coding
 import re
 
 tags = {
@@ -30,5 +29,3 @@ def process(tree):
 			trim_attribute(item)
 		
 		process(item)
-
-zen_coding.register_filter('xsl', process)
