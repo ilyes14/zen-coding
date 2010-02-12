@@ -3,9 +3,12 @@ import sys
 
 # import all filters
 __sub_modules = []
-__prefix = 'filters'
+__prefix = 'zencoding.filters'
+__filter_dir = os.path.dirname(__file__)
+sys.path.append(__filter_dir)
+
 filter_map = {}
-for file in os.listdir(os.path.dirname(__file__)):
+for file in os.listdir(__filter_dir):
 	name, ext = os.path.splitext(file)
 	if ext.lower() == '.py':
 		__sub_modules.append(name)
