@@ -13,12 +13,7 @@ import os
 import sys
 import zencoding.zen_core as zen
 import subprocess
-
-point_ix = 0
-def place_ins_point(text):
-	global point_ix
-	point_ix += 1
-	return '$%s' % point_ix
+import re
 
 class ZenEditor():
 	def __init__(self, context=None):
@@ -26,9 +21,7 @@ class ZenEditor():
 		"Editor's content"
 		
 		self.apple_script = os.path.join(os.getenv('TM_BUNDLE_SUPPORT'), 'pasteboard.scpt')
-		zen.set_insertion_point(place_ins_point)
-		zen.set_newline(os.getenv('TM_LINE_ENDING', zen.get_newline()))
-		
+		zen.set_newline(os.getenv('TM_LINE_ENDING', zen.get_newline()))		
 		self.set_context(context)
 
 	def _get_selected_text(self):
@@ -133,6 +126,8 @@ class ZenEditor():
 		if end is None: end = len(self.get_content())
 		self.create_selection(start, end)
 		
+		value = self.add_placeholders(value)
+		
 		fp = open(self.apple_script, 'w')
 		fp.write('tell application "TextMate" to insert "%s" with as snippet' % (value.replace('\\', '\\\\').replace('"', '\\"'),))
 		fp.close()
@@ -157,7 +152,7 @@ class ZenEditor():
 			if 'xsl' in scope:
 				doc_type = 'xsl'
 			else:
-				doc_type = re.findall(r'\bhtml|css|xml\b', scope)[-1]
+				doc_type = re.findall(r'\bhtml|css|xml|haml\b', scope)[-1]
 		except:
 			doc_type = default_type
 		
@@ -196,3 +191,13 @@ class ZenEditor():
 			return None
 		else:
 			return output[1]
+		
+	def add_placeholders(self, text):
+		_ix = [-1]
+		
+		def get_ix(m):
+			_ix[0] += 1
+			return '$%s' % _ix[0]
+		
+		text = re.sub(r'\$', '\\$', text)
+		return re.sub(zen.get_caret_placeholder(), get_ix, text)
