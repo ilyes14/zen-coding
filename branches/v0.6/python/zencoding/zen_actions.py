@@ -82,7 +82,7 @@ def match_pair(editor, direction='out', syntax=None):
 	range_start, range_end = editor.get_selection_range()
 	cursor = range_end
 	content = editor.get_content()
-	range = None
+	rng = None
 	
 	old_open_tag = html_matcher.last_match['opening_tag']
 	old_close_tag = html_matcher.last_match['closing_tag']
@@ -98,21 +98,20 @@ def match_pair(editor, direction='out', syntax=None):
 #				test if the first inward tag matches the entire parent tag's content
 				_r = html_matcher.find(content, old_open_tag.end + 1)
 				if _r[0] == old_open_tag['end'] and _r[1] == old_close_tag['start']:
-					range = html_matcher.match(content, old_open_tag['end'] + 1)
+					rng = html_matcher.match(content, old_open_tag['end'] + 1)
 				else:
-					range = (old_open_tag['end'], old_close_tag['start'])
+					rng = (old_open_tag['end'], old_close_tag['start'])
 			else:
-				range = (old_open_tag['end'], old_close_tag['start'])
+				rng = (old_open_tag['end'], old_close_tag['start'])
 		else:
 			new_cursor = content[0, old_close_tag['start']].find('<', old_open_tag['end'])
 			search_pos = new_cursor + 1 if new_cursor != -1 else old_open_tag['end']
-			range = html_matcher.match(content, search_pos)
+			rng = html_matcher.match(content, search_pos)
 	else:
-		range = html_matcher.match(content, cursor)
+		rng = html_matcher.match(content, cursor)
 	
-	
-	if range[0] is not None:
-		editor.create_selection(range[0], range[1])
+	if rng and rng[0] is not None:
+		editor.create_selection(rng[0], rng[1])
 		return True
 	else:
 		return False
