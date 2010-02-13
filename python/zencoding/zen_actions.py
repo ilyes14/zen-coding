@@ -150,13 +150,13 @@ def wrap_with_abbreviation(editor, abbr, syntax=None, profile_name=None):
 	@param profile_name: Output profile name (html, xml, xhtml)
 	@type profile_name: str
 	"""
+	if not abbr: return None 
+	
 	if syntax is None: syntax = editor.get_syntax()
 	if profile_name is None: profile_name = editor.get_profile_name()
 	
 	start_offset, end_offset = editor.get_selection_range()
 	content = editor.get_content()
-	
-	if not abbr: return None 
 	
 	if start_offset == end_offset:
 		# no selection, find tag pair
@@ -166,9 +166,11 @@ def wrap_with_abbreviation(editor, abbr, syntax=None, profile_name=None):
 			return None
 			
 		start_offset, end_offset = narrow_to_non_space(content, *range)
+		line_bounds = get_line_bounds(content, start_offset)
+		padding = get_line_padding(content[line_bounds[0]:line_bounds[1]])
 	
 	new_content = content[start_offset:end_offset]
-	result = zen_coding.wrap_with_abbreviation(abbr, unindent(editor, new_content), syntax, profile_name)
+	result = zen_coding.wrap_with_abbreviation(abbr, unindent_text(new_content, padding), syntax, profile_name)
 	
 	if result:
 		editor.replace_content(result, start_offset, end_offset)
@@ -192,7 +194,7 @@ def unindent_text(text, pad):
 	lines = zen_coding.split_by_lines(text)
 	
 	for i,line in enumerate(lines):
-		if line.find(pad) == 0:
+		if line.startswith(pad):
 			lines[i] = line[len(pad):]
 	
 	return zen_coding.get_newline().join(lines)
@@ -388,8 +390,8 @@ def toggle_html_comment(editor):
 		# no selection, find matching tag
 		pair = html_matcher.get_tags(content, editor.get_caret_pos())
 		if pair and pair[0]: # found pair
-			start = pair[0]['start']
-			end = pair[1] and pair[1]['end'] or pair[0]['end']
+			start = pair[0].start
+			end = pair[1] and pair[1].end or pair[0].end
 	
 	return generic_comment_toggle(editor, '<!--', '-->', start, end)
 
@@ -469,11 +471,11 @@ def generic_comment_toggle(editor, comment_start, comment_end, range_start, rang
 	@return: bool
 	"""
 	content = editor.get_content()
-	caret_pos = editor.get_caret_pos()
+	caret_pos = [editor.get_caret_pos()]
 	new_content = None
 		
 	def adjust_caret_pos(m):
-		caret_pos -= len(m.group(0))
+		caret_pos[0] -= len(m.group(0))
 		return ''
 		
 	def remove_comment(text):
@@ -489,7 +491,7 @@ def generic_comment_toggle(editor, comment_start, comment_end, range_start, rang
 		return content[start:start + len(tx)] == tx
 	
 	# first, we need to make sure that this substring is not inside comment
-	comment_range = search_comment(content, caret_pos, comment_start, comment_end)
+	comment_range = search_comment(content, caret_pos[0], comment_start, comment_end)
 	
 	if comment_range and comment_range[0] <= range_start and comment_range[1] >= range_end:
 		# we're inside comment, remove it
@@ -501,12 +503,13 @@ def generic_comment_toggle(editor, comment_start, comment_end, range_start, rang
 		new_content = '%s %s %s' % (comment_start, re.sub(re.escape(comment_start) + r'\s*|\s*' + re.escape(comment_end), '', content[range_start:range_end]), comment_end)
 			
 		# adjust caret position
-		caret_pos += len(comment_start) + 1
+		caret_pos[0] += len(comment_start) + 1
 
 	# replace editor content
 	if new_content is not None:
-		editor.replaceContent(unindent(editor, new_content), range_start, range_end)
-		editor.set_caret_pos(caret_pos)
+		d = caret_pos[0] - range_start
+		new_content = new_content[0:d] + zen_coding.get_caret_placeholder() + new_content[d:]
+		editor.replace_content(unindent(editor, new_content), range_start, range_end)
 		return True
 	
 	return False
@@ -523,11 +526,12 @@ def split_join_tag(editor, profile_name=None):
 	"""
 	caret_pos = editor.get_caret_pos()
 	profile = zen_coding.get_profile(profile_name or editor.get_profile_name())
+	caret = zen_coding.get_caret_placeholder()
 
 	# find tag at current position
 	pair = html_matcher.get_tags(editor.get_content(), caret_pos)
 	if pair and pair[0]:
-		new_content = pair[0]['full_tag']
+		new_content = pair[0].full_tag
 		
 		if pair[1]: # join tag
 			closing_slash = ''
@@ -537,20 +541,16 @@ def split_join_tag(editor, profile_name=None):
 				closing_slash = ' /'
 				
 			new_content = re.sub(r'\s*>$', closing_slash + '>', new_content)
-			editor.replace_content(new_content, pair[0]['start'], pair[1]['end'])
-
-			# adjust caret position
-			editor.set_caret_pos(min(caret_pos, pair[0]['end']))
+			editor.replace_content(new_content + caret, pair[0].start, pair[1].end)
 		else: # split tag
 			nl = zen_coding.get_newline()
 			pad = zen_coding.get_variable('indentation')
-			caret = zen_coding.get_caret_placeholder()
 			
 			# define tag content depending on profile
 			tag_content = profile['tag_nl'] is True and nl + pad + caret + nl or caret
 			
-			new_content = '%s%s</%s>' % (re.sub(r'\s*\/>$', '>', new_content), tag_content, pair[0]['name'])
-			editor.replace_content(new_content, pair[0]['start'], pair[0]['end'])
+			new_content = '%s%s</%s>' % (re.sub(r'\s*\/>$', '>', new_content), tag_content, pair[0].name)
+			editor.replace_content(new_content, pair[0].start, pair[0].end)
 		
 		return True
 	else:
@@ -569,16 +569,14 @@ def get_line_bounds(text, pos):
 	end = len(text) - 1
 	
 	# search left
-	for i in range(pos - 1, 0):
-		ch = text[i]
-		if ch == '\n' or ch == '\r':
+	for i in range(pos - 1, 0, -1):
+		if text[i] in '\n\r':
 			start = i + 1
 			break
 		
 	# search right
 	for i in range(pos, len(text)):
-		ch = text[i]
-		if ch == '\n' or ch == '\r':
+		if text[i] in '\n\r':
 			end = i
 			break
 		
@@ -597,15 +595,15 @@ def remove_tag(editor):
 	if pair and pair[0]:
 		if not pair[1]:
 			# simply remove unary tag
-			editor.replace_content(zen_coding.get_caret_placeholder(), pair[0]['start'], pair[0]['end'])
+			editor.replace_content(zen_coding.get_caret_placeholder(), pair[0].start, pair[0].end)
 		else:
-			tag_content_range = narrow_to_non_space(content, pair[0]['end'], pair[1]['start'])
+			tag_content_range = narrow_to_non_space(content, pair[0].end, pair[1].start)
 			start_line_bounds = get_line_bounds(content, tag_content_range[0])
 			start_line_pad = get_line_padding(content[start_line_bounds[0]:start_line_bounds[1]])
 			tag_content = content[tag_content_range[0]:tag_content_range[1]]
 				
 			tag_content = unindent_text(tag_content, start_line_pad)
-			editor.replace_content(zen_coding.get_caret_placeholder() + tag_content, pair[0]['start'], pair[1]['end'])
+			editor.replace_content(zen_coding.get_caret_placeholder() + tag_content, pair[0].start, pair[1].end)
 		
 		return True
 	else:

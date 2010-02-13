@@ -118,9 +118,6 @@ def process(tree, profile, level=0):
 	@type level: int
 	"""
 	if level == 0:
-		tree = zen_coding.run_filters(tree, profile, '_format')
-	
-	if level == 0:
 		# preformat tree
 		tree = zen_coding.run_filters(tree, profile, '_format')
 		

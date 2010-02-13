@@ -69,9 +69,9 @@ class Tag():
 		"""
 		name = match.group(1).lower()
 		self.name = name
-		self.full_match = match.group(0)
+		self.full_tag = match.group(0)
 		self.start = ix
-		self.end = ix + len(self.full_match)
+		self.end = ix + len(self.full_tag)
 		self.unary = ( len(match.groups()) > 2 and bool(match.group(3)) ) or (name in empty)
 		self.type = 'tag'
 		self.close_self = name in close_self
@@ -145,7 +145,7 @@ def get_tags(html, start_ix):
 	and returns array of opening and closing tags
 	This method is generally used for lookups
 	"""
-	return _find_pair(html, start_ix, lambda op, cl: (op, cl))
+	return _find_pair(html, start_ix, lambda op, cl, ix: (op, cl) if op.type == 'tag' else None)
 
 
 def _find_pair(html, start_ix, action=make_range):

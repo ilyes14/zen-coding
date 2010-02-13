@@ -28,6 +28,9 @@
 		<textmate_sre_macro title="Wrap with Abbreviation" search-module="wrap_with_abbreviation.py" key="@A" uid-base="wrap-abbr"/>
 		<textmate_s_macro title="Balance Tag" search-module="balance_tag.py" key="@d" uid-base="balance-outward"/>
 		<textmate_sre_macro title="Update Image Size" search-module="update_image_size.py" key="^i" uid-base="image-size"/>
+		<textmate_sre_macro title="Split or Join Tag" search-module="split_join_tag.py" key="@k" uid-base="split-join-tag"/>
+		<textmate_sre_macro title="Toggle Comment" search-module="toggle_comment.py" key="@/" uid-base="toggle-comment"/>
+		<textmate_sre_macro title="Remove Tag" search-module="remove_tag.py" key="@K" uid-base="remove-tag"/>
 	</target>
 	
 	<target name="install_textmate_bundle" depends="textmate_bundle">
