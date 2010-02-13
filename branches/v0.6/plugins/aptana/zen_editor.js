@@ -272,7 +272,7 @@ var zen_editor = (function(){
 				caret_pos = (start || 0) + new_pos;
 				value = value.split(caret_placeholder).join('');
 			} else {
-				caret_pos += value.length;
+				caret_pos = value.length + (start || 0);
 			}
 			
 //			editor.beginCompoundChange();
