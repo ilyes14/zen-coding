@@ -272,7 +272,7 @@ var zen_editor = (function(){
 				caret_pos = (start || 0) + new_pos;
 				value = value.split(caret_placeholder).join('');
 			} else {
-				caret_pos += value.length;
+				caret_pos = value.length + (start || 0);
 			}
 			
 			try {
@@ -283,7 +283,7 @@ var zen_editor = (function(){
 				}
 				
 				target.value = content;
-				createSelection(caret_pos, caret_pos);
+				this.setCaretPos(caret_pos);
 			} catch(e){}
 		},
 		

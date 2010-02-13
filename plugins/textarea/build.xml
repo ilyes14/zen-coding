@@ -25,10 +25,10 @@
 			<filelist dir="${textarea.source}">
 				<file name="__intro.js"/>
 			</filelist>
+			<filelist refid="javascript.files"/>
 			<fileset dir="${zencoding_javascript_filters}">
 				<include name="*.js"/>
 			</fileset>
-			<filelist refid="javascript.files"/>
 			<filelist dir="${textarea.source}">
 				<file name="zen_editor.js"/>
 				<file name="shortcut.js"/>
