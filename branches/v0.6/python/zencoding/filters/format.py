@@ -173,7 +173,7 @@ def process(tree, profile, level=0):
 			item = process_tag(item, profile, level)
 		else:
 			item = process_snippet(item, profile, level)
-			
+		
 		if item.content:
 			item.content = zen_coding.pad_string(item.content, item.padding)
 			
