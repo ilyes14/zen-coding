@@ -4,6 +4,7 @@
 	<import file="${webtasks_path}"/>
 	<import file="${zencoding_plugins_source}/TextMate/build.xml"/>
 	<import file="${zencoding_plugins_source}/textarea/build.xml"/>
+	<import file="${zencoding_plugins_source}/aptana/build.xml"/>
 	
 	
 	<!-- List of Zen Coding JavaScript files -->
@@ -12,12 +13,12 @@
 		<file name="zen_coding.js"/>
 		<file name="zen_actions.js"/>
 		<file name="html_matcher.js"/>
-		<file name="filters/format.js"/>
+		<!-- <file name="filters/format.js"/>
 		<file name="filters/html.js"/>
 		<file name="filters/haml.js"/>
 		<file name="filters/escape.js"/>
 		<file name="filters/format-css.js"/>
-		<file name="filters/comment.js"/>
+		<file name="filters/comment.js"/> -->
 	</filelist>
 	
 	<target name="init">
@@ -30,33 +31,9 @@
 			<filelist refid="javascript.files"/>
 		</concat>
 	</target>
-	
-	<target name="aptana_plugin" depends="create_javascript">
-		<delete dir="${zencoding_aptana_plugin.dir}"/>
-		<mkdir dir="${zencoding_aptana_plugin.dir}"/>
-		<copy todir="${zencoding_aptana_plugin.dir}">
-			<fileset dir="${zencoding_plugins_source}/aptana">
-			    <include name="*.js"/>
-			    <exclude name="zen_eclipse.js"/>
-			    <exclude name="zen_editor.js"/>
-			</fileset>
-		</copy>
-		<concat destfile="${zencoding_aptana_plugin.dir}/zencoding.js">
-			<filelist files="${zencoding_build_dir}/zencoding.js"/>
-			<filelist files="${zencoding_plugins_source}/aptana/zen_eclipse.js"/>
-			<filelist files="${zencoding_plugins_source}/aptana/zen_editor.js"/>
-		</concat>
-		
-		<zip destfile="${zencoding_plugins}/${zencoding_aptana_plugin.zip}">
-			<fileset dir="${zencoding_aptana_plugin.dir}" id="">
-			    <include name="*.js"/>
-			    <exclude name="*.zip"/>
-			</fileset>
-		</zip>
-	</target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="aptana_plugin, textarea_plugin, install_textmate_bundle">
+	<target name="main" depends="create_javascript, aptana_plugin, textarea_plugin, install_textmate_bundle">
 		<echo>Done</echo>
 	</target>
 </project>

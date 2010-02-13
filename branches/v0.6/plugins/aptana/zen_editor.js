@@ -8,7 +8,8 @@
  */
 var zen_editor = (function(){
 	/** @type {editors.activeEditor} */
-	var editor;
+	var editor,
+		is_filters_loaded = false;
 	
 	/**
 	 * Returns whitrespace padding of string
@@ -33,9 +34,13 @@ var zen_editor = (function(){
 	 * @return {String}
 	 */
 	function getPartition(offset){
-		var class_name = String(editor.textEditor.getClass());
-		if (class_name.toLowerCase().indexOf('xsleditor') != -1)
+		var class_name = String(editor.textEditor.getClass()).toLowerCase();
+		if (class_name.indexOf('xsleditor') != -1)
 			return 'text/xsl';
+		else if (class_name.indexOf('hamleditor') != -1)
+			return 'text/haml';
+		else if (class_name.indexOf('sasseditor') != -1)
+			return 'text/css';
 			
 		try {
 			var fileContext = editor.textEditor.getFileContext();
@@ -58,6 +63,7 @@ var zen_editor = (function(){
 			'text/html':  'html',
 			'text/xml' :  'xml',
 			'text/css' :  'css',
+			'text/haml':  'haml',
 			'text/xsl' :  'xsl'
 		};
 		
@@ -110,6 +116,29 @@ var zen_editor = (function(){
 		return null;
 	}
 	
+	/**
+	 * Dynamically load Zen Coding filters
+	 */
+	function loadFilters() {
+		if (is_filters_loaded)
+			return;
+			
+		var File = Packages.java.io.File;
+		var f = new File(location);
+		var filter_dir = new File(f.getParent(), 'filters')
+		
+		if (filter_dir.exists()) {
+			var files = filter_dir.listFiles();
+			for (var i = 0, il = files.length; i < il; i++) {
+				var file = files[i];
+				if (file.getName().toLowerCase().endsWith('.js'))
+					include(file);
+			}
+			
+			is_filters_loaded = true
+		}
+	}
+	
 	return {
 		/**
 		 * Depreacted name of <code>setContext</code> method
@@ -129,6 +158,7 @@ var zen_editor = (function(){
 		setContext: function(context) {
 			editor = context;
 			zen_coding.setNewline(editor.lineDelimiter);
+			loadFilters();
 		},
 		
 		/**
@@ -271,7 +301,19 @@ var zen_editor = (function(){
 		 * @return {String}
 		 */
 		getSyntax: function(){
-			return getEditorType() || 'html';
+			var syntax = getEditorType() || 'html';
+			
+			if (syntax == 'html') {
+				// get the context tag
+				var pair = zen_coding.html_matcher.getTags(this.getContent(), this.getCaretPos());
+				if (pair && pair[0] && pair[0].type == 'tag' && pair[0].name.toLowerCase() == 'style') {
+					// check that we're actually inside the tag
+					if (pair[0].end <= caret_pos && pair[1].start >= caret_pos)
+						syntax = 'css';
+				}
+			}
+			
+			return syntax;
 		},
 		
 		/**
@@ -285,12 +327,12 @@ var zen_editor = (function(){
 				 	return 'xml';
 				 case 'html':
 				 	// html or xhtml?
-				 	return getContent().search(/<!DOCTYPE[^>]+XHTML.+?>/) != -1 
+				 	return this.getContent().search(/<!DOCTYPE[^>]+XHTML/) != -1 
 				 		? 'xhtml'
 				 		: 'html';
 			}
 			
-			return 'html';
+			return 'xhtml';
 		}
 	};
 })();
