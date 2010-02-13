@@ -25,9 +25,9 @@ def make_attributes_string(tag, profile):
 	for a in tag.attributes:
 		name_lower = a['name'].lower()
 		if name_lower == 'id':
-			attrs += '#' + (a.value or cursor)
+			attrs += '#' + (a['value'] or cursor)
 		elif name_lower == 'class':
-			attrs += '.' + (a.value or cursor)
+			attrs += '.' + (a['value'] or cursor)
 			
 	other_attrs = []
 	

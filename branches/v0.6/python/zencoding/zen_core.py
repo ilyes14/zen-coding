@@ -193,11 +193,13 @@ def pad_string(text, pad):
 		
 	nl = get_newline()
 	
-	
 	lines = split_by_lines(text)
-	result = result + lines[0]
-	for line in lines[1:]:
-		result += nl + pad_str + line
+	
+	if lines:
+		result += lines[0]
+		for line in lines[1:]:
+			result += nl + pad_str + line
+			
 	return result
 
 def is_snippet(abbr, doc_type = 'html'):
