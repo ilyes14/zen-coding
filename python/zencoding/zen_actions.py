@@ -93,19 +93,18 @@ def match_pair(editor, direction='out', syntax=None):
 #			unary tag was selected, can't move inward
 			return False
 		elif old_open_tag.start == range_start:
-			raise Exception, 'search inward'
 			if content[old_open_tag.end] == '<':
 #				test if the first inward tag matches the entire parent tag's content
 				_r = html_matcher.find(content, old_open_tag.end + 1)
-				if _r[0] == old_open_tag['end'] and _r[1] == old_close_tag['start']:
-					rng = html_matcher.match(content, old_open_tag['end'] + 1)
+				if _r[0] == old_open_tag.end and _r[1] == old_close_tag.start:
+					rng = html_matcher.match(content, old_open_tag.end + 1)
 				else:
-					rng = (old_open_tag['end'], old_close_tag['start'])
+					rng = (old_open_tag.end, old_close_tag.start)
 			else:
-				rng = (old_open_tag['end'], old_close_tag['start'])
+				rng = (old_open_tag.end, old_close_tag.start)
 		else:
-			new_cursor = content[0, old_close_tag['start']].find('<', old_open_tag['end'])
-			search_pos = new_cursor + 1 if new_cursor != -1 else old_open_tag['end']
+			new_cursor = content[0:old_close_tag.start].find('<', old_open_tag.end)
+			search_pos = new_cursor + 1 if new_cursor != -1 else old_open_tag.end
 			rng = html_matcher.match(content, search_pos)
 	else:
 		rng = html_matcher.match(content, cursor)
@@ -115,6 +114,12 @@ def match_pair(editor, direction='out', syntax=None):
 		return True
 	else:
 		return False
+
+def match_pair_inward(editor):
+	return match_pair(editor, 'in')
+	
+def match_pair_outward(editor):
+	return match_pair(editor, 'out')
 
 def narrow_to_non_space(text, start, end):
 	"""
@@ -159,14 +164,16 @@ def wrap_with_abbreviation(editor, abbr, syntax=None, profile_name=None):
 	
 	if start_offset == end_offset:
 		# no selection, find tag pair
-		range = html_matcher.match(content, start_offset)
+		rng = html_matcher.match(content, start_offset)
 		
-		if range[0] is None: # nothing to wrap
+		if rng[0] is None: # nothing to wrap
 			return None
+		else:
+			start_offset, end_offset = rng
 			
-		start_offset, end_offset = narrow_to_non_space(content, *range)
-		line_bounds = get_line_bounds(content, start_offset)
-		padding = get_line_padding(content[line_bounds[0]:line_bounds[1]])
+	start_offset, end_offset = narrow_to_non_space(content, start_offset, end_offset)
+	line_bounds = get_line_bounds(content, start_offset)
+	padding = get_line_padding(content[line_bounds[0]:line_bounds[1]])
 	
 	new_content = content[start_offset:end_offset]
 	result = zen_coding.wrap_with_abbreviation(abbr, unindent_text(new_content, padding), syntax, profile_name)
@@ -607,6 +614,3 @@ def remove_tag(editor):
 		return True
 	else:
 		return False
-	
-def demo_action(a1, a2):
-	return a1 + ' ' + a2
