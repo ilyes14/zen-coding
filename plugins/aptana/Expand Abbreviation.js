@@ -19,5 +19,5 @@ include('zencoding.js');
 
 function main() {
 	zen_editor.setContext(editors.activeEditor);
-	expandAbbreviation(zen_editor, zen_editor.getSyntax(), zen_editor.getProfileName());
+	zen_coding.runAction('expand_abbreviation', zen_editor);
 }

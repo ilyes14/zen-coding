@@ -1,61 +1,0 @@
-[text/html] LITERAL.TEXT@0-1: ~	~
-[text/html] PUNCTUATOR.DOCTYPE_DECL@1-10: ~<!DOCTYPE~
-[text/html] LITERAL.NAME@11-15: ~html~
-[text/html] KEYWORD.PUBLIC@16-22: ~PUBLIC~
-[text/html] LITERAL.STRING@23-63: ~"-//W3C//DTD XHTML 1.0 Transitional//EN"~
-[text/html] LITERAL.STRING@64-121: ~"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"~
-[text/html] PUNCTUATOR.GREATER_THAN@121-122: ~>~
-[text/html] PUNCTUATOR.START_TAG@123-128: ~<html~
-[text/html] LITERAL.NAME@129-134: ~xmlns~
-[text/html] PUNCTUATOR.EQUAL@134-135: ~=~
-[text/html] LITERAL.STRING@135-165: ~"http://www.w3.org/1999/xhtml"~
-[text/html] PUNCTUATOR.GREATER_THAN@165-166: ~>~
-[text/html] LITERAL.TEXT@166-168: ~	~
-[text/html] PUNCTUATOR.START_TAG@168-173: ~<head~
-[text/html] PUNCTUATOR.GREATER_THAN@173-174: ~>~
-[text/html] LITERAL.TEXT@174-177: ~		~
-[text/html] PUNCTUATOR.START_TAG@177-182: ~<meta~
-[text/html] LITERAL.NAME@183-193: ~http-equiv~
-[text/html] PUNCTUATOR.EQUAL@193-194: ~=~
-[text/html] LITERAL.STRING@194-208: ~"Content-Type"~
-[text/html] LITERAL.NAME@209-216: ~content~
-[text/html] PUNCTUATOR.EQUAL@216-217: ~=~
-[text/html] LITERAL.STRING@217-243: ~"text/html; charset=utf-8"~
-[text/html] PUNCTUATOR.SLASH_GREATER_THAN@244-246: ~/>~
-[text/html] LITERAL.TEXT@246-249: ~		~
-[text/html] PUNCTUATOR.START_TAG@249-255: ~<title~
-[text/html] PUNCTUATOR.GREATER_THAN@255-256: ~>~
-[text/html] LITERAL.TEXT@256-264: ~Document~
-[text/html] PUNCTUATOR.END_TAG@264-271: ~</title~
-[text/html] PUNCTUATOR.GREATER_THAN@271-272: ~>~
-[text/html] LITERAL.TEXT@272-275: ~		~
-[text/html] PUNCTUATOR.START_TAG@275-281: ~<style~
-[text/html] LITERAL.NAME@282-286: ~type~
-[text/html] PUNCTUATOR.EQUAL@286-287: ~=~
-[text/html] LITERAL.STRING@287-297: ~"text/css"~
-[text/html] PUNCTUATOR.GREATER_THAN@297-298: ~>~
-[text/html] PUNCTUATOR.END_TAG@305-312: ~</style~
-[text/html] PUNCTUATOR.GREATER_THAN@312-313: ~>~
-[text/html] LITERAL.TEXT@313-315: ~	~
-[text/html] PUNCTUATOR.END_TAG@315-321: ~</head~
-[text/html] PUNCTUATOR.GREATER_THAN@321-322: ~>~
-[text/html] LITERAL.TEXT@322-324: ~	~
-[text/html] PUNCTUATOR.START_TAG@324-329: ~<body~
-[text/html] PUNCTUATOR.GREATER_THAN@329-330: ~>~
-[text/html] LITERAL.TEXT@330-526: ~		hello world p#sample+p.one.two*3>em>b		div#page>h3.title+ul.menu>li.item*7>p*3>a		dl+		bq>p		script:src		script		img		some:elem		link+link		div>cc:ie6*2>link+script:src		h1.ch$gg*4		~
-[text/html] PUNCTUATOR.START_TAG@526-530: ~<div~
-[text/html] PUNCTUATOR.GREATER_THAN@530-531: ~>~
-[text/html] LITERAL.TEXT@531-535: ~			~
-[text/html] PUNCTUATOR.START_TAG@535-537: ~<p~
-[text/html] PUNCTUATOR.GREATER_THAN@537-538: ~>~
-[text/html] PUNCTUATOR.END_TAG@538-541: ~</p~
-[text/html] PUNCTUATOR.GREATER_THAN@541-542: ~>~
-[text/html] LITERAL.TEXT@542-545: ~		~
-[text/html] PUNCTUATOR.END_TAG@545-550: ~</div~
-[text/html] PUNCTUATOR.GREATER_THAN@550-551: ~>~
-[text/html] LITERAL.TEXT@551-553: ~	~
-[text/html] PUNCTUATOR.END_TAG@553-559: ~</body~
-[text/html] PUNCTUATOR.GREATER_THAN@559-560: ~>~
-[text/html] LITERAL.TEXT@560-561: ~~
-[text/html] PUNCTUATOR.END_TAG@561-567: ~</html~
-[text/html] PUNCTUATOR.GREATER_THAN@567-568: ~>~

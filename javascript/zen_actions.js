@@ -621,11 +621,9 @@ function splitJoinTag(editor, profile_name) {
 		var new_content = pair[0].full_tag;
 		
 		if (pair[1]) { // join tag
-			var closing_slash = '';
+			var closing_slash = ' /';
 			if (profile.self_closing_tag === true)
 				closing_slash = '/';
-			else if (profile.self_closing_tag === 'xhtml')
-				closing_slash = ' /';
 				
 			new_content = new_content.replace(/\s*>$/, closing_slash + '>');
 			editor.replaceContent(new_content, pair[0].start, pair[1].end);
