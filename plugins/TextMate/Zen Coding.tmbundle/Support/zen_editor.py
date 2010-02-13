@@ -84,7 +84,7 @@ class ZenEditor():
 		"""
 		# figure out line and column vars
 		head = zen.split_by_lines(self.get_content()[0:pos])
-		line = len(head)
+		line = max(len(head), 1)
 		column = pos - len(zen.get_newline().join(head[0:-1]))
 		
 		subprocess.Popen(['open', 'txmt://open/?line=%d&column=%d' % (line, column)]).communicate()
