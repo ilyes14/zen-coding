@@ -5,6 +5,7 @@
 	<import file="${zencoding_plugins_source}/TextMate/build.xml"/>
 	<import file="${zencoding_plugins_source}/textarea/build.xml"/>
 	<import file="${zencoding_plugins_source}/aptana/build.xml"/>
+	<import file="${zencoding_plugins_source}/komodo/build.xml"/>
 	
 	
 	<!-- List of Zen Coding JavaScript files -->
@@ -33,7 +34,7 @@
 	</target>
 
 	<!-- Main build routine -->
-	<target name="main" depends="create_javascript, aptana_plugin, textarea_plugin, install_textmate_bundle">
+	<target name="main" depends="create_javascript, aptana_plugin, textarea_plugin, komodo_plugin, install_textmate_bundle">
 		<echo>Done</echo>
 	</target>
 </project>
