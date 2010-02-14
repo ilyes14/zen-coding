@@ -1334,6 +1334,9 @@
 		
 		repeatString: repeatString,
 		getVariable: getVariable,
+		setVariable: function(name, value) {
+			zen_settings.variables[name] = value;
+		},
 		replaceVariables: replaceVariables,
 		
 		/**
