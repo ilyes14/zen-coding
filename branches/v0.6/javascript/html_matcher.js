@@ -32,6 +32,9 @@
 	};
 	
 	function setMode(new_mode) {
+		if (!new_mode || new_mode != 'html')
+			new_mode = 'xhtml';
+			
 		cur_mode = new_mode;
 	}
 	
@@ -43,6 +46,7 @@
 			start: ix,
 			end: ix + match[0].length,
 			unary: Boolean(match[3]) || (name in empty && cur_mode == 'html'),
+			has_close: Boolean(match[3]),
 			type: 'tag',
 			close_self: (name in close_self && cur_mode == 'html')
 		};
@@ -114,6 +118,21 @@
 	}
 	
 	/**
+	 * Handle unary tag: find closing tag if needed
+	 * @param {String} text
+	 * @param {Number} ix
+	 * @param {tag} open_tag
+	 * @return {tag|null} Closing tag (or null if not found) 
+	 */
+	function handleUnaryTag(text, ix, open_tag) {
+		if (open_tag.has_close)
+			return null;
+		else {
+			// TODO finish this method
+		}
+	}
+	
+	/**
 	 * Search for matching tags in <code>html</code>, starting from 
 	 * <code>start_ix</code> position
 	 * @param {String} html Code to search
@@ -123,10 +142,8 @@
 	 * @return {Array|null}
 	 */
 	function findPair(html, start_ix, mode, action) {
-		if (!mode || mode != 'html')
-			mode = 'xhtml';
-			
 		action = action || makeRange;
+		setMode(mode);
 		
 		var forward_stack = [],
 			backward_stack = [],
@@ -140,8 +157,6 @@
 			ix,
 			tmp_tag;
 			
-		setMode(mode);	
-		
 		forward_stack.last = backward_stack.last = function() {
 			return this[this.length - 1];
 		}
@@ -179,6 +194,7 @@
 					
 					if (tmp_tag.unary) {
 						if (tmp_tag.start < start_ix && tmp_tag.end > start_ix) // exact match
+							// TODO handle unary tag 
 							return action(tmp_tag, null, start_ix);
 					} else if (backward_stack.last() && backward_stack.last().name == tmp_tag.name) {
 						backward_stack.pop();
