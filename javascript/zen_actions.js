@@ -76,7 +76,7 @@ function expandAbbreviationWithTab(editor, syntax, profile_name) {
  */
 function matchPair(editor, direction, syntax) {
 	direction = (direction || 'out').toLowerCase();
-	syntax = syntax || editor.getSyntax();
+	syntax = syntax || editor.getProfileName();
 	
 	var range = editor.getSelectionRange(),
 		cursor = range.end,
@@ -87,8 +87,8 @@ function matchPair(editor, direction, syntax) {
 		range = null,
 		_r,
 	
-		old_open_tag = HTMLPairMatcher.last_match['opening_tag'],
-		old_close_tag = HTMLPairMatcher.last_match['closing_tag'];
+		old_open_tag = zen_coding.html_matcher.last_match['opening_tag'],
+		old_close_tag = zen_coding.html_matcher.last_match['closing_tag'];
 		
 	if (direction == 'in' && old_open_tag && range_start != range_end) {
 //		user has previously selected tag and wants to move inward
@@ -98,9 +98,9 @@ function matchPair(editor, direction, syntax) {
 		} else if (old_open_tag.start == range_start) {
 			if (content.charAt(old_open_tag.end) == '<') {
 //				test if the first inward tag matches the entire parent tag's content
-				_r = HTMLPairMatcher.find(content, old_open_tag.end + 1, syntax);
+				_r = zen_coding.html_matcher.find(content, old_open_tag.end + 1, syntax);
 				if (_r[0] == old_open_tag.end && _r[1] == old_close_tag.start) {
-					range = HTMLPairMatcher(content, old_open_tag.end + 1, syntax);
+					range = zen_coding.html_matcher(content, old_open_tag.end + 1, syntax);
 				} else {
 					range = [old_open_tag.end, old_close_tag.start];
 				}
@@ -110,10 +110,10 @@ function matchPair(editor, direction, syntax) {
 		} else {
 			var new_cursor = content.substring(0, old_close_tag.start).indexOf('<', old_open_tag.end);
 			var search_pos = new_cursor != -1 ? new_cursor + 1 : old_open_tag.end;
-			range = HTMLPairMatcher(content, search_pos, syntax);
+			range = zen_coding.html_matcher(content, search_pos, syntax);
 		}
 	} else {
-		range = HTMLPairMatcher(content, cursor, syntax);
+		range = zen_coding.html_matcher(content, cursor, syntax);
 	}
 	
 	if (range !== null && range[0] != -1) {
@@ -178,7 +178,7 @@ function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
 	
 	if (start_offset == end_offset) {
 		// no selection, find tag pair
-		range = HTMLPairMatcher(content, start_offset);
+		range = zen_coding.html_matcher(content, start_offset, profile_name);
 		
 		if (!range || range[0] == -1) // nothing to wrap
 			return null;
@@ -349,7 +349,7 @@ function insertFormattedNewline(editor, mode) {
 	switch (mode) {
 		case 'html':
 			// let's see if we're breaking newly created tag
-			var pair = HTMLPairMatcher.getTags(editor.getContent(), editor.getCaretPos());
+			var pair = zen_coding.html_matcher.getTags(editor.getContent(), editor.getCaretPos(), editor.getProfileName());
 			
 			if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caret_pos && pair[1].start == caret_pos) {
 				editor.replaceContent(nl + pad + zen_coding.getCaretPlaceholder() + nl, caret_pos);
@@ -383,7 +383,7 @@ function goToMatchingPair(editor) {
 		// looks like caret is outside of tag pair  
 		caret_pos++;
 		
-	var tags = zen_coding.html_matcher.getTags(content, caret_pos);
+	var tags = zen_coding.html_matcher.getTags(content, caret_pos, editor.getProfileName());
 		
 	if (tags && tags[0]) {
 		// match found
@@ -408,7 +408,7 @@ function mergeLines(editor) {
 	var selection = editor.getSelectionRange();
 	if (selection.start == selection.end) {
 		// find matching tag
-		var pair = HTMLPairMatcher(editor.getContent(), editor.getCaretPos());
+		var pair = zen_coding.html_matcher(editor.getContent(), editor.getCaretPos(), editor.getProfileName());
 		if (pair) {
 			selection.start = pair[0];
 			selection.end = pair[1];
@@ -455,7 +455,7 @@ function toggleHTMLComment(editor) {
 		
 	if (rng.start == rng.end) {
 		// no selection, find matching tag
-		var pair = HTMLPairMatcher.getTags(content, editor.getCaretPos());
+		var pair = zen_coding.html_matcher.getTags(content, editor.getCaretPos(), editor.getProfileName());
 		if (pair && pair[0]) { // found pair
 			rng.start = pair[0].start;
 			rng.end = pair[1] ? pair[1].end : pair[0].end;
@@ -616,7 +616,7 @@ function splitJoinTag(editor, profile_name) {
 		profile = zen_coding.getProfile(profile_name || editor.getProfileName());
 
 	// find tag at current position
-	var pair = zen_coding.html_matcher.getTags(editor.getContent(), caret_pos);
+	var pair = zen_coding.html_matcher.getTags(editor.getContent(), caret_pos, editor.getProfileName());
 	if (pair && pair[0]) {
 		var new_content = pair[0].full_tag;
 		
@@ -690,7 +690,7 @@ function removeTag(editor) {
 		content = editor.getContent();
 		
 	// search for tag
-	var pair = zen_coding.html_matcher.getTags(content, caret_pos);
+	var pair = zen_coding.html_matcher.getTags(content, caret_pos, editor.getProfileName());
 	if (pair && pair[0]) {
 		if (!pair[1]) {
 			// simply remove unary tag
