@@ -32,6 +32,12 @@
 				<file name="__outro.js"/>
 				<file name="zen_editor.js"/>
 			</filelist>
+			
+			<filterchain>
+				<replacetokens>
+					<token key="VERSION" value="${zencoding_version}"/>
+				</replacetokens>
+			</filterchain>
 		</concat>
 	</target>
 </project>
