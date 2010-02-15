@@ -1,6 +1,6 @@
 // Constants:
 module_name = 'zencoding';
-module_ver = '0.6';
+module_ver = '@VERSION@';
 menu_name = 'Zen Coding';
 
 function Init() {
