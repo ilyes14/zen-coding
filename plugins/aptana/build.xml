@@ -16,12 +16,19 @@
 			    <exclude name="zen_editor.js"/>
 			    <exclude name="__*.js"/>
 			</fileset>
+			<filelist dir="${zencoding_javascript}">
+				<file name="zen_settings.js"/>
+			</filelist>
 		</copy>
 		<concat destfile="${aptana.build_dir}/zencoding.js">
 			<filelist dir="${aptana.source}">
 				<file name="__intro.js"/>
 			</filelist>
-			<filelist files="${zencoding_build_dir}/zencoding.js"/>
+			<filelist dir="${zencoding_javascript}">
+				<file name="zen_coding.js"/>
+				<file name="zen_actions.js"/>
+				<file name="html_matcher.js"/>
+			</filelist>
 			<filelist dir="${aptana.source}">
 				<file name="__outro.js"/>
 			</filelist>

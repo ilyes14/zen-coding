@@ -1,5 +1,5 @@
 /*
- * Menu: Zen Coding >Toggle Comment (dev)
+ * Menu: Zen Coding > Toggle Comment
  * Kudos: Sergey Chikuyonok (http://chikuyonok.ru)
  * License: EPL 1.0
  * Key: M1+M2+/
