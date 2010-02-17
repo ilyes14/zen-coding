@@ -67,7 +67,7 @@
 </div>
 }}}
 
-==E[attr]==
+==`E[attr]`==
 
 _Added in v0.6_
 
@@ -89,8 +89,6 @@ _Added in v0.6_
 ==E|filter==
 
 _Added in v0.6_
-
-=Zen HTML Aliases=
 
 ===`p.title|e`===
 {{{
