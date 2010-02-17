@@ -2,7 +2,7 @@
 
 Zen Coding isn't only a decent abbreviations expander, but also a set of handy tools for common XHTML tasks. Read this page carefully to boost your productivity even more. Note that almost every action highly depends on current caret position inside text editor.
 
-<wiki:toc max_depth="1" />
+<wiki:toc max_depth="2" />
 
 ==Expand Abbreviation==
 This is a main tool of Zen Coding: when called, it search CSS-like abbreviation from your current caret position and expand it into HTML/XML/HAML code. If ZC can't find correct abbreviation, you can _select_ it call "Expand Abbreviation" action again. Read more about available syntax on ZenHTMLSelectorsEn page.
