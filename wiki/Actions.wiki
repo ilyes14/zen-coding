@@ -37,7 +37,7 @@ http://zen-coding.googlecode.com/svn/wiki/images/edit-points.png
 As you can see, these are points between tags, empty attributes and empty lines.
 
 =Update `<img>` Size=
-Place your caret inside <img> tag, run this action ant it will automatically update (or add) width and height attributes with current images dimensions. This action isn't available on every editor because neither JavaScript, nor Python doesn't have native support for getting image attributes.
+Place your caret inside `<img>` tag, run this action ant it will automatically update (or add) width and height attributes with current images dimensions. This action isn't available on every editor because neither JavaScript, nor Python doesn't have native support for getting image attributes.
 
 This action supports relative image paths, like `<img src="../image.png" />`, as well as absolute paths: `<img src="/image.png" />`.
 
