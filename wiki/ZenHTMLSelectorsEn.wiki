@@ -67,7 +67,37 @@
 </div>
 }}}
 
+==E[attr]==
+
+_Added in v0.6_
+
+===`p[title]`===
+{{{
+<p title=""></p>
+}}}
+
+===`td[colspan=2]`===
+{{{
+<td colspan="2"></td>
+}}}
+
+===`span[title="Hello" rel]`===
+{{{
+<span title="Hello" rel=""></span>
+}}}
+
+==E|filter==
+
+_Added in v0.6_
+
 =Zen HTML Aliases=
+
+===`p.title|e`===
+{{{
+&lt;p class="title"&gt;&lt;/p&gt;
+}}}
+
+Read [Filters] for more info
 
 ==E*N==
     
