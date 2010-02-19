@@ -301,60 +301,61 @@ border-color:#000;                          bdc
 }}}
 
 {{{
-border-image:url();                                     bdi
+border-image:;                                          bdi
 border-image:none;                                      bdi:n
+border-image:url() 0 repeat;                            bdi:+
 -webkit-border-image:;                                  bdi:w
--webkit-border-image:url() 0 0 0 0 stretch stretch;     bdi:w+
+-webkit-border-image:url() 0 repeat;                    bdi:w+
 -moz-border-image:;                                     bdi:m
--moz-border-image:url() 0 0 0 0 stretch stretch;        bdi:m+
+-moz-border-image:url() 0 repeat;                       bdi:m+
 }}}
 
 {{{
-border-top-image:url();                     bdti
+border-top-image:;                          bdti
 border-top-image:none;                      bdti:n
 }}}
 
 {{{
-border-right-image:url();                   bdri
+border-right-image:;                        bdri
 border-right-image:none;                    bdri:n
 }}}
 
 {{{
-border-bottom-image:url();                  bdbi
+border-bottom-image:;                       bdbi
 border-bottom-image:none;                   bdbi:n
 }}}
 
 {{{
-border-left-image:url();                    bdli
+border-left-image:;                         bdli
 border-left-image:none;                     bdli:n
 }}}
 
 {{{
-border-corner-image:url();                  bdci
+border-corner-image:;                       bdci
 border-corner-image:none;                   bdci:n
 border-corner-image:continue;               bdci:c
 }}}
 
 {{{
-border-top-left-image:url();                bdtli
+border-top-left-image:;                     bdtli
 border-top-left-image:none;                 bdtli:n
 border-top-left-image:continue;             bdtli:c
 }}}
 
 {{{
-border-top-right-image:url();               bdtri
+border-top-right-image:;                    bdtri
 border-top-right-image:none;                bdtri:n
 border-top-right-image:continue;            bdtri:c
 }}}
 
 {{{
-border-bottom-right-image:url();            bdbri
+border-bottom-right-image:;                 bdbri
 border-bottom-right-image:none;             bdbri:n
 border-bottom-right-image:continue;         bdbri:c
 }}}
 
 {{{
-border-bottom-left-image:url();             bdbli
+border-bottom-left-image:;                  bdbli
 border-bottom-left-image:none;              bdbli:n
 border-bottom-left-image:continue;          bdbli:c
 }}}
