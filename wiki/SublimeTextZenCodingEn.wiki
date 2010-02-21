@@ -11,16 +11,24 @@
 
 For more info see: http://www.sublimetext.com/forum/viewtopic.php?f=2&t=580
 
-==Known Issues==
-  * xml:lang='ru' hard coded
-  * No user_zen_settings dict auto mergeable for user customization
-
 ==Features==
 
-|| *Feature* || *Binding* ||
-|| As you type expansion/insertion of Zen abbreviations  || ctrl+alt+enter ||
-|| Zen Mnemonic Panel: 2 columns, abbreviations on the left, snips on the right  || f1 ||
-|| Tab triggered expansion of Zen abbreviations CSS+HTML  || $abbr, tab ||
+* ! represents cursor
+
+|| *Command*                                                             || *Key Binding*       || *Context*    ||
+||Expand abbreviation                                                    || abbr,tab            || html/css     ||
+||Expand abbreviation as type                                            || ctrl+alt+enter      || html         ||
+||Insert `id="$1"` snippet                                               || #                   || html <tag!>  ||
+||Insert `class="$1"` snippet                                            || .                   || html <tag!>  ||
+||CSS abbreviation mnemonic QuickPanel                                   || f1                  || css          ||
+||sequence 'set syntax Packages/HTML/HTML.tmLanguage' 'zenHTML html:$2'  || /html:/,/\w+/,tab   || any          ||
+||zenExpand                                                              || alt+e               || html/css     ||
+||zenAction next_edit_point                                              || ctrl+shift+period   || html/xml     ||
+||zenAction prev_edit_point                                              || ctrl+shift+comma    || html/xml     ||
+||zenAction merge_lines                                                  || ctrl+j              || html/xml     ||
+||zenAction split_join_tag                                               || ctrl+shift+l        || html/xml     ||
+||zenAction go_to_matching_pair                                          || ctrl+alt+n          || html/xml     ||
+||zenAction match_pair                                                   || ctrl+shift+n        || html/xml     ||
 
 ==A Thousand Words==
 
