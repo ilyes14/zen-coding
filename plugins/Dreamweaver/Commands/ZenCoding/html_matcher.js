@@ -1,4 +1,4 @@
-/*
+/**
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
  */
@@ -21,6 +21,23 @@
 	// (and which close themselves)
 	var close_self = makeMap("colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr");
 
+	/** Current matching mode */
+	var cur_mode = 'xhtml';
+
+	/** Last matched HTML pair */
+	var last_match = {
+		opening_tag: null, // tag() or comment() object
+		closing_tag: null, // tag() or comment() object
+		start_ix: -1,
+		end_ix: -1
+	};
+
+	function setMode(new_mode) {
+		if (!new_mode || new_mode != 'html')
+			new_mode = 'xhtml';
+
+		cur_mode = new_mode;
+	}
 
 	function tag(match, ix) {
 		var name = match[1].toLowerCase();
@@ -29,9 +46,10 @@
 			full_tag: match[0],
 			start: ix,
 			end: ix + match[0].length,
-			unary: Boolean(match[3]) || (name in empty),
+			unary: Boolean(match[3]) || (name in empty && cur_mode == 'html'),
+			has_close: Boolean(match[3]),
 			type: 'tag',
-			close_self: (name in close_self)
+			close_self: (name in close_self && cur_mode == 'html')
 		};
 	}
 
@@ -43,10 +61,91 @@
 		};
 	}
 
+	function makeMap(str){
+		var obj = {}, items = str.split(",");
+		for ( var i = 0; i < items.length; i++ )
+			obj[ items[i] ] = true;
+		return obj;
+	}
+
 	/**
+	 * Makes selection ranges for matched tag pair
+	 * @param {tag} opening_tag
+	 * @param {tag} closing_tag
+	 * @param {Number} ix
+	 */
+	function makeRange(opening_tag, closing_tag, ix) {
+		ix = ix || 0;
+
+		var start_ix = -1, 
+			end_ix = -1;
+
+		if (opening_tag && !closing_tag) { // unary element
+			start_ix = opening_tag.start;
+			end_ix = opening_tag.end;
+		} else if (opening_tag && closing_tag) { // complete element
+			if (
+				(opening_tag.start < ix && opening_tag.end > ix) || 
+				(closing_tag.start <= ix && closing_tag.end > ix)
+			) {
+				start_ix = opening_tag.start;
+				end_ix = closing_tag.end;
+			} else {
+				start_ix = opening_tag.end;
+				end_ix = closing_tag.start;
+			}
+		}
+
+		return [start_ix, end_ix];
+	}
+
+	/**
+	 * Save matched tag for later use and return found indexes
+	 * @param {tag} opening_tag
+	 * @param {tag} closing_tag
+	 * @param {Number} ix
+	 * @return {Array}
+	 */
+	function saveMatch(opening_tag, closing_tag, ix) {
+		ix = ix || 0;
+		last_match.opening_tag = opening_tag; 
+		last_match.closing_tag = closing_tag;
+
+		var range = makeRange(opening_tag, closing_tag, ix);
+		last_match.start_ix = range[0];
+		last_match.end_ix = range[1];
+
+		return last_match.start_ix != -1 ? [last_match.start_ix, last_match.end_ix] : null;
+	}
+
+	/**
+	 * Handle unary tag: find closing tag if needed
+	 * @param {String} text
+	 * @param {Number} ix
+	 * @param {tag} open_tag
+	 * @return {tag|null} Closing tag (or null if not found) 
+	 */
+	function handleUnaryTag(text, ix, open_tag) {
+		if (open_tag.has_close)
+			return null;
+		else {
+			// TODO finish this method
+		}
+	}
+
+	/**
+	 * Search for matching tags in <code>html</code>, starting from 
+	 * <code>start_ix</code> position
+	 * @param {String} html Code to search
+	 * @param {Number} start_ix Character index where to start searching pair 
+	 * (commonly, current caret position)
+	 * @param {Function} action Function that creates selection range
 	 * @return {Array|null}
 	 */
-	var HTMLPairMatcher = this.HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix){
+	function findPair(html, start_ix, mode, action) {
+		action = action || makeRange;
+		setMode(mode);
+
 		var forward_stack = [],
 			backward_stack = [],
 			/** @type {tag()} */
@@ -96,7 +195,8 @@
 
 					if (tmp_tag.unary) {
 						if (tmp_tag.start < start_ix && tmp_tag.end > start_ix) // exact match
-							return saveMatch(tmp_tag, null, start_ix);
+							// TODO handle unary tag 
+							return action(tmp_tag, null, start_ix);
 					} else if (backward_stack.last() && backward_stack.last().name == tmp_tag.name) {
 						backward_stack.pop();
 					} else { // found nearest unclosed tag
@@ -106,7 +206,7 @@
 				} else if (check_str.indexOf('<!--') == 0) { // found comment start
 					var end_ix = check_str.search('-->') + ix + 3;
 					if (ix < start_ix && end_ix >= start_ix)
-						return saveMatch( comment(ix, end_ix) );
+						return action( comment(ix, end_ix) );
 				}
 			} else if (ch == '-' && hasMatch('-->')) { // found comment end
 				// search left until comment start is reached
@@ -115,7 +215,7 @@
 		}
 
 		if (!opening_tag)
-			return saveMatch(null);
+			return action(null);
 
 		// find closing tag
 		if (!closing_tag) {
@@ -143,63 +243,58 @@
 					// looks like cursor was inside comment with invalid HTML
 					if (!forward_stack.last() || forward_stack.last().type != 'comment') {
 						var end_ix = ix + 3;
-						return saveMatch(comment( searchCommentStart(ix), end_ix ));
+						return action(comment( searchCommentStart(ix), end_ix ));
 					}
 				}
 			}
 		}
 
-		return saveMatch(opening_tag, closing_tag, start_ix);
+		return action(opening_tag, closing_tag, start_ix);
 	}
 
+	/**
+	 * Search for matching tags in <code>html</code>, starting 
+	 * from <code>start_ix</code> position. The result is automatically saved in 
+	 * <code>last_match</code> property
+	 * 
+	 * @return {Array|null}
+	 */
+	var HTMLPairMatcher = this.HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix, /*  */ mode){
+		return findPair(html, start_ix, mode, saveMatch);
+	}
 
 	HTMLPairMatcher.start_tag = start_tag;
 	HTMLPairMatcher.end_tag = end_tag;
-	HTMLPairMatcher.last_match = {
-		opening_tag: null,
-		closing_tag: null,
-		start_ix: -1,
-		end_ix: -1
+
+	/**
+	 * Search for matching tags in <code>html</code>, starting from 
+	 * <code>start_ix</code> position. The difference between 
+	 * <code>HTMLPairMatcher</code> function itself is that <code>find</code> 
+	 * method doesn't save matched result in <code>last_match</code> property.
+	 * This method is generally used for lookups 
+	 */
+	HTMLPairMatcher.find = function(html, start_ix, mode) {
+		return findPair(html, start_ix, mode);
 	};
 
 	/**
-	 * Save matched tag for later use and return found indexes
-	 * @param {tag()} opening_tag
-	 * @param {tag()} closing_tag
-	 * @param {Number} ix
-	 * @return {Array|null}
+	 * Search for matching tags in <code>html</code>, starting from 
+	 * <code>start_ix</code> position. The difference between 
+	 * <code>HTMLPairMatcher</code> function itself is that <code>getTags</code> 
+	 * method doesn't save matched result in <code>last_match</code> property 
+	 * and returns array of opening and closing tags
+	 * This method is generally used for lookups 
 	 */
-	function saveMatch(opening_tag, closing_tag, ix) {
-		var last = HTMLPairMatcher.last_match;
-		last.opening_tag = opening_tag; 
-		last.closing_tag = closing_tag;
+	HTMLPairMatcher.getTags = function(html, start_ix, mode) {
+		return findPair(html, start_ix, mode, function(opening_tag, closing_tag){
+			return [opening_tag, closing_tag];
+		});
+	};
 
-		if (opening_tag && !closing_tag) { //unary element
-			last.start_ix = opening_tag.start;
-			last.end_ix = opening_tag.end;
-		} else if (opening_tag && closing_tag) { // complete element
-			if ( 
-				(opening_tag.start < ix && opening_tag.end > ix)
-				|| (closing_tag.start <= ix && closing_tag.end > ix)
-			) {
-				last.start_ix = opening_tag.start;
-				last.end_ix = closing_tag.end;
-			} else {
-				last.start_ix = opening_tag.end;
-				last.end_ix = closing_tag.start;
-			}
-		} else {
-			last.start_ix = last.end_ix = -1;
-		}
+	HTMLPairMatcher.last_match = last_match;
 
-		return last.start_ix != -1 ? [last.start_ix, last.end_ix] : null;
-	}
-
-	function makeMap(str){
-		var obj = {}, items = str.split(",");
-		for ( var i = 0; i < items.length; i++ )
-			obj[ items[i] ] = true;
-		return obj;
-	}
+	try {
+		zen_coding.html_matcher = HTMLPairMatcher;
+	} catch(e){}
 
 })();
