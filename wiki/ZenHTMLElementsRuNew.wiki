@@ -1,0 +1,939 @@
+#summary HTML-элементы и их псевдонимы для плагинов Zen HTML
+
+=Элементы Zen HTML=
+
+На основе черновика спецификации HTML 5.
+
+==Корневой элемент==
+
+<h3>`html`</h3>
+{{{
+<html></html>
+}}}
+
+<h3>`html:xml`</h3>
+{{{
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru"></html>
+}}}
+
+<h3>`html:4t`</h3>
+{{{
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="ru">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+</head>
+<body>
+
+</body>
+</html>
+}}}
+
+<h3>`html:4s`</h3>
+{{{
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="ru">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+</head>
+<body>
+
+</body>
+</html>
+}}}
+
+<h3>`html:xt`</h3>
+{{{
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+</head>
+<body>
+
+</body>
+</html>
+}}}
+
+<h3>`html:xs`</h3>
+{{{
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+</head>
+<body>
+
+</body>
+</html>
+}}}
+
+<h3>`html:xxs`</h3>
+{{{
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru">
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+</head>
+<body>
+
+</body>
+</html>
+}}}
+
+<h3>`html:5`</h3>
+{{{
+<!DOCTYPE HTML>
+<html lang="ru-RU">
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+</body>
+</html>
+}}}
+
+==Метаданные документа==
+
+<h3>`head`</h3>
+{{{
+<head></head>
+}}}
+
+<h3>`title`</h3>
+{{{
+<title></title>
+}}}
+
+<h3>`base`</h3>
+{{{
+<base href="">
+}}}
+
+<h3>`link`</h3>
+{{{
+<link>
+}}}
+
+<h3>`link:css`</h3>
+{{{
+<link rel="stylesheet" type="text/css" href="style.css" media="all">
+}}}
+
+<h3>`link:print`</h3>
+{{{
+<link rel="stylesheet" type="text/css" href="print.css" media="print">
+}}}
+
+<h3>`link:favicon`</h3>
+{{{
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+}}}
+
+<h3>`link:touch`</h3>
+{{{
+<link rel="apple-touch-icon" href="favicon.png">
+}}}
+
+<h3>`link:rss`</h3>
+{{{
+<link rel="alternate" type="application/rss+xml" title="RSS" href="rss.xml">
+}}}
+
+<h3>`link:atom`</h3>
+{{{
+<link rel="alternate" type="application/atom+xml" title="Atom" href="atom.xml">
+}}}
+
+<h3>`meta`</h3>
+{{{
+<meta>
+}}}
+
+<h3>`meta:utf`</h3>
+{{{
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+}}}
+
+<h3>`meta:win`</h3>
+{{{
+<meta http-equiv="Content-Type" content="text/html;charset=Win-1251">
+}}}
+
+<h3>`meta:compat`</h3>
+{{{
+<meta http-equiv="X-UA-Compatible" content="IE=7">
+}}}
+
+<h3>`style`</h3>
+{{{
+<style type="text/css"></style>
+}}}
+
+==Скрипты==
+
+<h3>`script`</h3>
+{{{
+<script type="text/javascript"></script>
+}}}
+
+<h3>`script:src`</h3>
+{{{
+<script type="text/javascript" src=""></script>
+}}}
+
+<h3>`noscript`</h3>
+{{{
+<noscript></noscript>
+}}}
+
+==Структурные элементы==
+
+<h3>`body`</h3>
+{{{
+<body></body>
+}}}
+
+<h3>`section, sect`</h3>
+{{{
+<section></section>
+}}}
+
+<h3>`nav`</h3>
+{{{
+<nav></nav>
+}}}
+
+<h3>`article, art`</h3>
+{{{
+<article></article>
+}}}
+
+<h3>`aside`</h3>
+{{{
+<aside></aside>
+}}}
+
+<h3>`h1`</h3>
+{{{
+<h1></h1>
+}}}
+
+<h3>`h2`</h3>
+{{{
+<h2></h2>
+}}}
+
+<h3>`h3`</h3>
+{{{
+<h3></h3>
+}}}
+
+<h3>`h4`</h3>
+{{{
+<h4></h4>
+}}}
+
+<h3>`h5`</h3>
+{{{
+<h5></h5>
+}}}
+
+<h3>`h6`</h3>
+{{{
+<h6></h6>
+}}}
+
+<h3>`hgroup, hgr`</h3>
+{{{
+<hgroup></hgroup>
+}}}
+
+<h3>`header, hdr`</h3>
+{{{
+<header></header>
+}}}
+
+<h3>`footer, ftr`</h3>
+{{{
+<footer></footer>
+}}}
+
+<h3>`address, adr`</h3>
+{{{
+<address></address>
+}}}
+
+<h3>`div`</h3>
+{{{
+<div></div>
+}}}
+
+==Группировка содержимого==
+
+<h3>`p`</h3>
+{{{
+<p></p>
+}}}
+
+<h3>`hr`</h3>
+{{{
+<hr>
+}}}
+
+<h3>`br`</h3>
+{{{
+<br>
+}}}
+
+<h3>`pre`</h3>
+{{{
+<pre></pre>
+}}}
+
+<h3>`dialog, dlg`</h3>
+{{{
+<dialog></dialog>
+}}}
+
+<h3>`blockquote, bq`</h3>
+{{{
+<blockquote></blockquote>
+}}}
+
+<h3>`ol`</h3>
+{{{
+<ol></ol>
+}}}
+
+<h3>`ol+`</h3>
+{{{
+<ol>
+    <li></li>
+</ol>
+}}}
+
+<h3>`ul`</h3>
+{{{
+<ul></ul>
+}}}
+
+<h3>`ul+`</h3>
+{{{
+<ul>
+    <li></li>
+</ul>
+}}}
+
+<h3>`li`</h3>
+{{{
+<li></li>
+}}}
+
+<h3>`dl`</h3>
+{{{
+<dl></dl>
+}}}
+
+<h3>`dl+`</h3>
+{{{
+<dl>
+    <dt></dt>
+    <dd></dd>
+</dl>
+}}}
+
+<h3>`dt`</h3>
+{{{
+<dt></dt>
+}}}
+
+<h3>`dd`</h3>
+{{{
+<dd></dd>
+}}}
+
+==Семантика текста==
+
+<h3>`a`</h3>
+{{{
+<a href=""></a>
+}}}
+
+<h3>`a:link`</h3>
+{{{
+<a href="http://"></a>
+}}}
+
+<h3>`a:mail`</h3>
+{{{
+<a href="mailto:"></a>
+}}}
+
+<h3>`q`</h3>
+{{{
+<q></q>
+}}}
+
+<h3>`cite`</h3>
+{{{
+<cite></cite>
+}}}
+
+<h3>`em`</h3>
+{{{
+<em></em>
+}}}
+
+<h3>`strong, str`</h3>
+{{{
+<strong></strong>
+}}}
+
+<h3>`small`</h3>
+{{{
+<small></small>
+}}}
+
+<h3>`mark`</h3>
+{{{
+<mark></mark>
+}}}
+
+<h3>`dfn`</h3>
+{{{
+<dfn></dfn>
+}}}
+
+<h3>`abbr`</h3>
+{{{
+<abbr title=""></abbr>
+}}}
+
+<h3>`acronym, acr`</h3>
+{{{
+<acronym title=""></acronym>
+}}}
+
+<h3>`time`</h3>
+{{{
+<time></time>
+}}}
+
+<h3>`progress, prog`</h3>
+{{{
+<progress></progress>
+}}}
+
+<h3>`meter`</h3>
+{{{
+<meter></meter>
+}}}
+
+<h3>`code`</h3>
+{{{
+<code></code>
+}}}
+
+<h3>`var`</h3>
+{{{
+<var></var>
+}}}
+
+<h3>`samp`</h3>
+{{{
+<samp></samp>
+}}}
+
+<h3>`kbd`</h3>
+{{{
+<kbd></kbd>
+}}}
+
+<h3>`sub`</h3>
+{{{
+<sub></sub>
+}}}
+
+<h3>`sup`</h3>
+{{{
+<sup></sup>
+}}}
+
+<h3>`span`</h3>
+{{{
+<span></span>
+}}}
+
+<h3>`i`</h3>
+{{{
+<i></i>
+}}}
+
+<h3>`b`</h3>
+{{{
+<b></b>
+}}}
+
+<h3>`bdo`</h3>
+{{{
+<bdo dir=""></bdo>
+}}}
+
+<h3>`bdo:r`</h3>
+{{{
+<bdo dir="rtl"></bdo>
+}}}
+
+<h3>`bdo:l`</h3>
+{{{
+<bdo dir="ltr"></bdo>
+}}}
+
+<h3>`ruby`</h3>
+{{{
+<ruby></ruby>
+}}}
+
+<h3>`rt`</h3>
+{{{
+<rt></rt>
+}}}
+
+<h3>`rp`</h3>
+{{{
+<rp></rp>
+}}}
+
+==Версионность==
+
+<h3>`ins`</h3>
+{{{
+<ins></ins>
+}}}
+
+<h3>`del`</h3>
+{{{
+<del></del>
+}}}
+
+==Внедрённое содержимое==
+
+<h3>`figure, fig`</h3>
+{{{
+<figure></figure>
+}}}
+
+<h3>`img`</h3>
+{{{
+<img src="" alt="">
+}}}
+
+<h3>`iframe, ifr`</h3>
+{{{
+<iframe src="" frameborder="0"></iframe>
+}}}
+
+<h3>`embed, emb`</h3>
+{{{
+<embed src="" type="">
+}}}
+
+<h3>`object, obj`</h3>
+{{{
+<object data="" type=""></object>
+}}}
+
+<h3>`param`</h3>
+{{{
+<param name="" value="">
+}}}
+
+<h3>`video`</h3>
+{{{
+<video src=""></video>
+}}}
+
+<h3>`audio`</h3>
+{{{
+<audio src=""></audio>
+}}}
+
+<h3>`source, src`</h3>
+{{{
+<source>
+}}}
+
+<h3>`canvas`</h3>
+{{{
+<canvas></canvas>
+}}}
+
+<h3>`map`</h3>
+{{{
+<map name=""></map>
+}}}
+
+<h3>`map+`</h3>
+{{{
+<map name="">
+    <area shape="" coords="" href="" alt="">
+</map>
+}}}
+
+<h3>`area`</h3>
+{{{
+<area shape="" coords="" href="" alt="">
+}}}
+
+<h3>`area:d`</h3>
+{{{
+<area shape="default" href="" alt="">
+}}}
+
+<h3>`area:c`</h3>
+{{{
+<area shape="circle" coords="" href="" alt="">
+}}}
+
+<h3>`area:r`</h3>
+{{{
+<area shape="rect" coords="" href="" alt="">
+}}}
+
+<h3>`area:p`</h3>
+{{{
+<area shape="poly" coords="" href="" alt="">
+}}}
+
+==Табличные данные==
+
+<h3>`table`</h3>
+{{{
+<table></table>
+}}}
+
+<h3>`table+`</h3>
+{{{
+<table>
+<tr>
+    <td></td>
+</tr>
+</table>
+}}}
+
+<h3>`caption, cap`</h3>
+{{{
+<caption></caption>
+}}}
+
+<h3>`colgroup, colg`</h3>
+{{{
+<colgroup></colgroup>
+}}}
+
+<h3>`colgroup+, colg+`</h3>
+{{{
+<colgroup>
+    <col>
+</colgroup>
+}}}
+
+<h3>`col`</h3>
+{{{
+<col>
+}}}
+
+<h3>`tbody`</h3>
+{{{
+<tbody></tbody>
+}}}
+
+<h3>`thead`</h3>
+{{{
+<thead></thead>
+}}}
+
+<h3>`tfoot`</h3>
+{{{
+<tfoot></tfoot>
+}}}
+
+<h3>`tr`</h3>
+{{{
+<tr></tr>
+}}}
+
+<h3>`tr+`</h3>
+{{{
+<tr>
+    <td></td>
+</tr>
+}}}
+
+<h3>`th`</h3>
+{{{
+<th></th>
+}}}
+
+<h3>`td`</h3>
+{{{
+<td></td>
+}}}
+
+==Формы==
+
+<h3>`form`</h3>
+{{{
+<form action=""></form>
+}}}
+
+<h3>`form:get`</h3>
+{{{
+<form action="" method="get"></form>
+}}}
+
+<h3>`form:post`</h3>
+{{{
+<form action="" method="post"></form>
+}}}
+
+<h3>`fieldset, fset`</h3>
+{{{
+<fieldset></fieldset>
+}}}
+
+<h3>`legend, leg`</h3>
+{{{
+<legend></legend>
+}}}
+
+<h3>`label`</h3>
+{{{
+<label for=""></label>
+}}}
+
+<h3>`input`</h3>
+{{{
+<input type="">
+}}}
+
+<h3>`input:hidden, input:h`</h3>
+{{{
+<input type="hidden" value="">
+}}}
+
+<h3>`input:text, input:t`</h3>
+{{{
+<input type="text" value="" id="">
+}}}
+
+<h3>`input:search`</h3>
+{{{
+<input type="search" value="" id="">
+}}}
+
+<h3>`input:email`</h3>
+{{{
+<input type="email" value="" id="">
+}}}
+
+<h3>`input:url`</h3>
+{{{
+<input type="url" value="" id="">
+}}}
+
+<h3>`input:password, input:p`</h3>
+{{{
+<input type="password" value="" id="">
+}}}
+
+<h3>`input:datetime`</h3>
+{{{
+<input type="datetime" value="" id="">
+}}}
+
+<h3>`input:datetime-local`</h3>
+{{{
+<input type="datetime-local" value="" id="">
+}}}
+
+<h3>`input:date`</h3>
+{{{
+<input type="date" value="" id="">
+}}}
+
+<h3>`input:month`</h3>
+{{{
+<input type="month" value="" id="">
+}}}
+
+<h3>`input:week`</h3>
+{{{
+<input type="week" value="" id="">
+}}}
+
+<h3>`input:time`</h3>
+{{{
+<input type="time" value="" id="">
+}}}
+
+<h3>`input:number`</h3>
+{{{
+<input type="number" value="" id="">
+}}}
+
+<h3>`input:range`</h3>
+{{{
+<input type="range" value="" id="">
+}}}
+
+<h3>`input:color`</h3>
+{{{
+<input type="color" value="" id="">
+}}}
+
+<h3>`input:checkbox, input:c`</h3>
+{{{
+<input type="checkbox" id="">
+}}}
+
+<h3>`input:radio, input:r`</h3>
+{{{
+<input type="radio" id="">
+}}}
+
+<h3>`input:file, input:f`</h3>
+{{{
+<input type="file" id="">
+}}}
+
+<h3>`input:submit, input:s`</h3>
+{{{
+<input type="submit" value="">
+}}}
+
+<h3>`input:image, input:i`</h3>
+{{{
+<input type="image" src="" alt="">
+}}}
+
+<h3>`input:reset`</h3>
+{{{
+<input type="reset" value="">
+}}}
+
+<h3>`input:button, input:b`</h3>
+{{{
+<input type="button" value="">
+}}}
+
+<h3>`button, btn`</h3>
+{{{
+<button></button>
+}}}
+
+<h3>`select`</h3>
+{{{
+<select id=""></select>
+}}}
+
+<h3>`select+`</h3>
+{{{
+<select id="">
+    <option value=""></option>
+</select>
+}}}
+
+<h3>`optgroup, optg`</h3>
+{{{
+<optgroup></optgroup>
+}}}
+
+<h3>`optgroup+, optg+`</h3>
+{{{
+<optgroup>
+    <option></option>
+</optgroup>
+}}}
+
+<h3>`option, opt`</h3>
+{{{
+<option></option>
+}}}
+
+==Интерактивные элементы==
+
+<h3>`datagrid, datag`</h3>
+{{{
+<datagrid></datagrid>
+}}}
+
+<h3>`datalist, datal`</h3>
+{{{
+<datalist></datalist>
+}}}
+
+<h3>`textarea, tarea`</h3>
+{{{
+<textarea id="" cols="30" rows="10"></textarea>
+}}}
+
+<h3>`keygen, kg`</h3>
+{{{
+<keygen>
+}}}
+
+<h3>`output, out`</h3>
+{{{
+<output></output>
+}}}
+
+<h3>`details, det`</h3>
+{{{
+<details></details>
+}}}
+
+<h3>`command, cmd`</h3>
+{{{
+<command>
+}}}
+
+<h3>`bb`</h3>
+{{{
+<bb></bb>
+}}}
+
+<h3>`menu`</h3>
+{{{
+<menu></menu>
+}}}
+
+<h3>`menu:context, menu:c`</h3>
+{{{
+<menu type="context"></menu>
+}}}
+
+<h3>`menu:toolbar, menu:t`</h3>
+{{{
+<menu type="toolbar"></menu>
+}}}
+
+==Условные комментарии==
+
+<h3>`cc:ie`</h3>
+{{{
+<!--[if IE]><![endif]-->
+}}}
+
+<h3>`cc:noie`</h3>
+{{{
+<!--[if !IE]><!--><!--<![endif]-->
+}}}
