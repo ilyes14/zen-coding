@@ -20,57 +20,58 @@
 
 <h3>Специальные правила</h3>
 
+----
 <code>@import url(|);                             @i</code>
-
 <code>@media print {                              @m
     |
     }</code>
-
 <code>@font-face {                                @f
     font-family:|;
     src:url(|) format('|');
     }</code>
-
 <code>!important                                  !</code>
-
 <code>expression(|)                               exp</code>
+----
 
 <h3>Позиционирование</h3>
 
+----
 <code>position:|;                                 pos</code>
 <code>position:static;                            pos:s</code>
 <code>position:absolute;                          pos:a</code>
 <code>position:relative;                          pos:r</code>
 <code>position:fixed;                             pos:f</code>
-<br>
+----
 <code>top:|;                                      t</code>
 <code>top:auto;                                   t:a</code>
-<br>
+----
 <code>right:|;                                    r</code>
 <code>right:auto;                                 r:a</code>
-<br>
+----
 <code>bottom:|;                                   b</code>
 <code>bottom:auto;                                b:a</code>
-<br>
+----
 <code>left:|;                                     l</code>
 <code>left:auto;                                  l:a</code>
-<br>
+----
 <code>z-index:|;                                  z</code>
 <code>z-index:auto;                               z:a</code>
+----
 
 <h3>Поведение и свойства блока</h3>
 
+----
 <code>float:|;                                    fl</code>
 <code>float:none;                                 fl:n</code>
 <code>float:left;                                 fl:l</code>
 <code>float:right;                                fl:r</code>
-<br>
+----
 <code>clear:|;                                    cl</code>
 <code>clear:none;                                 cl:n</code>
 <code>clear:left;                                 cl:l</code>
 <code>clear:right;                                cl:r</code>
 <code>clear:both;                                 cl:b</code>
-<br>
+----
 <code>display:|;                                  d</code>
 <code>display:none;                               d:n</code>
 <code>display:block;                              d:b</code>
@@ -91,47 +92,47 @@
 <code>display:table-row;                          d:tbr</code>
 <code>display:table-row-group;                    d:tbrg</code>
 <code>display:table-cell;                         d:tbc</code>
-<br>
+----
 <code>visibility:|;                               v</code>
 <code>visibility:visible;                         v:v</code>
 <code>visibility:hidden;                          v:h</code>
 <code>visibility:collapse;                        v:c</code>
-<br>
+----
 <code>overflow:|;                                 ov</code>
 <code>overflow:visible;                           ov:v</code>
 <code>overflow:hidden;                            ov:h</code>
 <code>overflow:scroll;                            ov:s</code>
 <code>overflow:auto;                              ov:a</code>
-<br>
+----
 <code>overflow-x:|;                               ovx</code>
 <code>overflow-x:visible;                         ovx:v</code>
 <code>overflow-x:hidden;                          ovx:h</code>
 <code>overflow-x:scroll;                          ovx:s</code>
 <code>overflow-x:auto;                            ovx:a</code>
-<br>
+----
 <code>overflow-y:|;                               ovy</code>
 <code>overflow-y:visible;                         ovy:v</code>
 <code>overflow-y:hidden;                          ovy:h</code>
 <code>overflow-y:scroll;                          ovy:s</code>
 <code>overflow-y:auto;                            ovy:a</code>
-<br>
+----
 <code>overflow-style:|;                           ovs</code>
 <code>overflow-style:auto;                        ovs:a</code>
 <code>overflow-style:scrollbar;                   ovs:s</code>
 <code>overflow-style:panner;                      ovs:p</code>
 <code>overflow-style:move;                        ovs:m</code>
 <code>overflow-style:marquee;                     ovs:mq</code>
-<br>
+----
 <code>zoom:1;                                     zoo</code>
-<br>
+----
 <code>clip:|;                                     cp</code>
 <code>clip:auto;                                  cp:a</code>
 <code>clip:rect(|);                               cp:r</code>
-<br>
+----
 <code>box-sizing:|;                               bxz</code>
 <code>box-sizing:content-box;                     bxz:cb</code>
 <code>box-sizing:border-box;                      bxz:bb</code>
-<br>
+----
 <code>box-shadow:|;                               bxsh</code>
 <code>box-shadow:none;                            bxsh:n</code>
 <code>box-shadow:0 0 0 #000;                      bxsh+</code>
@@ -139,80 +140,84 @@
 <code>-webkit-box-shadow:0 0 0 #000;              bxsh:w+</code>
 <code>-moz-box-shadow:|;                          bxsh:m</code>
 <code>-moz-box-shadow:0 0 0 #000;                 bxsh:m+</code>
+----
 
 <h3>Размерность блока</h3>
 
+----
 <code>margin:|;                                   m</code>
 <code>margin:auto;                                m:a</code>
 <code>margin:0;                                   m:0</code>
 <code>margin:0 0;                                 m:2</code>
 <code>margin:0 0 0;                               m:3</code>
 <code>margin:0 0 0 0;                             m:4</code>
-<br>
+----
 <code>margin-top:|;                               mt</code>
 <code>margin-top:auto;                            mt:a</code>
-<br>
+----
 <code>margin-right:|;                             mr</code>
 <code>margin-right:auto;                          mr:a</code>
-<br>
+----
 <code>margin-bottom:|;                            mb</code>
 <code>margin-bottom:auto;                         mb:a</code>
-<br>
+----
 <code>margin-left:|;                              ml</code>
 <code>margin-left:auto;                           ml:a</code>
-<br>
+----
 <code>padding:|;                                  p</code>
 <code>padding:0;                                  p:0</code>
 <code>padding:0 0;                                p:2</code>
 <code>padding:0 0 0;                              p:3</code>
 <code>padding:0 0 0 0;                            p:4</code>
-<br>
+----
 <code>padding-top:|;                              pt</code>
 <code>padding-right:|;                            pr</code>
 <code>padding-bottom:|;                           pb</code>
 <code>padding-left:|;                             pl</code>
-<br>
+----
 <code>width:|;                                    w</code>
 <code>width:auto;                                 w:a</code>
-<br>
+----
 <code>height:|;                                   h</code>
 <code>height:auto;                                h:a</code>
-<br>
+----
 <code>max-width:|;                                maw</code>
 <code>max-width:none;                             maw:n</code>
-<br>
+----
 <code>max-height:|;                               mah</code>
 <code>max-height:none;                            mah:n</code>
-<br>
+----
 <code>min-width:|;                                miw</code>
 <code>min-height:|;                               mih</code>
+----
 
 <h3>Цветовое оформление</h3>
 
+----
 <code>outline:|;                                  o</code>
 <code>outline:none;                               o:n</code>
 <code>outline:1px solid #000;                     o+</code>
-<br>
+----
 <code>outline-offset:|;                           oo</code>
 <code>outline-width:|;                            ow</code>
 <code>outline-style:|;                            os</code>
-<br>
+----
 <code>outline-color:#000;                         oc</code>
 <code>outline-color:invert;                       oc:i</code>
-<br>
+----
 <code>border:|;                                   bd</code>
 <code>border:none;                                bd:n</code>
 <code>border:1px solid #000;                      bd+</code>
-<br>
+----
 <code>border-break:|;                             bdbk</code>
 <code>border-break:close;                         bdbk:c</code>
-<br>
+----
 <code>border-collapse:|;                          bdcl</code>
 <code>border-collapse:collapse;                   bdcl:c</code>
 <code>border-collapse:separate;                   bdcl:s</code>
-<br>
+----
 <code>border-color:#000;                          bdc</code>
-<br>
+----
 <code>border-image:|;                                         bdi</code>
 <code>border-image:none;                                      bdi:n</code>
 <code>border-image:url(|) 0 repeat;                           bdi:+</code>
@@ -220,39 +225,39 @@
 <code>-webkit-border-image:url(|) 0 repeat;                   bdi:w+</code>
 <code>-moz-border-image:|;                                    bdi:m</code>
 <code>-moz-border-image:url(|) 0 repeat;                      bdi:m+</code>
-<br>
+----
 <code>border-top-image:|;                         bdti</code>
 <code>border-top-image:none;                      bdti:n</code>
-<br>
+----
 <code>border-right-image:|;                       bdri</code>
 <code>border-right-image:none;                    bdri:n</code>
-<br>
+----
 <code>border-bottom-image:|;                      bdbi</code>
 <code>border-bottom-image:none;                   bdbi:n</code>
-<br>
+----
 <code>border-left-image:|;                        bdli</code>
 <code>border-left-image:none;                     bdli:n</code>
-<br>
+----
 <code>border-corner-image:|;                      bdci</code>
 <code>border-corner-image:none;                   bdci:n</code>
 <code>border-corner-image:continue;               bdci:c</code>
-<br>
+----
 <code>border-top-left-image:|;                    bdtli</code>
 <code>border-top-left-image:none;                 bdtli:n</code>
 <code>border-top-left-image:continue;             bdtli:c</code>
-<br>
+----
 <code>border-top-right-image:|;                   bdtri</code>
 <code>border-top-right-image:none;                bdtri:n</code>
 <code>border-top-right-image:continue;            bdtri:c</code>
-<br>
+----
 <code>border-bottom-right-image:|;                bdbri</code>
 <code>border-bottom-right-image:none;             bdbri:n</code>
 <code>border-bottom-right-image:continue;         bdbri:c</code>
-<br>
+----
 <code>border-bottom-left-image:|;                 bdbli</code>
 <code>border-bottom-left-image:none;              bdbli:n</code>
 <code>border-bottom-left-image:continue;          bdbli:c</code>
-<br>
+----
 <code>border-fit:|;                               bdf</code>
 <code>border-fit:clip;                            bdf:c</code>
 <code>border-fit:repeat;                          bdf:r</code>
@@ -261,12 +266,12 @@
 <code>border-fit:overwrite;                       bdf:ow</code>
 <code>border-fit:overflow;                        bdf:of</code>
 <code>border-fit:space;                           bdf:sp</code>
-<br>
+----
 <code>border-length:|;                            bdlt</code>
 <code>border-length:auto;                         bdlt:a</code>
-<br>
+----
 <code>border-spacing:|;                           bdsp</code>
-<br>
+----
 <code>border-style:|;                             bds</code>
 <code>border-style:none;                          bds:n</code>
 <code>border-style:hidden;                        bds:h</code>
@@ -281,53 +286,53 @@
 <code>border-style:ridge;                         bds:r</code>
 <code>border-style:inset;                         bds:i</code>
 <code>border-style:outset;                        bds:o</code>
-<br>
+----
 <code>border-width:|;                             bdw</code>
-<br>
+----
 <code>border-top:|;                               bdt</code>
 <code>border-top:none;                            bdt:n</code>
 <code>border-top:1px solid #000;                  bdt+</code>
-<br>
+----
 <code>border-top-width:|;                         bdtw</code>
-<br>
+----
 <code>border-top-style:|;                         bdts</code>
 <code>border-top-style:none;                      bdts:n</code>
-<br>
+----
 <code>border-top-color:#000;                      bdtc</code>
-<br>
+----
 <code>border-right:|;                             bdr</code>
 <code>border-right:none;                          bdr:n</code>
 <code>border-right:1px solid #000;                bdr+</code>
-<br>
+----
 <code>border-right-width:|;                       bdrw</code>
-<br>
+----
 <code>border-right-style:|;                       bdrs</code>
 <code>border-right-style:none;                    bdrs:n</code>
-<br>
+----
 <code>border-right-color:#000;                    bdrc</code>
-<br>
+----
 <code>border-bottom:|;                            bdb</code>
 <code>border-bottom:none;                         bdb:n</code>
 <code>border-bottom:1px solid #000;               bdb+</code>
-<br>
+----
 <code>border-bottom-width:|;                      bdbw</code>
-<br>
+----
 <code>border-bottom-style:|;                      bdbs</code>
 <code>border-bottom-style:none;                   bdbs:n</code>
-<br>
+----
 <code>border-bottom-color:#000;                   bdbc</code>
-<br>
+----
 <code>border-left:|;                              bdl</code>
 <code>border-left:none;                           bdl:n</code>
 <code>border-left:1px solid #000;                 bdl+</code>
-<br>
+----
 <code>border-left-width:|;                        bdlw</code>
-<br>
+----
 <code>border-left-style:|;                        bdls</code>
 <code>border-left-style:none;                     bdls:n</code>
-<br>
+----
 <code>border-left-color:#000;                     bdlc</code>
-<br>
+----
 <code>border-radius:|;                            bdrz</code>
 <code>-webkit-border-radius:|;                    bdrz:w</code>
 <code>-moz-border-radius:|;                       bdrz:m</code>
@@ -335,76 +340,78 @@
 <code>border-top-left-radius:|;                   bdtlrz</code>
 <code>border-bottom-right-radius:|;               bdbrrz</code>
 <code>border-bottom-left-radius:|;                bdblrz</code>
-<br>
+----
 <code>background:|;                                                                                  bg</code>
 <code>background:none;                                                                               bg:n</code>
 <code>background:#FFF url(|) 0 0 no-repeat;                                                          bg+</code>
 <code>filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='|',sizingMethod='crop');        bg:ie</code>
-<br>
+----
 <code>background-color:#FFF;                      bgc</code>
 <code>background-color:transparent;               bgc:t</code>
-<br>
+----
 <code>background-image:url(|);                    bgi</code>
 <code>background-image:none;                      bgi:n</code>
-<br>
+----
 <code>background-repeat:|;                        bgr</code>
 <code>background-repeat:repeat;                   bgr:r</code>
 <code>background-repeat:repeat-x;                 bgr:x</code>
 <code>background-repeat:repeat-y;                 bgr:y</code>
 <code>background-repeat:no-repeat;                bgr:n</code>
-<br>
+----
 <code>background-attachment:|;                    bga</code>
 <code>background-attachment:fixed;                bga:f</code>
 <code>background-attachment:scroll;               bga:s</code>
-<br>
+----
 <code>background-position:0 0;                    bgp</code>
 <code>background-position-x:|;                    bgpx</code>
 <code>background-position-y:|;                    bgpy</code>
-<br>
+----
 <code>background-break:|;                         bgbk</code>
 <code>background-break:bounding-box;              bgbk:bb</code>
 <code>background-break:each-box;                  bgbk:eb</code>
 <code>background-break:continuous;                bgbk:c</code>
-<br>
+----
 <code>background-clip:|;                          bgcp</code>
 <code>background-clip:border-box;                 bgcp:bb</code>
 <code>background-clip:padding-box;                bgcp:pb</code>
 <code>background-clip:content-box;                bgcp:cb</code>
 <code>background-clip:no-clip;                    bgcp:nc</code>
-<br>
+----
 <code>background-origin:|;                        bgo</code>
 <code>background-origin:padding-box;              bgo:pb</code>
 <code>background-origin:border-box;               bgo:bb</code>
 <code>background-origin:content-box;              bgo:cb</code>
-<br>
+----
 <code>background-size:|;                          bgz</code>
 <code>background-size:auto;                       bgz:a</code>
 <code>background-size:contain;                    bgz:ct</code>
 <code>background-size:cover;                      bgz:cv</code>
-<br>
+----
 <code>color:#000;                                 c</code>
+----
 
 <h3>Специальные типы содержимого</h3>
 
+----
 <code>table-layout:|;                             tbl</code>
 <code>table-layout:auto;                          tbl:a</code>
 <code>table-layout:fixed;                         tbl:f</code>
-<br>
+----
 <code>caption-side:|;                             cps</code>
 <code>caption-side:top;                           cps:t</code>
 <code>caption-side:bottom;                        cps:b</code>
-<br>
+----
 <code>empty-cells:|;                              ec</code>
 <code>empty-cells:show;                           ec:s</code>
 <code>empty-cells:hide;                           ec:h</code>
-<br>
+----
 <code>list-style:|;                               lis</code>
 <code>list-style:none;                            lis:n</code>
-<br>
+----
 <code>list-style-position:|;                      lisp</code>
 <code>list-style-position:inside;                 lisp:i</code>
 <code>list-style-position:outside;                lisp:o</code>
-<br>
+----
 <code>list-style-type:|;                          list</code>
 <code>list-style-type:none;                       list:n</code>
 <code>list-style-type:disc;                       list:d</code>
@@ -414,15 +421,15 @@
 <code>list-style-type:decimal-leading-zero;       list:dclz</code>
 <code>list-style-type:lower-roman;                list:lr</code>
 <code>list-style-type:upper-roman;                list:ur</code>
-<br>
+----
 <code>list-style-image:|;                         lisi</code>
 <code>list-style-image:none;                      lisi:n</code>
-<br>
+----
 <code>quotes:|;                                   q</code>
 <code>quotes:none;                                q:n</code>
 <code>quotes:'\00AB' '\00BB' '\201E' '\201C';     q:ru</code>
 <code>quotes:'\201C' '\201D' '\2018' '\2019';     q:en</code>
-<br>
+----
 <code>content:|;                                  ct</code>
 <code>content:normal;                             ct:n</code>
 <code>content:open-quote;                         ct:oq</code>
@@ -432,12 +439,14 @@
 <code>content:attr(|);                            ct:a</code>
 <code>content:counter(|);                         ct:c</code>
 <code>content:counters(|);                        ct:cs</code>
-<br>
+----
 <code>counter-increment:|;                        coi</code>
 <code>counter-reset:|;                            cor</code>
+----
 
 <h3>Текст</h3>
 
+----
 <code>vertical-align:|;                           va</code>
 <code>vertical-align:super;                       va:sup</code>
 <code>vertical-align:top;                         va:t</code>
@@ -447,25 +456,25 @@
 <code>vertical-align:bottom;                      va:b</code>
 <code>vertical-align:text-bottom;                 va:tb</code>
 <code>vertical-align:sub;                         va:sub</code>
-<br>
+----
 <code>text-align:|;                               ta</code>
 <code>text-align:left;                            ta:l</code>
 <code>text-align:center;                          ta:c</code>
 <code>text-align:right;                           ta:r</code>
 <code>text-align:justify;                         ta:j</code>
-<br>
+----
 <code>text-align-last:|;                          tal</code>
 <code>text-align-last:auto;                       tal:a</code>
 <code>text-align-last:left;                       tal:l</code>
 <code>text-align-last:center;                     tal:c</code>
 <code>text-align-last:right;                      tal:r</code>
-<br>
+----
 <code>text-decoration:|;                          td</code>
 <code>text-decoration:none;                       td:n</code>
 <code>text-decoration:overline;                   td:o</code>
 <code>text-decoration:line-through;               td:l</code>
 <code>text-decoration:underline;                  td:u</code>
-<br>
+----
 <code>text-emphasis:|;                            te</code>
 <code>text-emphasis:none;                         te:n</code>
 <code>text-emphasis:accent;                       te:ac</code>
@@ -474,16 +483,16 @@
 <code>text-emphasis:disc;                         te:ds</code>
 <code>text-emphasis:before;                       te:b</code>
 <code>text-emphasis:after;                        te:a</code>
-<br>
+----
 <code>text-height:|;                              th</code>
 <code>text-height:auto;                           th:a</code>
 <code>text-height:font-size;                      th:f</code>
 <code>text-height:text-size;                      th:t</code>
 <code>text-height:max-size;                       th:m</code>
-<br>
+----
 <code>text-indent:|;                              ti</code>
 <code>text-indent:-9999px;                        ti:-</code>
-<br>
+----
 <code>text-justify:|;                             tj</code>
 <code>text-justify:auto;                          tj:a</code>
 <code>text-justify:inter-word;                    tj:iw</code>
@@ -492,117 +501,117 @@
 <code>text-justify:distribute;                    tj:d</code>
 <code>text-justify:kashida;                       tj:k</code>
 <code>text-justify:tibetan;                       tj:t</code>
-<br>
+----
 <code>text-outline:|;                             to</code>
 <code>text-outline:none;                          to:n</code>
 <code>text-outline:0 0 #000;                      to+</code>
-<br>
+----
 <code>text-replace:|;                             tr</code>
 <code>text-replace:none;                          tr:n</code>
-<br>
+----
 <code>text-transform:|;                           tt</code>
 <code>text-transform:none;                        tt:n</code>
 <code>text-transform:uppercase;                   tt:u</code>
 <code>text-transform:capitalize;                  tt:c</code>
 <code>text-transform:lowercase;                   tt:l</code>
-<br>
+----
 <code>text-wrap:|;                                tw</code>
 <code>text-wrap:normal;                           tw:n</code>
 <code>text-wrap:none;                             tw:no</code>
 <code>text-wrap:unrestricted;                     tw:u</code>
 <code>text-wrap:suppress;                         tw:s</code>
-<br>
+----
 <code>text-shadow:|;                              tsh</code>
 <code>text-shadow:none;                           tsh:n</code>
 <code>text-shadow:0 0 0 #000;                     tsh+</code>
-<br>
+----
 <code>line-height:|;                              lh</code>
-<br>
+----
 <code>white-space:|;                              whs</code>
 <code>white-space:normal;                         whs:n</code>
 <code>white-space:pre;                            whs:p</code>
 <code>white-space:nowrap;                         whs:nw</code>
 <code>white-space:pre-wrap;                       whs:pw</code>
 <code>white-space:pre-line;                       whs:pl</code>
-<br>
+----
 <code>white-space-collapse:|;                     whsc</code>
 <code>white-space-collapse:normal;                whsc:n</code>
 <code>white-space-collapse:keep-all;              whsc:k</code>
 <code>white-space-collapse:loose;                 whsc:l</code>
 <code>white-space-collapse:break-strict;          whsc:bs</code>
 <code>white-space-collapse:break-all;             whsc:ba</code>
-<br>
+----
 <code>word-break:|;                               wob</code>
 <code>word-break:normal;                          wob:n</code>
 <code>word-break:keep-all;                        wob:k</code>
 <code>word-break:loose;                           wob:l</code>
 <code>word-break:break-strict;                    wob:bs</code>
 <code>word-break:break-all;                       wob:ba</code>
-<br>
+----
 <code>word-spacing:|;                             wos</code>
-<br>
+----
 <code>word-wrap:|;                                wow</code>
 <code>word-wrap:normal;                           wow:n</code>
 <code>word-wrap:none;                             wow:no</code>
 <code>word-wrap:unrestricted;                     wow:u</code>
 <code>word-wrap:suppress;                         wow:s</code>
-<br>
+----
 <code>letter-spacing:|;                           lts</code>
-<br>
+----
 <code>font:|;                                     f</code>
 <code>font:1em Arial,sans-serif;                  f+</code>
-<br>
+----
 <code>font-weight:|;                              fw</code>
 <code>font-weight:normal;                         fw:n</code>
 <code>font-weight:bold;                           fw:b</code>
 <code>font-weight:bolder;                         fw:br</code>
 <code>font-weight:lighter;                        fw:lr</code>
-<br>
+----
 <code>font-style:|;                               fs</code>
 <code>font-style:normal;                          fs:n</code>
 <code>font-style:italic;                          fs:i</code>
 <code>font-style:oblique;                         fs:o</code>
-<br>
+----
 <code>font-variant:|;                             fv</code>
 <code>font-variant:normal;                        fv:n</code>
 <code>font-variant:small-caps;                    fv:sc</code>
-<br>
+----
 <code>font-size:|;                                fz</code>
-<br>
+----
 <code>font-size-adjust:|;                         fza</code>
 <code>font-size-adjust:none;                      fza:n</code>
-<br>
+----
 <code>font-family:|;                                              ff</code>
 <code>font-family:Georgia,'Times New Roman',serif;                ff:s</code>
 <code>font-family:Helvetica,Arial,sans-serif;                     ff:ss</code>
 <code>font-family:'Monotype Corsiva','Comic Sans MS',cursive;     ff:c</code>
 <code>font-family:Capitals,Impact,fantasy;                        ff:f</code>
 <code>font-family:Monaco,'Courier New',monospace;                 ff:m</code>
-<br>
+----
 <code>font-effect:|;                              fef</code>
 <code>font-effect:none;                           fef:n</code>
 <code>font-effect:engrave;                        fef:eg</code>
 <code>font-effect:emboss;                         fef:eb</code>
 <code>font-effect:outline;                        fef:o</code>
-<br>
+----
 <code>font-emphasize:|;                           fem</code>
-<br>
+----
 <code>font-emphasize-position:|;                  femp</code>
 <code>font-emphasize-position:before;             femp:b</code>
 <code>font-emphasize-position:after;              femp:a</code>
-<br>
+----
 <code>font-emphasize-style:|;                     fems</code>
 <code>font-emphasize-style:none;                  fems:n</code>
 <code>font-emphasize-style:accent;                fems:ac</code>
 <code>font-emphasize-style:dot;                   fems:dt</code>
 <code>font-emphasize-style:circle;                fems:c</code>
 <code>font-emphasize-style:disc;                  fems:ds</code>
-<br>
+----
 <code>font-smooth:|;                              fsm</code>
 <code>font-smooth:auto;                           fsm:a</code>
 <code>font-smooth:never;                          fsm:n</code>
 <code>font-smooth:always;                         fsm:aw</code>
-<br>
+----
 <code>font-stretch:|;                             fst</code>
 <code>font-stretch:normal;                        fst:n</code>
 <code>font-stretch:ultra-condensed;               fst:uc</code>
@@ -613,19 +622,21 @@
 <code>font-stretch:expanded;                      fst:e</code>
 <code>font-stretch:extra-expanded;                fst:ee</code>
 <code>font-stretch:ultra-expanded;                fst:ue</code>
+----
 
 <h3>Визуальные свойства</h3>
 
+----
 <code>opacity:|;                                                              op</code>
 <code>filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=|);              op:ie</code>
 <code>-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=|)';        op:ms</code>
-<br>
+----
 <code>resize:|;                                   rz</code>
 <code>resize:none;                                rz:n</code>
 <code>resize:both;                                rz:b</code>
 <code>resize:horizontal;                          rz:h</code>
 <code>resize:vertical;                            rz:v</code>
-<br>
+----
 <code>cursor:|;                                   cur</code>
 <code>cursor:auto;                                cur:a</code>
 <code>cursor:default;                             cur:d</code>
@@ -635,24 +646,27 @@
 <code>cursor:move;                                cur:m</code>
 <code>cursor:pointer;                             cur:p</code>
 <code>cursor:text;                                cur:t</code>
+----
 
 <h3>Печать</h3>
 
+----
 <code>page-break-before:|;                        pgbb</code>
 <code>page-break-before:auto;                     pgbb:a</code>
 <code>page-break-before:always;                   pgbb:aw</code>
 <code>page-break-before:left;                     pgbb:l</code>
 <code>page-break-before:right;                    pgbb:r</code>
-<br>
+----
 <code>page-break-inside:|;                        pgbi</code>
 <code>page-break-inside:auto;                     pgbi:a</code>
 <code>page-break-inside:avoid;                    pgbi:av</code>
-<br>
+----
 <code>page-break-after:|;                         pgba</code>
 <code>page-break-after:auto;                      pgba:a</code>
 <code>page-break-after:always;                    pgba:aw</code>
 <code>page-break-after:left;                      pgba:l</code>
 <code>page-break-after:right;                     pgba:r</code>
-<br>
+----
 <code>orphans:|;                                  orp</code>
 <code>widows:|;                                   wid</code>
+----
