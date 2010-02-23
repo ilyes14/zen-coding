@@ -5,9 +5,10 @@
 
 На основе черновика спецификации CSS 3
 
-----
-<code>Свойство                                    Псевдоним</code>
-----
+<h3>`Псевдоним`</h3>
+{{{
+Свойство
+}}}
 
 <h2>Группы свойств</h2>
 
@@ -21,655 +22,1958 @@
   * Визуальные свойства
   * Печать
 
-<h3>Специальные правила</h3>
+<h2>Специальные правила</h2>
 
-----
-<code>@import url(|);                             @i</code>
-<code>@media print {                              @m
+<h3>`@i`</h3>
+{{{
+@import url(|);
+}}}
+<h3>`@m`</h3>
+{{{
+@media print {
     |
-    }</code>
-<code>@font-face {                                @f
+    }
+}}}
+<h3>`@f`</h3>
+{{{
+@font-face {
     font-family:|;
     src:url(|) format('|');
-    }</code>
-<code>!important                                  !</code>
-<code>expression(|)                               exp</code>
-----
+    }
+}}}
+<h3>`!`</h3>
+{{{
+!important
+}}}
+<h3>`exp`</h3>
+{{{
+expression(|);
+}}}
 
-<h3>Позиционирование</h3>
+<h2>Позиционирование</h2>
 
-----
-<code>position:|;                                 pos</code>
-<code>position:static;                            pos:s</code>
-<code>position:absolute;                          pos:a</code>
-<code>position:relative;                          pos:r</code>
-<code>position:fixed;                             pos:f</code>
-----
-<code>top:|;                                      t</code>
-<code>top:auto;                                   t:a</code>
-----
-<code>right:|;                                    r</code>
-<code>right:auto;                                 r:a</code>
-----
-<code>bottom:|;                                   b</code>
-<code>bottom:auto;                                b:a</code>
-----
-<code>left:|;                                     l</code>
-<code>left:auto;                                  l:a</code>
-----
-<code>z-index:|;                                  z</code>
-<code>z-index:auto;                               z:a</code>
-----
+<h3>`pos`</h3>
+{{{
+position:|;
+}}}
+<h3>`pos:s`</h3>
+{{{
+position:static;
+}}}
+<h3>`pos:a`</h3>
+{{{
+position:absolute;
+}}}
+<h3>`pos:r`</h3>
+{{{
+position:relative;
+}}}
+<h3>`pos:f`</h3>
+{{{
+position:fixed;
+}}}
+<h3>`t`</h3>
+{{{
+top:|;
+}}}
+<h3>`t:a`</h3>
+{{{
+top:auto;
+}}}
+<h3>`r`</h3>
+{{{
+right:|;
+}}}
+<h3>`r:a`</h3>
+{{{
+right:auto;
+}}}
+<h3>`b`</h3>
+{{{
+bottom:|;
+}}}
+<h3>`b:a`</h3>
+{{{
+bottom:auto;
+}}}
+<h3>`l`</h3>
+{{{
+left:|;
+}}}
+<h3>`l:a`</h3>
+{{{
+left:auto;
+}}}
+<h3>`z`</h3>
+{{{
+z-index:|;
+}}}
+<h3>`z:a`</h3>
+{{{
+z-index:auto;
+}}}
 
-<h3>Поведение и свойства блока</h3>
+<h2>Поведение и свойства блока</h2>
 
-----
-<code>float:|;                                    fl</code>
-<code>float:none;                                 fl:n</code>
-<code>float:left;                                 fl:l</code>
-<code>float:right;                                fl:r</code>
-----
-<code>clear:|;                                    cl</code>
-<code>clear:none;                                 cl:n</code>
-<code>clear:left;                                 cl:l</code>
-<code>clear:right;                                cl:r</code>
-<code>clear:both;                                 cl:b</code>
-----
-<code>display:|;                                  d</code>
-<code>display:none;                               d:n</code>
-<code>display:block;                              d:b</code>
-<code>display:inline;                             d:i</code>
-<code>display:inline-block;                       d:ib</code>
-<code>display:-moz-inline-box:|;                  d:mib</code>
-<code>display:-moz-inline-stack:|;                d:mis</code>
-<code>display:list-item;                          d:li</code>
-<code>display:run-in;                             d:ri</code>
-<code>display:compact;                            d:cp</code>
-<code>display:table;                              d:tb</code>
-<code>display:inline-table;                       d:itb</code>
-<code>display:table-caption;                      d:tbcp</code>
-<code>display:table-column;                       d:tbcl</code>
-<code>display:table-column-group;                 d:tbclg</code>
-<code>display:table-header-group;                 d:tbhg</code>
-<code>display:table-footer-group;                 d:tbfg</code>
-<code>display:table-row;                          d:tbr</code>
-<code>display:table-row-group;                    d:tbrg</code>
-<code>display:table-cell;                         d:tbc</code>
-----
-<code>visibility:|;                               v</code>
-<code>visibility:visible;                         v:v</code>
-<code>visibility:hidden;                          v:h</code>
-<code>visibility:collapse;                        v:c</code>
-----
-<code>overflow:|;                                 ov</code>
-<code>overflow:visible;                           ov:v</code>
-<code>overflow:hidden;                            ov:h</code>
-<code>overflow:scroll;                            ov:s</code>
-<code>overflow:auto;                              ov:a</code>
-----
-<code>overflow-x:|;                               ovx</code>
-<code>overflow-x:visible;                         ovx:v</code>
-<code>overflow-x:hidden;                          ovx:h</code>
-<code>overflow-x:scroll;                          ovx:s</code>
-<code>overflow-x:auto;                            ovx:a</code>
-----
-<code>overflow-y:|;                               ovy</code>
-<code>overflow-y:visible;                         ovy:v</code>
-<code>overflow-y:hidden;                          ovy:h</code>
-<code>overflow-y:scroll;                          ovy:s</code>
-<code>overflow-y:auto;                            ovy:a</code>
-----
-<code>overflow-style:|;                           ovs</code>
-<code>overflow-style:auto;                        ovs:a</code>
-<code>overflow-style:scrollbar;                   ovs:s</code>
-<code>overflow-style:panner;                      ovs:p</code>
-<code>overflow-style:move;                        ovs:m</code>
-<code>overflow-style:marquee;                     ovs:mq</code>
-----
-<code>zoom:1;                                     zoo</code>
-----
-<code>clip:|;                                     cp</code>
-<code>clip:auto;                                  cp:a</code>
-<code>clip:rect(|);                               cp:r</code>
-----
-<code>box-sizing:|;                               bxz</code>
-<code>box-sizing:content-box;                     bxz:cb</code>
-<code>box-sizing:border-box;                      bxz:bb</code>
-----
-<code>box-shadow:|;                               bxsh</code>
-<code>box-shadow:none;                            bxsh:n</code>
-<code>box-shadow:0 0 0 #000;                      bxsh+</code>
-<code>-webkit-box-shadow:|;                       bxsh:w</code>
-<code>-webkit-box-shadow:0 0 0 #000;              bxsh:w+</code>
-<code>-moz-box-shadow:|;                          bxsh:m</code>
-<code>-moz-box-shadow:0 0 0 #000;                 bxsh:m+</code>
-----
+<h3>`fl`</h3>
+{{{
+float:|;
+}}}
+<h3>`fl:n`</h3>
+{{{
+float:none;
+}}}
+<h3>`fl:l`</h3>
+{{{
+float:left;
+}}}
+<h3>`fl:r`</h3>
+{{{
+float:right;
+}}}
+<h3>`cl`</h3>
+{{{
+clear:|;
+}}}
+<h3>`cl:n`</h3>
+{{{
+clear:none;
+}}}
+<h3>`cl:l`</h3>
+{{{
+clear:left;
+}}}
+<h3>`cl:r`</h3>
+{{{
+clear:right;
+}}}
+<h3>`cl:b`</h3>
+{{{
+clear:both;
+}}}
+<h3>`d`</h3>
+{{{
+display:|;
+}}}
+<h3>`d:n`</h3>
+{{{
+display:none;
+}}}
+<h3>`d:b`</h3>
+{{{
+display:block;
+}}}
+<h3>`d:i`</h3>
+{{{
+display:inline;
+}}}
+<h3>`d:ib`</h3>
+{{{
+display:inline-block;
+}}}
+<h3>`d:mib`</h3>
+{{{
+display:-moz-inline-box:|;
+}}}
+<h3>`d:mis`</h3>
+{{{
+display:-moz-inline-stack:|;
+}}}
+<h3>`d:li`</h3>
+{{{
+display:list-item;
+}}}
+<h3>`d:ri`</h3>
+{{{
+display:run-in;
+}}}
+<h3>`d:cp`</h3>
+{{{
+display:compact;
+}}}
+<h3>`d:tb`</h3>
+{{{
+display:table;
+}}}
+<h3>`d:itb`</h3>
+{{{
+display:inline-table;
+}}}
+<h3>`d:tbcp`</h3>
+{{{
+display:table-caption;
+}}}
+<h3>`d:tbcl`</h3>
+{{{
+display:table-column;
+}}}
+<h3>`d:tbclg`</h3>
+{{{
+display:table-column-group;
+}}}
+<h3>`d:tbhg`</h3>
+{{{
+display:table-header-group;
+}}}
+<h3>`d:tbfg`</h3>
+{{{
+display:table-footer-group;
+}}}
+<h3>`d:tbr`</h3>
+{{{
+display:table-row;
+}}}
+<h3>`d:tbrg`</h3>
+{{{
+display:table-row-group;
+}}}
+<h3>`d:tbc`</h3>
+{{{
+display:table-cell;
+}}}
+<h3>`v`</h3>
+{{{
+visibility:|;
+}}}
+<h3>`v:v`</h3>
+{{{
+visibility:visible;
+}}}
+<h3>`v:h`</h3>
+{{{
+visibility:hidden;
+}}}
+<h3>`v:c`</h3>
+{{{
+visibility:collapse;
+}}}
+<h3>`ov`</h3>
+{{{
+overflow:|;
+}}}
+<h3>`ov:v`</h3>
+{{{
+overflow:visible;
+}}}
+<h3>`ov:h`</h3>
+{{{
+overflow:hidden;
+}}}
+<h3>`ov:s`</h3>
+{{{
+overflow:scroll;
+}}}
+<h3>`ov:a`</h3>
+{{{
+overflow:auto;
+}}}
+<h3>`ovx`</h3>
+{{{
+overflow-x:|;
+}}}
+<h3>`ovx:v`</h3>
+{{{
+overflow-x:visible;
+}}}
+<h3>`ovx:h`</h3>
+{{{
+overflow-x:hidden;
+}}}
+<h3>`ovx:s`</h3>
+{{{
+overflow-x:scroll;
+}}}
+<h3>`ovx:a`</h3>
+{{{
+overflow-x:auto;
+}}}
+<h3>`ovy`</h3>
+{{{
+overflow-y:|;
+}}}
+<h3>`ovy:v`</h3>
+{{{
+overflow-y:visible;
+}}}
+<h3>`ovy:h`</h3>
+{{{
+overflow-y:hidden;
+}}}
+<h3>`ovy:s`</h3>
+{{{
+overflow-y:scroll;
+}}}
+<h3>`ovy:a`</h3>
+{{{
+overflow-y:auto;
+}}}
+<h3>`ovs`</h3>
+{{{
+overflow-style:|;
+}}}
+<h3>`ovs:a`</h3>
+{{{
+overflow-style:auto;
+}}}
+<h3>`ovs:s`</h3>
+{{{
+overflow-style:scrollbar;
+}}}
+<h3>`ovs:p`</h3>
+{{{
+overflow-style:panner;
+}}}
+<h3>`ovs:m`</h3>
+{{{
+overflow-style:move;
+}}}
+<h3>`ovs:mq`</h3>
+{{{
+overflow-style:marquee;
+}}}
+<h3>`zoo`</h3>
+{{{
+zoom:1;
+}}}
+<h3>`cp`</h3>
+{{{
+clip:|;
+}}}
+<h3>`cp:a`</h3>
+{{{
+clip:auto;
+}}}
+<h3>`cp:r`</h3>
+{{{
+clip:rect(|);
+}}}
+<h3>`bxz`</h3>
+{{{
+box-sizing:|;
+}}}
+<h3>`bxz:cb`</h3>
+{{{
+box-sizing:content-box;
+}}}
+<h3>`bxz:bb`</h3>
+{{{
+box-sizing:border-box;
+}}}
+<h3>`bxsh`</h3>
+{{{
+box-shadow:|;
+}}}
+<h3>`bxsh:n`</h3>
+{{{
+box-shadow:none;
+}}}
+<h3>`bxsh+`</h3>
+{{{
+box-shadow:0 0 0 #000;
+}}}
+<h3>`bxsh:w`</h3>
+{{{
+-webkit-box-shadow:|;
+}}}
+<h3>`bxsh:w+`</h3>
+{{{
+-webkit-box-shadow:0 0 0 #000;
+}}}
+<h3>`bxsh:m`</h3>
+{{{
+-moz-box-shadow:|;
+}}}
+<h3>`bxsh:m+`</h3>
+{{{
+-moz-box-shadow:0 0 0 #000;
+}}}
 
-<h3>Размерность блока</h3>
+<h2>Размерность блока</h2>
 
-----
-<code>margin:|;                                   m</code>
-<code>margin:auto;                                m:a</code>
-<code>margin:0;                                   m:0</code>
-<code>margin:0 0;                                 m:2</code>
-<code>margin:0 0 0;                               m:3</code>
-<code>margin:0 0 0 0;                             m:4</code>
-----
-<code>margin-top:|;                               mt</code>
-<code>margin-top:auto;                            mt:a</code>
-----
-<code>margin-right:|;                             mr</code>
-<code>margin-right:auto;                          mr:a</code>
-----
-<code>margin-bottom:|;                            mb</code>
-<code>margin-bottom:auto;                         mb:a</code>
-----
-<code>margin-left:|;                              ml</code>
-<code>margin-left:auto;                           ml:a</code>
-----
-<code>padding:|;                                  p</code>
-<code>padding:0;                                  p:0</code>
-<code>padding:0 0;                                p:2</code>
-<code>padding:0 0 0;                              p:3</code>
-<code>padding:0 0 0 0;                            p:4</code>
-----
-<code>padding-top:|;                              pt</code>
-<code>padding-right:|;                            pr</code>
-<code>padding-bottom:|;                           pb</code>
-<code>padding-left:|;                             pl</code>
-----
-<code>width:|;                                    w</code>
-<code>width:auto;                                 w:a</code>
-----
-<code>height:|;                                   h</code>
-<code>height:auto;                                h:a</code>
-----
-<code>max-width:|;                                maw</code>
-<code>max-width:none;                             maw:n</code>
-----
-<code>max-height:|;                               mah</code>
-<code>max-height:none;                            mah:n</code>
-----
-<code>min-width:|;                                miw</code>
-<code>min-height:|;                               mih</code>
-----
+<h3>`m`</h3>
+{{{
+margin:|;
+}}}
+<h3>`m:a`</h3>
+{{{
+margin:auto;
+}}}
+<h3>`m:0`</h3>
+{{{
+margin:0;
+}}}
+<h3>`m:2`</h3>
+{{{
+margin:0 0;
+}}}
+<h3>`m:3`</h3>
+{{{
+margin:0 0 0;
+}}}
+<h3>`m:4`</h3>
+{{{
+margin:0 0 0 0;
+}}}
+<h3>`mt`</h3>
+{{{
+margin-top:|;
+}}}
+<h3>`mt:a`</h3>
+{{{
+margin-top:auto;
+}}}
+<h3>`mr`</h3>
+{{{
+margin-right:|;
+}}}
+<h3>`mr:a`</h3>
+{{{
+margin-right:auto;
+}}}
+<h3>`mb`</h3>
+{{{
+margin-bottom:|;
+}}}
+<h3>`mb:a`</h3>
+{{{
+margin-bottom:auto;
+}}}
+<h3>`ml`</h3>
+{{{
+margin-left:|;
+}}}
+<h3>`ml:a`</h3>
+{{{
+margin-left:auto;
+}}}
+<h3>`p`</h3>
+{{{
+padding:|;
+}}}
+<h3>`p:0`</h3>
+{{{
+padding:0;
+}}}
+<h3>`p:2`</h3>
+{{{
+padding:0 0;
+}}}
+<h3>`p:3`</h3>
+{{{
+padding:0 0 0;
+}}}
+<h3>`p:4`</h3>
+{{{
+padding:0 0 0 0;
+}}}
+<h3>`pt`</h3>
+{{{
+padding-top:|;
+}}}
+<h3>`pr`</h3>
+{{{
+padding-right:|;
+}}}
+<h3>`pb`</h3>
+{{{
+padding-bottom:|;
+}}}
+<h3>`pl`</h3>
+{{{
+padding-left:|;
+}}}
+<h3>`w`</h3>
+{{{
+width:|;
+}}}
+<h3>`w:a`</h3>
+{{{
+width:auto;
+}}}
+<h3>`h`</h3>
+{{{
+height:|;
+}}}
+<h3>`h:a`</h3>
+{{{
+height:auto;
+}}}
+<h3>`maw`</h3>
+{{{
+max-width:|;
+}}}
+<h3>`maw:n`</h3>
+{{{
+max-width:none;
+}}}
+<h3>`mah`</h3>
+{{{
+max-height:|;
+}}}
+<h3>`mah:n`</h3>
+{{{
+max-height:none;
+}}}
+<h3>`miw`</h3>
+{{{
+min-width:|;
+}}}
+<h3>`mih`</h3>
+{{{
+min-height:|;
+}}}
 
-<h3>Цветовое оформление</h3>
+<h2>Цветовое оформление</h2>
 
-----
-<code>outline:|;                                  o</code>
-<code>outline:none;                               o:n</code>
-<code>outline:1px solid #000;                     o+</code>
-----
-<code>outline-offset:|;                           oo</code>
-<code>outline-width:|;                            ow</code>
-<code>outline-style:|;                            os</code>
-----
-<code>outline-color:#000;                         oc</code>
-<code>outline-color:invert;                       oc:i</code>
-----
-<code>border:|;                                   bd</code>
-<code>border:none;                                bd:n</code>
-<code>border:1px solid #000;                      bd+</code>
-----
-<code>border-break:|;                             bdbk</code>
-<code>border-break:close;                         bdbk:c</code>
-----
-<code>border-collapse:|;                          bdcl</code>
-<code>border-collapse:collapse;                   bdcl:c</code>
-<code>border-collapse:separate;                   bdcl:s</code>
-----
-<code>border-color:#000;                          bdc</code>
-----
-<code>border-image:|;                                         bdi</code>
-<code>border-image:none;                                      bdi:n</code>
-<code>border-image:url(|) 0 repeat;                           bdi:+</code>
-<code>-webkit-border-image:|;                                 bdi:w</code>
-<code>-webkit-border-image:url(|) 0 repeat;                   bdi:w+</code>
-<code>-moz-border-image:|;                                    bdi:m</code>
-<code>-moz-border-image:url(|) 0 repeat;                      bdi:m+</code>
-----
-<code>border-top-image:|;                         bdti</code>
-<code>border-top-image:none;                      bdti:n</code>
-----
-<code>border-right-image:|;                       bdri</code>
-<code>border-right-image:none;                    bdri:n</code>
-----
-<code>border-bottom-image:|;                      bdbi</code>
-<code>border-bottom-image:none;                   bdbi:n</code>
-----
-<code>border-left-image:|;                        bdli</code>
-<code>border-left-image:none;                     bdli:n</code>
-----
-<code>border-corner-image:|;                      bdci</code>
-<code>border-corner-image:none;                   bdci:n</code>
-<code>border-corner-image:continue;               bdci:c</code>
-----
-<code>border-top-left-image:|;                    bdtli</code>
-<code>border-top-left-image:none;                 bdtli:n</code>
-<code>border-top-left-image:continue;             bdtli:c</code>
-----
-<code>border-top-right-image:|;                   bdtri</code>
-<code>border-top-right-image:none;                bdtri:n</code>
-<code>border-top-right-image:continue;            bdtri:c</code>
-----
-<code>border-bottom-right-image:|;                bdbri</code>
-<code>border-bottom-right-image:none;             bdbri:n</code>
-<code>border-bottom-right-image:continue;         bdbri:c</code>
-----
-<code>border-bottom-left-image:|;                 bdbli</code>
-<code>border-bottom-left-image:none;              bdbli:n</code>
-<code>border-bottom-left-image:continue;          bdbli:c</code>
-----
-<code>border-fit:|;                               bdf</code>
-<code>border-fit:clip;                            bdf:c</code>
-<code>border-fit:repeat;                          bdf:r</code>
-<code>border-fit:scale;                           bdf:sc</code>
-<code>border-fit:stretch;                         bdf:st</code>
-<code>border-fit:overwrite;                       bdf:ow</code>
-<code>border-fit:overflow;                        bdf:of</code>
-<code>border-fit:space;                           bdf:sp</code>
-----
-<code>border-length:|;                            bdlt</code>
-<code>border-length:auto;                         bdlt:a</code>
-----
-<code>border-spacing:|;                           bdsp</code>
-----
-<code>border-style:|;                             bds</code>
-<code>border-style:none;                          bds:n</code>
-<code>border-style:hidden;                        bds:h</code>
-<code>border-style:dotted;                        bds:dt</code>
-<code>border-style:dashed;                        bds:ds</code>
-<code>border-style:solid;                         bds:s</code>
-<code>border-style:double;                        bds:db</code>
-<code>border-style:dot-dash;                      bds:dtds</code>
-<code>border-style:dot-dot-dash;                  bds:dtdtds</code>
-<code>border-style:wave;                          bds:w</code>
-<code>border-style:groove;                        bds:g</code>
-<code>border-style:ridge;                         bds:r</code>
-<code>border-style:inset;                         bds:i</code>
-<code>border-style:outset;                        bds:o</code>
-----
-<code>border-width:|;                             bdw</code>
-----
-<code>border-top:|;                               bdt</code>
-<code>border-top:none;                            bdt:n</code>
-<code>border-top:1px solid #000;                  bdt+</code>
-----
-<code>border-top-width:|;                         bdtw</code>
-----
-<code>border-top-style:|;                         bdts</code>
-<code>border-top-style:none;                      bdts:n</code>
-----
-<code>border-top-color:#000;                      bdtc</code>
-----
-<code>border-right:|;                             bdr</code>
-<code>border-right:none;                          bdr:n</code>
-<code>border-right:1px solid #000;                bdr+</code>
-----
-<code>border-right-width:|;                       bdrw</code>
-----
-<code>border-right-style:|;                       bdrs</code>
-<code>border-right-style:none;                    bdrs:n</code>
-----
-<code>border-right-color:#000;                    bdrc</code>
-----
-<code>border-bottom:|;                            bdb</code>
-<code>border-bottom:none;                         bdb:n</code>
-<code>border-bottom:1px solid #000;               bdb+</code>
-----
-<code>border-bottom-width:|;                      bdbw</code>
-----
-<code>border-bottom-style:|;                      bdbs</code>
-<code>border-bottom-style:none;                   bdbs:n</code>
-----
-<code>border-bottom-color:#000;                   bdbc</code>
-----
-<code>border-left:|;                              bdl</code>
-<code>border-left:none;                           bdl:n</code>
-<code>border-left:1px solid #000;                 bdl+</code>
-----
-<code>border-left-width:|;                        bdlw</code>
-----
-<code>border-left-style:|;                        bdls</code>
-<code>border-left-style:none;                     bdls:n</code>
-----
-<code>border-left-color:#000;                     bdlc</code>
-----
-<code>border-radius:|;                            bdrz</code>
-<code>-webkit-border-radius:|;                    bdrz:w</code>
-<code>-moz-border-radius:|;                       bdrz:m</code>
-<code>border-top-right-radius:|;                  bdtrrz</code>
-<code>border-top-left-radius:|;                   bdtlrz</code>
-<code>border-bottom-right-radius:|;               bdbrrz</code>
-<code>border-bottom-left-radius:|;                bdblrz</code>
-----
-<code>background:|;                                                                                  bg</code>
-<code>background:none;                                                                               bg:n</code>
-<code>background:#FFF url(|) 0 0 no-repeat;                                                          bg+</code>
-<code>filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='|',sizingMethod='crop');        bg:ie</code>
-----
-<code>background-color:#FFF;                      bgc</code>
-<code>background-color:transparent;               bgc:t</code>
-----
-<code>background-image:url(|);                    bgi</code>
-<code>background-image:none;                      bgi:n</code>
-----
-<code>background-repeat:|;                        bgr</code>
-<code>background-repeat:repeat;                   bgr:r</code>
-<code>background-repeat:repeat-x;                 bgr:x</code>
-<code>background-repeat:repeat-y;                 bgr:y</code>
-<code>background-repeat:no-repeat;                bgr:n</code>
-----
-<code>background-attachment:|;                    bga</code>
-<code>background-attachment:fixed;                bga:f</code>
-<code>background-attachment:scroll;               bga:s</code>
-----
-<code>background-position:0 0;                    bgp</code>
-<code>background-position-x:|;                    bgpx</code>
-<code>background-position-y:|;                    bgpy</code>
-----
-<code>background-break:|;                         bgbk</code>
-<code>background-break:bounding-box;              bgbk:bb</code>
-<code>background-break:each-box;                  bgbk:eb</code>
-<code>background-break:continuous;                bgbk:c</code>
-----
-<code>background-clip:|;                          bgcp</code>
-<code>background-clip:border-box;                 bgcp:bb</code>
-<code>background-clip:padding-box;                bgcp:pb</code>
-<code>background-clip:content-box;                bgcp:cb</code>
-<code>background-clip:no-clip;                    bgcp:nc</code>
-----
-<code>background-origin:|;                        bgo</code>
-<code>background-origin:padding-box;              bgo:pb</code>
-<code>background-origin:border-box;               bgo:bb</code>
-<code>background-origin:content-box;              bgo:cb</code>
-----
-<code>background-size:|;                          bgz</code>
-<code>background-size:auto;                       bgz:a</code>
-<code>background-size:contain;                    bgz:ct</code>
-<code>background-size:cover;                      bgz:cv</code>
-----
-<code>color:#000;                                 c</code>
-----
+<h3>`o`</h3>
+{{{
+outline:|;
+}}}
+<h3>`o:n`</h3>
+{{{
+outline:none;
+}}}
+<h3>`o+`</h3>
+{{{
+outline:1px solid #000;
+}}}
+<h3>`oo`</h3>
+{{{
+outline-offset:|;
+}}}
+<h3>`ow`</h3>
+{{{
+outline-width:|;
+}}}
+<h3>`os`</h3>
+{{{
+outline-style:|;
+}}}
+<h3>`oc`</h3>
+{{{
+outline-color:#000;
+}}}
+<h3>`oc:i`</h3>
+{{{
+outline-color:invert;
+}}}
+<h3>`bd`</h3>
+{{{
+border:|;
+}}}
+<h3>`bd:n`</h3>
+{{{
+border:none;
+}}}
+<h3>`bd+`</h3>
+{{{
+border:1px solid #000;
+}}}
+<h3>`bdbk`</h3>
+{{{
+border-break:|;
+}}}
+<h3>`bdbk:c`</h3>
+{{{
+border-break:close;
+}}}
+<h3>`bdcl`</h3>
+{{{
+border-collapse:|;
+}}}
+<h3>`bdcl:c`</h3>
+{{{
+border-collapse:collapse;
+}}}
+<h3>`bdcl:s`</h3>
+{{{
+border-collapse:separate;
+}}}
+<h3>`bdc`</h3>
+{{{
+border-color:#000;
+}}}
+<h3>`bdi`</h3>
+{{{
+border-image:|;
+}}}
+<h3>`bdi:n`</h3>
+{{{
+border-image:none;
+}}}
+<h3>`bdi:+`</h3>
+{{{
+border-image:url(|) 0 repeat;
+}}}
+<h3>`bdi:w`</h3>
+{{{
+-webkit-border-image:|;
+}}}
+<h3>`bdi:w+`</h3>
+{{{
+-webkit-border-image:url(|) 0 repeat;
+}}}
+<h3>`bdi:m`</h3>
+{{{
+-moz-border-image:|;
+}}}
+<h3>`bdi:m+`</h3>
+{{{
+-moz-border-image:url(|) 0 repeat;
+}}}
+<h3>`bdti`</h3>
+{{{
+border-top-image:|;
+}}}
+<h3>`bdti:n`</h3>
+{{{
+border-top-image:none;
+}}}
+<h3>`bdri`</h3>
+{{{
+border-right-image:|;
+}}}
+<h3>``</h3>
+{{{
+border-right-image:none;
+}}}
+<h3>`bdbi`</h3>
+{{{
+border-bottom-image:|;
+}}}
+<h3>`bdbi:n`</h3>
+{{{
+border-bottom-image:none;
+}}}
+<h3>`bdli`</h3>
+{{{
+border-left-image:|;
+}}}
+<h3>`bdli:n`</h3>
+{{{
+border-left-image:none;
+}}}
+<h3>`bdci`</h3>
+{{{
+border-corner-image:|;
+}}}
+<h3>`bdci:n`</h3>
+{{{
+border-corner-image:none;
+}}}
+<h3>`bdci:c`</h3>
+{{{
+border-corner-image:continue;
+}}}
+<h3>`bdtli`</h3>
+{{{
+border-top-left-image:|;
+}}}
+<h3>`bdtli:n`</h3>
+{{{
+border-top-left-image:none;
+}}}
+<h3>`bdtli:c`</h3>
+{{{
+border-top-left-image:continue;
+}}}
+<h3>`bdtri`</h3>
+{{{
+border-top-right-image:|;
+}}}
+<h3>`bdtri:n`</h3>
+{{{
+border-top-right-image:none;
+}}}
+<h3>`bdtri:c`</h3>
+{{{
+border-top-right-image:continue;
+}}}
+<h3>`bdbri`</h3>
+{{{
+border-bottom-right-image:|;
+}}}
+<h3>`bdbri:n`</h3>
+{{{
+border-bottom-right-image:none;
+}}}
+<h3>`bdbri:c`</h3>
+{{{
+border-bottom-right-image:continue;
+}}}
+<h3>`bdbli`</h3>
+{{{
+border-bottom-left-image:|;
+}}}
+<h3>`bdbli:n`</h3>
+{{{
+border-bottom-left-image:none;
+}}}
+<h3>`bdbli:c`</h3>
+{{{
+border-bottom-left-image:continue;
+}}}
+<h3>`bdf`</h3>
+{{{
+border-fit:|;
+}}}
+<h3>`bdf:c`</h3>
+{{{
+border-fit:clip;
+}}}
+<h3>`bdf:r`</h3>
+{{{
+border-fit:repeat;
+}}}
+<h3>`bdf:sc`</h3>
+{{{
+border-fit:scale;
+}}}
+<h3>`bdf:st`</h3>
+{{{
+border-fit:stretch;
+}}}
+<h3>`bdf:ow`</h3>
+{{{
+border-fit:overwrite;
+}}}
+<h3>`bdf:of`</h3>
+{{{
+border-fit:overflow;
+}}}
+<h3>`bdf:sp`</h3>
+{{{
+border-fit:space;
+}}}
+<h3>`bdlt`</h3>
+{{{
+border-length:|;
+}}}
+<h3>`bdlt:a`</h3>
+{{{
+border-length:auto;
+}}}
+<h3>`bdsp`</h3>
+{{{
+border-spacing:|;
+}}}
+<h3>`bds`</h3>
+{{{
+border-style:|;
+}}}
+<h3>`bds:n`</h3>
+{{{
+border-style:none;
+}}}
+<h3>`bds:h`</h3>
+{{{
+border-style:hidden;
+}}}
+<h3>`bds:dt`</h3>
+{{{
+border-style:dotted;
+}}}
+<h3>`bds:ds`</h3>
+{{{
+border-style:dashed;
+}}}
+<h3>`bds:s`</h3>
+{{{
+border-style:solid;
+}}}
+<h3>`bds:db`</h3>
+{{{
+border-style:double;
+}}}
+<h3>`bds:dtds`</h3>
+{{{
+border-style:dot-dash;
+}}}
+<h3>`bds:dtdtds`</h3>
+{{{
+border-style:dot-dot-dash;
+}}}
+<h3>`bds:w`</h3>
+{{{
+border-style:wave;
+}}}
+<h3>`bds:g`</h3>
+{{{
+border-style:groove;
+}}}
+<h3>`bds:r`</h3>
+{{{
+border-style:ridge;
+}}}
+<h3>`bds:i`</h3>
+{{{
+border-style:inset;
+}}}
+<h3>`bds:o`</h3>
+{{{
+border-style:outset;
+}}}
+<h3>`bdw`</h3>
+{{{
+border-width:|;
+}}}
+<h3>`bdt`</h3>
+{{{
+border-top:|;
+}}}
+<h3>`bdt:n`</h3>
+{{{
+border-top:none;
+}}}
+<h3>`bdt+`</h3>
+{{{
+border-top:1px solid #000;
+}}}
+<h3>`bdtw`</h3>
+{{{
+border-top-width:|;
+}}}
+<h3>`bdts`</h3>
+{{{
+border-top-style:|;
+}}}
+<h3>`bdts:n`</h3>
+{{{
+border-top-style:none;
+}}}
+<h3>`bdtc`</h3>
+{{{
+border-top-color:#000;
+}}}
+<h3>`bdr`</h3>
+{{{
+border-right:|;
+}}}
+<h3>`bdr:n`</h3>
+{{{
+border-right:none;
+}}}
+<h3>`bdr+`</h3>
+{{{
+border-right:1px solid #000;
+}}}
+<h3>`bdrw`</h3>
+{{{
+border-right-width:|;
+}}}
+<h3>`bdrs`</h3>
+{{{
+border-right-style:|;
+}}}
+<h3>`bdrs:n`</h3>
+{{{
+border-right-style:none;
+}}}
+<h3>`bdrc`</h3>
+{{{
+border-right-color:#000;
+}}}
+<h3>`bdb`</h3>
+{{{
+border-bottom:|;
+}}}
+<h3>`bdb:n`</h3>
+{{{
+border-bottom:none;
+}}}
+<h3>`bdb+`</h3>
+{{{
+border-bottom:1px solid #000;
+}}}
+<h3>`bdbw`</h3>
+{{{
+border-bottom-width:|;
+}}}
+<h3>`bdbs`</h3>
+{{{
+border-bottom-style:|;
+}}}
+<h3>`bdbs:n`</h3>
+{{{
+border-bottom-style:none;
+}}}
+<h3>`bdbc`</h3>
+{{{
+border-bottom-color:#000;
+}}}
+<h3>`bdl`</h3>
+{{{
+border-left:|;
+}}}
+<h3>`bdl:n`</h3>
+{{{
+border-left:none;
+}}}
+<h3>`bdl+`</h3>
+{{{
+border-left:1px solid #000;
+}}}
+<h3>`bdlw`</h3>
+{{{
+border-left-width:|;
+}}}
+<h3>`bdls`</h3>
+{{{
+border-left-style:|;
+}}}
+<h3>`bdls:n`</h3>
+{{{
+border-left-style:none;
+}}}
+<h3>`bdlc`</h3>
+{{{
+border-left-color:#000;
+}}}
+<h3>`bdrz`</h3>
+{{{
+border-radius:|;
+}}}
+<h3>`bdrz:w`</h3>
+{{{
+-webkit-border-radius:|;
+}}}
+<h3>`bdrz:m`</h3>
+{{{
+-moz-border-radius:|;
+}}}
+<h3>`bdtrrz`</h3>
+{{{
+border-top-right-radius:|;
+}}}
+<h3>`bdtlrz`</h3>
+{{{
+border-top-left-radius:|;
+}}}
+<h3>`bdbrrz`</h3>
+{{{
+border-bottom-right-radius:|;
+}}}
+<h3>`bdblrz`</h3>
+{{{
+border-bottom-left-radius:|;
+}}}
+<h3>`bg`</h3>
+{{{
+background:|;
+}}}
+<h3>`bg:n`</h3>
+{{{
+background:none;
+}}}
+<h3>`bg+`</h3>
+{{{
+background:#FFF url(|) 0 0 no-repeat;
+}}}
+<h3>`bg:ie`</h3>
+{{{
+filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='|',sizingMethod='crop');
+}}}
+<h3>`bgc`</h3>
+{{{
+background-color:#FFF;
+}}}
+<h3>`bgc:t`</h3>
+{{{
+background-color:transparent;
+}}}
+<h3>`bgi`</h3>
+{{{
+background-image:url(|);
+}}}
+<h3>`bgi:n`</h3>
+{{{
+background-image:none;
+}}}
+<h3>`bgr`</h3>
+{{{
+background-repeat:|;
+}}}
+<h3>`bgr:r`</h3>
+{{{
+background-repeat:repeat;
+}}}
+<h3>`bgr:x`</h3>
+{{{
+background-repeat:repeat-x;
+}}}
+<h3>`bgr:y`</h3>
+{{{
+background-repeat:repeat-y;
+}}}
+<h3>`bgr:n`</h3>
+{{{
+background-repeat:no-repeat;
+}}}
+<h3>`bga`</h3>
+{{{
+background-attachment:|;
+}}}
+<h3>`bga:f`</h3>
+{{{
+background-attachment:fixed;
+}}}
+<h3>`bga:s`</h3>
+{{{
+background-attachment:scroll;
+}}}
+<h3>`bgp`</h3>
+{{{
+background-position:0 0;
+}}}
+<h3>`bgpx`</h3>
+{{{
+background-position-x:|;
+}}}
+<h3>`bgpy`</h3>
+{{{
+background-position-y:|;
+}}}
+<h3>`bgbk`</h3>
+{{{
+background-break:|;
+}}}
+<h3>`bgbk:bb`</h3>
+{{{
+background-break:bounding-box;
+}}}
+<h3>`bgbk:eb`</h3>
+{{{
+background-break:each-box;
+}}}
+<h3>`bgbk:c`</h3>
+{{{
+background-break:continuous;
+}}}
+<h3>`bgcp`</h3>
+{{{
+background-clip:|;
+}}}
+<h3>`bgcp:bb`</h3>
+{{{
+background-clip:border-box;
+}}}
+<h3>`bgcp:pb`</h3>
+{{{
+background-clip:padding-box;
+}}}
+<h3>`bgcp:cb`</h3>
+{{{
+background-clip:content-box;
+}}}
+<h3>`bgcp:nc`</h3>
+{{{
+background-clip:no-clip;
+}}}
+<h3>`bgo`</h3>
+{{{
+background-origin:|;
+}}}
+<h3>`bgo:pb`</h3>
+{{{
+background-origin:padding-box;
+}}}
+<h3>`bgo:bb`</h3>
+{{{
+background-origin:border-box;
+}}}
+<h3>`bgo:cb`</h3>
+{{{
+background-origin:content-box;
+}}}
+<h3>`bgz`</h3>
+{{{
+background-size:|;
+}}}
+<h3>`bgz:a`</h3>
+{{{
+background-size:auto;
+}}}
+<h3>`bgz:ct`</h3>
+{{{
+background-size:contain;
+}}}
+<h3>`bgz:cv`</h3>
+{{{
+background-size:cover;
+}}}
+<h3>`c`</h3>
+{{{
+color:#000;
+}}}
 
-<h3>Специальные типы содержимого</h3>
+<h2>Специальные типы содержимого</h2>
 
-----
-<code>table-layout:|;                             tbl</code>
-<code>table-layout:auto;                          tbl:a</code>
-<code>table-layout:fixed;                         tbl:f</code>
-----
-<code>caption-side:|;                             cps</code>
-<code>caption-side:top;                           cps:t</code>
-<code>caption-side:bottom;                        cps:b</code>
-----
-<code>empty-cells:|;                              ec</code>
-<code>empty-cells:show;                           ec:s</code>
-<code>empty-cells:hide;                           ec:h</code>
-----
-<code>list-style:|;                               lis</code>
-<code>list-style:none;                            lis:n</code>
-----
-<code>list-style-position:|;                      lisp</code>
-<code>list-style-position:inside;                 lisp:i</code>
-<code>list-style-position:outside;                lisp:o</code>
-----
-<code>list-style-type:|;                          list</code>
-<code>list-style-type:none;                       list:n</code>
-<code>list-style-type:disc;                       list:d</code>
-<code>list-style-type:circle;                     list:c</code>
-<code>list-style-type:square;                     list:s</code>
-<code>list-style-type:decimal;                    list:dc</code>
-<code>list-style-type:decimal-leading-zero;       list:dclz</code>
-<code>list-style-type:lower-roman;                list:lr</code>
-<code>list-style-type:upper-roman;                list:ur</code>
-----
-<code>list-style-image:|;                         lisi</code>
-<code>list-style-image:none;                      lisi:n</code>
-----
-<code>quotes:|;                                   q</code>
-<code>quotes:none;                                q:n</code>
-<code>quotes:'\00AB' '\00BB' '\201E' '\201C';     q:ru</code>
-<code>quotes:'\201C' '\201D' '\2018' '\2019';     q:en</code>
-----
-<code>content:|;                                  ct</code>
-<code>content:normal;                             ct:n</code>
-<code>content:open-quote;                         ct:oq</code>
-<code>content:no-open-quote;                      ct:noq</code>
-<code>content:close-quote;                        ct:cq</code>
-<code>content:no-close-quote;                     ct:ncq</code>
-<code>content:attr(|);                            ct:a</code>
-<code>content:counter(|);                         ct:c</code>
-<code>content:counters(|);                        ct:cs</code>
-----
-<code>counter-increment:|;                        coi</code>
-<code>counter-reset:|;                            cor</code>
-----
+<h3>`tbl`</h3>
+{{{
+table-layout:|;
+}}}
+<h3>`tbl:a`</h3>
+{{{
+table-layout:auto;
+}}}
+<h3>`tbl:f`</h3>
+{{{
+table-layout:fixed;
+}}}
+<h3>`cps`</h3>
+{{{
+caption-side:|;
+}}}
+<h3>`cps:t`</h3>
+{{{
+caption-side:top;
+}}}
+<h3>`cps:b`</h3>
+{{{
+caption-side:bottom;
+}}}
+<h3>`ec`</h3>
+{{{
+empty-cells:|;
+}}}
+<h3>`ec:s`</h3>
+{{{
+empty-cells:show;
+}}}
+<h3>`ec:h`</h3>
+{{{
+empty-cells:hide;
+}}}
+<h3>`lis`</h3>
+{{{
+list-style:|;
+}}}
+<h3>`lis:n`</h3>
+{{{
+list-style:none;
+}}}
+<h3>`lisp`</h3>
+{{{
+list-style-position:|;
+}}}
+<h3>`lisp:i`</h3>
+{{{
+list-style-position:inside;
+}}}
+<h3>`lisp:o`</h3>
+{{{
+list-style-position:outside;
+}}}
+<h3>`list`</h3>
+{{{
+list-style-type:|;
+}}}
+<h3>`list:n`</h3>
+{{{
+list-style-type:none;
+}}}
+<h3>`list:d`</h3>
+{{{
+list-style-type:disc;
+}}}
+<h3>`list:c`</h3>
+{{{
+list-style-type:circle;
+}}}
+<h3>`list:s`</h3>
+{{{
+list-style-type:square;
+}}}
+<h3>`list:dc`</h3>
+{{{
+list-style-type:decimal;
+}}}
+<h3>`list:dclz`</h3>
+{{{
+list-style-type:decimal-leading-zero;
+}}}
+<h3>`list:lr`</h3>
+{{{
+list-style-type:lower-roman;
+}}}
+<h3>`list:ur`</h3>
+{{{
+list-style-type:upper-roman;
+}}}
+<h3>`lisi`</h3>
+{{{
+list-style-image:|;
+}}}
+<h3>`lisi:n`</h3>
+{{{
+list-style-image:none;
+}}}
+<h3>`q`</h3>
+{{{
+quotes:|;
+}}}
+<h3>`q:n`</h3>
+{{{
+quotes:none;
+}}}
+<h3>`q:ru`</h3>
+{{{
+quotes:'\00AB' '\00BB' '\201E' '\201C';
+}}}
+<h3>`q:en`</h3>
+{{{
+quotes:'\201C' '\201D' '\2018' '\2019';
+}}}
+<h3>`ct`</h3>
+{{{
+content:|;
+}}}
+<h3>`ct:n`</h3>
+{{{
+content:normal;
+}}}
+<h3>`ct:oq`</h3>
+{{{
+content:open-quote;
+}}}
+<h3>`ct:noq`</h3>
+{{{
+content:no-open-quote;
+}}}
+<h3>`ct:cq`</h3>
+{{{
+content:close-quote;
+}}}
+<h3>`ct:ncq`</h3>
+{{{
+content:no-close-quote;
+}}}
+<h3>`ct:a`</h3>
+{{{
+content:attr(|);
+}}}
+<h3>`ct:c`</h3>
+{{{
+content:counter(|);
+}}}
+<h3>`ct:cs`</h3>
+{{{
+content:counters(|);
+}}}
+<h3>`cti`</h3>
+{{{
+counter-increment:|;
+}}}
+<h3>`ctr`</h3>
+{{{
+counter-reset:|;
+}}}
 
-<h3>Текст</h3>
+<h2>Текст</h2>
 
-----
-<code>vertical-align:|;                           va</code>
-<code>vertical-align:super;                       va:sup</code>
-<code>vertical-align:top;                         va:t</code>
-<code>vertical-align:text-top;                    va:tt</code>
-<code>vertical-align:middle;                      va:m</code>
-<code>vertical-align:baseline;                    va:bl</code>
-<code>vertical-align:bottom;                      va:b</code>
-<code>vertical-align:text-bottom;                 va:tb</code>
-<code>vertical-align:sub;                         va:sub</code>
-----
-<code>text-align:|;                               ta</code>
-<code>text-align:left;                            ta:l</code>
-<code>text-align:center;                          ta:c</code>
-<code>text-align:right;                           ta:r</code>
-<code>text-align:justify;                         ta:j</code>
-----
-<code>text-align-last:|;                          tal</code>
-<code>text-align-last:auto;                       tal:a</code>
-<code>text-align-last:left;                       tal:l</code>
-<code>text-align-last:center;                     tal:c</code>
-<code>text-align-last:right;                      tal:r</code>
-----
-<code>text-decoration:|;                          td</code>
-<code>text-decoration:none;                       td:n</code>
-<code>text-decoration:overline;                   td:o</code>
-<code>text-decoration:line-through;               td:l</code>
-<code>text-decoration:underline;                  td:u</code>
-----
-<code>text-emphasis:|;                            te</code>
-<code>text-emphasis:none;                         te:n</code>
-<code>text-emphasis:accent;                       te:ac</code>
-<code>text-emphasis:dot;                          te:dt</code>
-<code>text-emphasis:circle;                       te:c</code>
-<code>text-emphasis:disc;                         te:ds</code>
-<code>text-emphasis:before;                       te:b</code>
-<code>text-emphasis:after;                        te:a</code>
-----
-<code>text-height:|;                              th</code>
-<code>text-height:auto;                           th:a</code>
-<code>text-height:font-size;                      th:f</code>
-<code>text-height:text-size;                      th:t</code>
-<code>text-height:max-size;                       th:m</code>
-----
-<code>text-indent:|;                              ti</code>
-<code>text-indent:-9999px;                        ti:-</code>
-----
-<code>text-justify:|;                             tj</code>
-<code>text-justify:auto;                          tj:a</code>
-<code>text-justify:inter-word;                    tj:iw</code>
-<code>text-justify:inter-ideograph;               tj:ii</code>
-<code>text-justify:inter-cluster;                 tj:ic</code>
-<code>text-justify:distribute;                    tj:d</code>
-<code>text-justify:kashida;                       tj:k</code>
-<code>text-justify:tibetan;                       tj:t</code>
-----
-<code>text-outline:|;                             to</code>
-<code>text-outline:none;                          to:n</code>
-<code>text-outline:0 0 #000;                      to+</code>
-----
-<code>text-replace:|;                             tr</code>
-<code>text-replace:none;                          tr:n</code>
-----
-<code>text-transform:|;                           tt</code>
-<code>text-transform:none;                        tt:n</code>
-<code>text-transform:uppercase;                   tt:u</code>
-<code>text-transform:capitalize;                  tt:c</code>
-<code>text-transform:lowercase;                   tt:l</code>
-----
-<code>text-wrap:|;                                tw</code>
-<code>text-wrap:normal;                           tw:n</code>
-<code>text-wrap:none;                             tw:no</code>
-<code>text-wrap:unrestricted;                     tw:u</code>
-<code>text-wrap:suppress;                         tw:s</code>
-----
-<code>text-shadow:|;                              tsh</code>
-<code>text-shadow:none;                           tsh:n</code>
-<code>text-shadow:0 0 0 #000;                     tsh+</code>
-----
-<code>line-height:|;                              lh</code>
-----
-<code>white-space:|;                              whs</code>
-<code>white-space:normal;                         whs:n</code>
-<code>white-space:pre;                            whs:p</code>
-<code>white-space:nowrap;                         whs:nw</code>
-<code>white-space:pre-wrap;                       whs:pw</code>
-<code>white-space:pre-line;                       whs:pl</code>
-----
-<code>white-space-collapse:|;                     whsc</code>
-<code>white-space-collapse:normal;                whsc:n</code>
-<code>white-space-collapse:keep-all;              whsc:k</code>
-<code>white-space-collapse:loose;                 whsc:l</code>
-<code>white-space-collapse:break-strict;          whsc:bs</code>
-<code>white-space-collapse:break-all;             whsc:ba</code>
-----
-<code>word-break:|;                               wob</code>
-<code>word-break:normal;                          wob:n</code>
-<code>word-break:keep-all;                        wob:k</code>
-<code>word-break:loose;                           wob:l</code>
-<code>word-break:break-strict;                    wob:bs</code>
-<code>word-break:break-all;                       wob:ba</code>
-----
-<code>word-spacing:|;                             wos</code>
-----
-<code>word-wrap:|;                                wow</code>
-<code>word-wrap:normal;                           wow:n</code>
-<code>word-wrap:none;                             wow:no</code>
-<code>word-wrap:unrestricted;                     wow:u</code>
-<code>word-wrap:suppress;                         wow:s</code>
-----
-<code>letter-spacing:|;                           lts</code>
-----
-<code>font:|;                                     f</code>
-<code>font:1em Arial,sans-serif;                  f+</code>
-----
-<code>font-weight:|;                              fw</code>
-<code>font-weight:normal;                         fw:n</code>
-<code>font-weight:bold;                           fw:b</code>
-<code>font-weight:bolder;                         fw:br</code>
-<code>font-weight:lighter;                        fw:lr</code>
-----
-<code>font-style:|;                               fs</code>
-<code>font-style:normal;                          fs:n</code>
-<code>font-style:italic;                          fs:i</code>
-<code>font-style:oblique;                         fs:o</code>
-----
-<code>font-variant:|;                             fv</code>
-<code>font-variant:normal;                        fv:n</code>
-<code>font-variant:small-caps;                    fv:sc</code>
-----
-<code>font-size:|;                                fz</code>
-----
-<code>font-size-adjust:|;                         fza</code>
-<code>font-size-adjust:none;                      fza:n</code>
-----
-<code>font-family:|;                                              ff</code>
-<code>font-family:Georgia,'Times New Roman',serif;                ff:s</code>
-<code>font-family:Helvetica,Arial,sans-serif;                     ff:ss</code>
-<code>font-family:'Monotype Corsiva','Comic Sans MS',cursive;     ff:c</code>
-<code>font-family:Capitals,Impact,fantasy;                        ff:f</code>
-<code>font-family:Monaco,'Courier New',monospace;                 ff:m</code>
-----
-<code>font-effect:|;                              fef</code>
-<code>font-effect:none;                           fef:n</code>
-<code>font-effect:engrave;                        fef:eg</code>
-<code>font-effect:emboss;                         fef:eb</code>
-<code>font-effect:outline;                        fef:o</code>
-----
-<code>font-emphasize:|;                           fem</code>
-----
-<code>font-emphasize-position:|;                  femp</code>
-<code>font-emphasize-position:before;             femp:b</code>
-<code>font-emphasize-position:after;              femp:a</code>
-----
-<code>font-emphasize-style:|;                     fems</code>
-<code>font-emphasize-style:none;                  fems:n</code>
-<code>font-emphasize-style:accent;                fems:ac</code>
-<code>font-emphasize-style:dot;                   fems:dt</code>
-<code>font-emphasize-style:circle;                fems:c</code>
-<code>font-emphasize-style:disc;                  fems:ds</code>
-----
-<code>font-smooth:|;                              fsm</code>
-<code>font-smooth:auto;                           fsm:a</code>
-<code>font-smooth:never;                          fsm:n</code>
-<code>font-smooth:always;                         fsm:aw</code>
-----
-<code>font-stretch:|;                             fst</code>
-<code>font-stretch:normal;                        fst:n</code>
-<code>font-stretch:ultra-condensed;               fst:uc</code>
-<code>font-stretch:extra-condensed;               fst:ec</code>
-<code>font-stretch:condensed;                     fst:c</code>
-<code>font-stretch:semi-condensed;                fst:sc</code>
-<code>font-stretch:semi-expanded;                 fst:se</code>
-<code>font-stretch:expanded;                      fst:e</code>
-<code>font-stretch:extra-expanded;                fst:ee</code>
-<code>font-stretch:ultra-expanded;                fst:ue</code>
-----
+<h3>`va`</h3>
+{{{
+vertical-align:|;
+}}}
+<h3>`va:sup`</h3>
+{{{
+vertical-align:super;
+}}}
+<h3>`va:t`</h3>
+{{{
+vertical-align:top;
+}}}
+<h3>`va:tt`</h3>
+{{{
+vertical-align:text-top;
+}}}
+<h3>`va:m`</h3>
+{{{
+vertical-align:middle;
+}}}
+<h3>`va:bl`</h3>
+{{{
+vertical-align:baseline;
+}}}
+<h3>`va:b`</h3>
+{{{
+vertical-align:bottom;
+}}}
+<h3>`va:tb`</h3>
+{{{
+vertical-align:text-bottom;
+}}}
+<h3>`va:sub`</h3>
+{{{
+vertical-align:sub;
+}}}
+<h3>`ta`</h3>
+{{{
+text-align:|;
+}}}
+<h3>`ta:l`</h3>
+{{{
+text-align:left;
+}}}
+<h3>`ta:c`</h3>
+{{{
+text-align:center;
+}}}
+<h3>`ta:r`</h3>
+{{{
+text-align:right;
+}}}
+<h3>`ta:j`</h3>
+{{{
+text-align:justify;
+}}}
+<h3>`tal`</h3>
+{{{
+text-align-last:|;
+}}}
+<h3>`tal:a`</h3>
+{{{
+text-align-last:auto;
+}}}
+<h3>`tal:l`</h3>
+{{{
+text-align-last:left;
+}}}
+<h3>`tal:c`</h3>
+{{{
+text-align-last:center;
+}}}
+<h3>`tal:r`</h3>
+{{{
+text-align-last:right;
+}}}
+<h3>`td`</h3>
+{{{
+text-decoration:|;
+}}}
+<h3>`td:n`</h3>
+{{{
+text-decoration:none;
+}}}
+<h3>`td:o`</h3>
+{{{
+text-decoration:overline;
+}}}
+<h3>`td:l`</h3>
+{{{
+text-decoration:line-through;
+}}}
+<h3>`td:u`</h3>
+{{{
+text-decoration:underline;
+}}}
+<h3>`te`</h3>
+{{{
+text-emphasis:|;
+}}}
+<h3>`te:n`</h3>
+{{{
+text-emphasis:none;
+}}}
+<h3>`te:ac`</h3>
+{{{
+text-emphasis:accent;
+}}}
+<h3>`te:dt`</h3>
+{{{
+text-emphasis:dot;
+}}}
+<h3>`te:c`</h3>
+{{{
+text-emphasis:circle;
+}}}
+<h3>`te:ds`</h3>
+{{{
+text-emphasis:disc;
+}}}
+<h3>`te:b`</h3>
+{{{
+text-emphasis:before;
+}}}
+<h3>`te:a`</h3>
+{{{
+text-emphasis:after;
+}}}
+<h3>`th`</h3>
+{{{
+text-height:|;
+}}}
+<h3>`th:a`</h3>
+{{{
+text-height:auto;
+}}}
+<h3>`th:f`</h3>
+{{{
+text-height:font-size;
+}}}
+<h3>`th:t`</h3>
+{{{
+text-height:text-size;
+}}}
+<h3>`th:m`</h3>
+{{{
+text-height:max-size;
+}}}
+<h3>`ti`</h3>
+{{{
+text-indent:|;
+}}}
+<h3>`ti:-`</h3>
+{{{
+text-indent:-9999px;
+}}}
+<h3>`tj`</h3>
+{{{
+text-justify:|;
+}}}
+<h3>`tj:a`</h3>
+{{{
+text-justify:auto;
+}}}
+<h3>`tj:iw`</h3>
+{{{
+text-justify:inter-word;
+}}}
+<h3>`tj:ii`</h3>
+{{{
+text-justify:inter-ideograph;
+}}}
+<h3>`tj:ic`</h3>
+{{{
+text-justify:inter-cluster;
+}}}
+<h3>`tj:d`</h3>
+{{{
+text-justify:distribute;
+}}}
+<h3>`tj:k`</h3>
+{{{
+text-justify:kashida;
+}}}
+<h3>`tj:t`</h3>
+{{{
+text-justify:tibetan;
+}}}
+<h3>`to`</h3>
+{{{
+text-outline:|;
+}}}
+<h3>`to:n`</h3>
+{{{
+text-outline:none;
+}}}
+<h3>`to+`</h3>
+{{{
+text-outline:0 0 #000;
+}}}
+<h3>`tr`</h3>
+{{{
+text-replace:|;
+}}}
+<h3>`tr:n`</h3>
+{{{
+text-replace:none;
+}}}
+<h3>`tt`</h3>
+{{{
+text-transform:|;
+}}}
+<h3>`tt:n`</h3>
+{{{
+text-transform:none;
+}}}
+<h3>`tt:u`</h3>
+{{{
+text-transform:uppercase;
+}}}
+<h3>`tt:c`</h3>
+{{{
+text-transform:capitalize;
+}}}
+<h3>`tt:l`</h3>
+{{{
+text-transform:lowercase;
+}}}
+<h3>`tw`</h3>
+{{{
+text-wrap:|;
+}}}
+<h3>`tw:n`</h3>
+{{{
+text-wrap:normal;
+}}}
+<h3>`tw:no`</h3>
+{{{
+text-wrap:none;
+}}}
+<h3>`tw:u`</h3>
+{{{
+text-wrap:unrestricted;
+}}}
+<h3>`tw:s`</h3>
+{{{
+text-wrap:suppress;
+}}}
+<h3>`tsh`</h3>
+{{{
+text-shadow:|;
+}}}
+<h3>`tsh:n`</h3>
+{{{
+text-shadow:none;
+}}}
+<h3>`tsh+`</h3>
+{{{
+text-shadow:0 0 0 #000;
+}}}
+<h3>`lh`</h3>
+{{{
+line-height:|;
+}}}
+<h3>`whs`</h3>
+{{{
+white-space:|;
+}}}
+<h3>`whs:n`</h3>
+{{{
+white-space:normal;
+}}}
+<h3>`whs:p`</h3>
+{{{
+white-space:pre;
+}}}
+<h3>`whs:nw`</h3>
+{{{
+white-space:nowrap;
+}}}
+<h3>`whs:pw`</h3>
+{{{
+white-space:pre-wrap;
+}}}
+<h3>`whs:pl`</h3>
+{{{
+white-space:pre-line;
+}}}
+<h3>`whsc`</h3>
+{{{
+white-space-collapse:|;
+}}}
+<h3>`whsc:n`</h3>
+{{{
+white-space-collapse:normal;
+}}}
+<h3>`whsc:k`</h3>
+{{{
+white-space-collapse:keep-all;
+}}}
+<h3>`whsc:l`</h3>
+{{{
+white-space-collapse:loose;
+}}}
+<h3>`whsc:bs`</h3>
+{{{
+white-space-collapse:break-strict;
+}}}
+<h3>`whsc:ba`</h3>
+{{{
+white-space-collapse:break-all;
+}}}
+<h3>`wob`</h3>
+{{{
+word-break:|;
+}}}
+<h3>`wob:n`</h3>
+{{{
+word-break:normal;
+}}}
+<h3>`wob:k`</h3>
+{{{
+word-break:keep-all;
+}}}
+<h3>`wob:l`</h3>
+{{{
+word-break:loose;
+}}}
+<h3>`wob:bs`</h3>
+{{{
+word-break:break-strict;
+}}}
+<h3>`wob:ba`</h3>
+{{{
+word-break:break-all;
+}}}
+<h3>`wos`</h3>
+{{{
+word-spacing:|;
+}}}
+<h3>`wow`</h3>
+{{{
+word-wrap:|;
+}}}
+<h3>`wow:n`</h3>
+{{{
+word-wrap:normal;
+}}}
+<h3>`wow:no`</h3>
+{{{
+word-wrap:none;
+}}}
+<h3>`wow:u`</h3>
+{{{
+word-wrap:unrestricted;
+}}}
+<h3>`wow:s`</h3>
+{{{
+word-wrap:suppress;
+}}}
+<h3>`lts`</h3>
+{{{
+letter-spacing:|;
+}}}
+<h3>`f`</h3>
+{{{
+font:|;
+}}}
+<h3>`f+`</h3>
+{{{
+font:1em Arial,sans-serif;
+}}}
+<h3>`fw`</h3>
+{{{
+font-weight:|;
+}}}
+<h3>`fw:n`</h3>
+{{{
+font-weight:normal;
+}}}
+<h3>`fw:b`</h3>
+{{{
+font-weight:bold;
+}}}
+<h3>`fw:br`</h3>
+{{{
+font-weight:bolder;
+}}}
+<h3>`fw:lr`</h3>
+{{{
+font-weight:lighter;
+}}}
+<h3>`fs`</h3>
+{{{
+font-style:|;
+}}}
+<h3>`fs:n`</h3>
+{{{
+font-style:normal;
+}}}
+<h3>`fs:i`</h3>
+{{{
+font-style:italic;
+}}}
+<h3>`fs:o`</h3>
+{{{
+font-style:oblique;
+}}}
+<h3>`fv`</h3>
+{{{
+font-variant:|;
+}}}
+<h3>`fv:n`</h3>
+{{{
+font-variant:normal;
+}}}
+<h3>`fv:sc`</h3>
+{{{
+font-variant:small-caps;
+}}}
+<h3>`fz`</h3>
+{{{
+font-size:|;
+}}}
+<h3>`fza`</h3>
+{{{
+font-size-adjust:|;
+}}}
+<h3>`fza:n`</h3>
+{{{
+font-size-adjust:none;
+}}}
+<h3>`ff`</h3>
+{{{
+font-family:|;
+}}}
+<h3>`ff:s`</h3>
+{{{
+font-family:Georgia,'Times New Roman',serif;
+}}}
+<h3>`ff:ss`</h3>
+{{{
+font-family:Helvetica,Arial,sans-serif;
+}}}
+<h3>`ff:c`</h3>
+{{{
+font-family:'Monotype Corsiva','Comic Sans MS',cursive;
+}}}
+<h3>`ff:f`</h3>
+{{{
+font-family:Capitals,Impact,fantasy;
+}}}
+<h3>`ff:m`</h3>
+{{{
+font-family:Monaco,'Courier New',monospace;
+}}}
+<h3>`fef`</h3>
+{{{
+font-effect:|;
+}}}
+<h3>`fef:n`</h3>
+{{{
+font-effect:none;
+}}}
+<h3>`fef:eg`</h3>
+{{{
+font-effect:engrave;
+}}}
+<h3>`fef:eb`</h3>
+{{{
+font-effect:emboss;
+}}}
+<h3>`fef:o`</h3>
+{{{
+font-effect:outline;
+}}}
+<h3>`fem`</h3>
+{{{
+font-emphasize:|;
+}}}
+<h3>`femp`</h3>
+{{{
+font-emphasize-position:|;
+}}}
+<h3>`femp:b`</h3>
+{{{
+font-emphasize-position:before;
+}}}
+<h3>`femp:a`</h3>
+{{{
+font-emphasize-position:after;
+}}}
+<h3>`fems`</h3>
+{{{
+font-emphasize-style:|;
+}}}
+<h3>`fems:n`</h3>
+{{{
+font-emphasize-style:none;
+}}}
+<h3>`fems:ac`</h3>
+{{{
+font-emphasize-style:accent;
+}}}
+<h3>`fems:dt`</h3>
+{{{
+font-emphasize-style:dot;
+}}}
+<h3>`fems:c`</h3>
+{{{
+font-emphasize-style:circle;
+}}}
+<h3>`fems:ds`</h3>
+{{{
+font-emphasize-style:disc;
+}}}
+<h3>`fsm`</h3>
+{{{
+font-smooth:|;
+}}}
+<h3>`fsm:a`</h3>
+{{{
+font-smooth:auto;
+}}}
+<h3>`fsm:n`</h3>
+{{{
+font-smooth:never;
+}}}
+<h3>`fsm:aw`</h3>
+{{{
+font-smooth:always;
+}}}
+<h3>`fst`</h3>
+{{{
+font-stretch:|;
+}}}
+<h3>`fst:n`</h3>
+{{{
+font-stretch:normal;
+}}}
+<h3>`fst:uc`</h3>
+{{{
+font-stretch:ultra-condensed;
+}}}
+<h3>`fst:ec`</h3>
+{{{
+font-stretch:extra-condensed;
+}}}
+<h3>`fst:c`</h3>
+{{{
+font-stretch:condensed;
+}}}
+<h3>`fst:sc`</h3>
+{{{
+font-stretch:semi-condensed;
+}}}
+<h3>`fst:se`</h3>
+{{{
+font-stretch:semi-expanded;
+}}}
+<h3>`fst:e`</h3>
+{{{
+font-stretch:expanded;
+}}}
+<h3>`fst:ee`</h3>
+{{{
+font-stretch:extra-expanded;
+}}}
+<h3>`fst:ue`</h3>
+{{{
+font-stretch:ultra-expanded;
+}}}
 
-<h3>Визуальные свойства</h3>
+<h2>Визуальные свойства</h2>
 
-----
-<code>opacity:|;                                                              op</code>
-<code>filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=|);              op:ie</code>
-<code>-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=|)';        op:ms</code>
-----
-<code>resize:|;                                   rz</code>
-<code>resize:none;                                rz:n</code>
-<code>resize:both;                                rz:b</code>
-<code>resize:horizontal;                          rz:h</code>
-<code>resize:vertical;                            rz:v</code>
-----
-<code>cursor:|;                                   cur</code>
-<code>cursor:auto;                                cur:a</code>
-<code>cursor:default;                             cur:d</code>
-<code>cursor:crosshair;                           cur:c</code>
-<code>cursor:hand;                                cur:ha</code>
-<code>cursor:help;                                cur:he</code>
-<code>cursor:move;                                cur:m</code>
-<code>cursor:pointer;                             cur:p</code>
-<code>cursor:text;                                cur:t</code>
-----
+<h3>`op`</h3>
+{{{
+opacity:|;
+}}}
+<h3>`op:ie`</h3>
+{{{
+filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=|);
+}}}
+<h3>`op:ms`</h3>
+{{{
+-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=|)';
+}}}
+<h3>`rz`</h3>
+{{{
+resize:|;
+}}}
+<h3>`rz:n`</h3>
+{{{
+resize:none;
+}}}
+<h3>`rz:b`</h3>
+{{{
+resize:both;
+}}}
+<h3>`rz:h`</h3>
+{{{
+resize:horizontal;
+}}}
+<h3>`rz:v`</h3>
+{{{
+resize:vertical;
+}}}
+<h3>`cur`</h3>
+{{{
+cursor:|;
+}}}
+<h3>`cur:a`</h3>
+{{{
+cursor:auto;
+}}}
+<h3>`cur:d`</h3>
+{{{
+cursor:default;
+}}}
+<h3>`cur:c`</h3>
+{{{
+cursor:crosshair;
+}}}
+<h3>`cur:ha`</h3>
+{{{
+cursor:hand;
+}}}
+<h3>`cur:he`</h3>
+{{{
+cursor:help;
+}}}
+<h3>`cur:m`</h3>
+{{{
+cursor:move;
+}}}
+<h3>`cur:p`</h3>
+{{{
+cursor:pointer;
+}}}
+<h3>`cur:t`</h3>
+{{{
+cursor:text;
+}}}
 
-<h3>Печать</h3>
+<h2>Печать</h2>
 
-----
-<code>page-break-before:|;                        pgbb</code>
-<code>page-break-before:auto;                     pgbb:a</code>
-<code>page-break-before:always;                   pgbb:aw</code>
-<code>page-break-before:left;                     pgbb:l</code>
-<code>page-break-before:right;                    pgbb:r</code>
-----
-<code>page-break-inside:|;                        pgbi</code>
-<code>page-break-inside:auto;                     pgbi:a</code>
-<code>page-break-inside:avoid;                    pgbi:av</code>
-----
-<code>page-break-after:|;                         pgba</code>
-<code>page-break-after:auto;                      pgba:a</code>
-<code>page-break-after:always;                    pgba:aw</code>
-<code>page-break-after:left;                      pgba:l</code>
-<code>page-break-after:right;                     pgba:r</code>
-----
-<code>orphans:|;                                  orp</code>
-<code>widows:|;                                   wid</code>
-----
+<h3>`pgbb`</h3>
+{{{
+page-break-before:|;
+}}}
+<h3>`pgbb:a`</h3>
+{{{
+page-break-before:auto;
+}}}
+<h3>`pgbb:aw`</h3>
+{{{
+page-break-before:always;
+}}}
+<h3>`pgbb:l`</h3>
+{{{
+page-break-before:left;
+}}}
+<h3>`pgbb:r`</h3>
+{{{
+page-break-before:right;
+}}}
+<h3>`pgbi`</h3>
+{{{
+page-break-inside:|;
+}}}
+<h3>`pgbi:a`</h3>
+{{{
+page-break-inside:auto;
+}}}
+<h3>`pgbi:av`</h3>
+{{{
+page-break-inside:avoid;
+}}}
+<h3>`pgba`</h3>
+{{{
+page-break-after:|;
+}}}
+<h3>`pgba:a`</h3>
+{{{
+page-break-after:auto;
+}}}
+<h3>`pgba:aw`</h3>
+{{{
+page-break-after:always;
+}}}
+<h3>`pgba:l`</h3>
+{{{
+page-break-after:left;
+}}}
+<h3>`pgba:r`</h3>
+{{{
+page-break-after:right;
+}}}
+<h3>`orp`</h3>
+{{{
+orphans:|;
+}}}
+<h3>`wid`</h3>
+{{{
+widows:|;
+}}}
