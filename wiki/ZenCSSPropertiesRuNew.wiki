@@ -55,12 +55,6 @@
     |
     }
 }}}
-<h3>`@m:pj`</h3>
-{{{
-@media projection {
-    |
-    }
-}}}
 <h3>`@m:p`</h3>
 {{{
 @media print {
