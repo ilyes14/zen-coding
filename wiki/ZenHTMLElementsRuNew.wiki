@@ -1,4 +1,5 @@
 #summary HTML-элементы и их псевдонимы для плагинов Zen HTML
+#labels Deprecated
 
 <h1>Элементы Zen HTML</h1>
 
