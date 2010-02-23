@@ -1,4 +1,5 @@
 #summary CSS-свойства и их псевдонимы для плагинов Zen CSS
+#labels Deprecated
 
 <h1>CSS-свойства</h1>
 
