@@ -1,6 +1,8 @@
 #summary Using Zen Coding in Aptana/Eclipse
 #labels Phase-Deploy
 
+=Update: you should use https://github.com/sergeche/eclipse-zencoding instead this plugin=
+
 ==Installing==
 Zen Coding requires [http://wiki.eclipse.org/Eclipse_Monkey_Overview EclipseMonkey] plugin to run. This plugin is bundled with Aptana by default. So, if you're using Aptana, you can skip first step.
   # Install EclipseMonkey using update site: http://download.eclipse.org/technology/dash/update (you can skip this step if you have Aptana installed)
