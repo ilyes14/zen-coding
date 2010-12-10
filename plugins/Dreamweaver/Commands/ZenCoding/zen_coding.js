@@ -2,6 +2,8 @@
  * Core library that do all Zen Coding magic
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
+ * @include "settings.js"
+ * @include "zen_parser.js"
  */
 var zen_coding = (function(){
 
@@ -15,7 +17,8 @@ var zen_coding = (function(){
 
 		caret_placeholder = '{%::zen-caret::%}',
 		newline = '\n',
-		default_tag = 'div';
+		default_tag = 'div',
+		user_variables = {};
 
 	var default_profile = {
 		tag_case: 'lower',
@@ -35,7 +38,10 @@ var zen_coding = (function(){
 		inline_break: 3,
 
 		// use self-closing style for writing empty elements, e.g. <br /> or <br>
-		self_closing_tag: 'xhtml'
+		self_closing_tag: 'xhtml',
+		
+		// Profile-level output filters, re-defines syntax filters 
+		filters: ''
 	};
 
 	var profiles = {};
@@ -44,7 +50,14 @@ var zen_coding = (function(){
 	var filters = {},
 		/** Filters that will be applied for unknown syntax */
 		basic_filters = 'html';
-
+		
+	function isNumeric(ch) {
+		if (typeof(ch) == 'string')
+			ch = ch.charCodeAt(0);
+			
+		return (ch && ch > 47 && ch < 58);
+	}
+	
 	/**
 	 * Проверяет, является ли символ допустимым в аббревиатуре
 	 * @param {String} ch
@@ -53,7 +66,7 @@ var zen_coding = (function(){
 	function isAllowedChar(ch) {
 		var char_code = ch.charCodeAt(0),
 			special_chars = '#.>+*:$-_!@[]()|';
-
+		
 		return (char_code > 64 && char_code < 91)       // uppercase letter
 				|| (char_code > 96 && char_code < 123)  // lowercase letter
 				|| (char_code > 47 && char_code < 58)   // number
@@ -83,15 +96,15 @@ var zen_coding = (function(){
 		var lines = (text || '')
 			.replace(/\r\n/g, '\n')
 			.replace(/\n\r/g, '\n')
+			.replace(/\r/g, '\n')
 			.replace(/\n/g, nl)
 			.split(nl);
 
-		if (remove_empty) {
-			for (var i = lines.length; i >= 0; i--) {
-				if (!trim(lines[i]))
+		if (remove_empty)
+			for (var i = lines.length; i--; ) {
+				if (!lines[i].replace(/^\s+|\s+$/g, ''))
 					lines.splice(i, 1);
 			}
-		}
 
 		return lines;
 	}
@@ -187,7 +200,7 @@ var zen_coding = (function(){
 	 * @return {Boolean}
 	 */
 	function isShippet(abbr, type) {
-		return getSnippet(type, abbr) ? true : false;
+		return getSnippet(type, filterNodeName(abbr)) ? true : false;
 	}
 
 	/**
@@ -217,52 +230,69 @@ var zen_coding = (function(){
 	/**
 	 * Replace variables like ${var} in string
 	 * @param {String} str
-	 * @param {Object} [vars] Variable set (default is <code>zen_settings.variables</code>) 
+	 * @param {Object|Function} [vars] Variable set (default is <code>zen_settings.variables</code>) 
 	 * @return {String}
 	 */
 	function replaceVariables(str, vars) {
-		vars = vars || zen_settings.variables;
-		return str.replace(/\$\{([\w\-]+)\}/g, function(str, p1){
+		var callback;
+		
+		if (typeof vars == 'function')
+			callback = vars;
+		else if (vars)
+			callback = function(str, p1) {
 			return (p1 in vars) ? vars[p1] : str;
-		});
+			};
+		else 
+			callback = function(str, p1) {
+				var v = getVariable(p1);
+				return (v != null && typeof v != 'undefined') ? v : str;
+			}
+		
+		return str.replace(/\$\{([\w\-]+)\}/g, callback);
+	}
+	
+	/**
+	 * Removes any unnecessary characters from node name
+	 * @param {String} name
+	 * @return {String}
+	 */
+	function filterNodeName(name) {
+		return (name || '').replace(/(.+)\!$/, '$1');
 	}
 
 	/**
 	 * Tag
 	 * @class
-	 * @param {String} name tag name
-	 * @param {Number} count Output multiplier (default: 1)
+	 * @param {zen_parser.TreeNode} node Parsed tree node
 	 * @param {String} type Tag type (html, xml)
 	 */
-	function Tag(name, count, type) {
-		name = name.toLowerCase();
+	function Tag(node, type) {
 		type = type || 'html';
 
-		var abbr = getAbbreviation(type, name);
+		var abbr = null;
+		if (node.name) {
+			abbr = getAbbreviation(type, filterNodeName(node.name));
 		if (abbr && abbr.type == TYPE_REFERENCE)
-			abbr = getAbbreviation(type, abbr.value);
+				abbr = getAbbreviation(type, filterNodeName(abbr.value));
+		}
 
-		this.name = (abbr) ? abbr.value.name : name.replace('+', '');
-		this.count = count || 1;
-		this.children = [];
-		this.attributes = [];
-		this._attr_hash = {};
+		this.name = (abbr) ? abbr.value.name : node.name;
+		this.real_name = node.name;
+		this.count = node.count || 1;
 		this._abbr = abbr;
 		this._res = zen_settings[type];
 		this._content = '';
-		this.repeat_by_lines = false;
+		this._paste_content = '';
+		this.repeat_by_lines = node.is_repeating;
 		this.parent = null;
 
+		this.setContent(node.text);
+		
 		// add default attributes
-		if (this._abbr && this._abbr.value.attributes) {
-			var def_attrs = this._abbr.value.attributes;
-			if (def_attrs) {
-				for (var i = 0; i < def_attrs.length; i++) {
-					var attr = def_attrs[i];
-					this.addAttribute(attr.name, attr.value);
-				}
-			}
-		}
+		if (this._abbr)
+			this.copyAttributes(this._abbr.value);
+		
+		this.copyAttributes(node);
 	}
 
 	Tag.prototype = {
@@ -271,6 +301,9 @@ var zen_coding = (function(){
 		 * @param {Tag} tag
 		 */
 		addChild: function(tag) {
+			if (!this.children)
+				this.children = [];
+				
 			tag.parent = this;
 			this.children.push(tag);
 		},
@@ -281,8 +314,13 @@ var zen_coding = (function(){
 		 * @param {String} value Attribute's value
 		 */
 		addAttribute: function(name, value) {
-			// the only place in Tag where pipe (caret) character may exist
-			// is the attribute: escape it with internal placeholder
+			if (!this.attributes)
+				this.attributes = [];
+				
+			if (!this._attr_hash)
+				this._attr_hash = {};
+			
+			// escape pipe (caret) character with internal placeholder
 			value = replaceUnescapedSymbol(value, '|', caret_placeholder);
 
 			var a;
@@ -303,6 +341,17 @@ var zen_coding = (function(){
 		},
 
 		/**
+		 * Copy attributes from parsed node
+		 */
+		copyAttributes: function(node) {
+			if (node && node.attributes)
+				for (var i = 0, il = node.attributes.length; i < il; i++) {
+					var attr = node.attributes[i];
+					this.addAttribute(attr.name, attr.value);
+				}
+		},
+		
+		/**
 		 * This function tests if current tags' content contains xHTML tags. 
 		 * This function is mostly used for output formatting
 		 */
@@ -315,7 +364,7 @@ var zen_coding = (function(){
 		 * @param {String} str Tag's content
 		 */
 		setContent: function(str) {
-			this._content = str;
+			this._content = replaceUnescapedSymbol(str || '', '|', caret_placeholder);
 		},
 
 		/**
@@ -323,7 +372,23 @@ var zen_coding = (function(){
 		 * @return {String}
 		 */
 		getContent: function() {
-			return this._content;
+			return this._content || '';
+		},
+		
+		/**
+		 * Set content that should be pasted to the output
+		 * @param {String} val
+		 */
+		setPasteContent: function(val) {
+			this._paste_content = zen_coding.escapeText(val);
+		},
+		
+		/**
+		 * Get content that should be pasted to the output
+		 * @return {String}
+		 */
+		getPasteContent: function() {
+			return this._paste_content;
 		},
 
 		/**
@@ -331,13 +396,13 @@ var zen_coding = (function(){
 		 * @return {Tag|null} Returns null if there's no children
 		 */
 		findDeepestChild: function() {
-			if (!this.children.length)
+			if (!this.children || !this.children.length)
 				return null;
 
 			var deepest_child = this;
 			while (true) {
 				deepest_child = deepest_child.children[ deepest_child.children.length - 1 ];
-				if (!deepest_child.children.length)
+				if (!deepest_child.children || !deepest_child.children.length)
 					break;
 			}
 
@@ -345,16 +410,24 @@ var zen_coding = (function(){
 		}
 	};
 
-	function Snippet(name, count, type) {
+	/**
+	 * Snippet
+	 * @param {zen_parser.TreeNode} node
+	 * @param {String} type Tag type (html, xml)
+	 */
+	function Snippet(node, type) {
 		/** @type {String} */
-		this.name = name;
-		this.count = count || 1;
+		this.name = filterNodeName(node.name);
+		this.real_name = node.name;
+		this.count = node.count;
 		this.children = [];
-		this._content = '';
-		this.repeat_by_lines = false;
+		this._content = node.text || '';
+		this.repeat_by_lines = node.is_repeating;
 		this.attributes = {'id': caret_placeholder, 'class': caret_placeholder};
-		this.value = replaceUnescapedSymbol(getSnippet(type, name), '|', caret_placeholder);
+		this.value = replaceUnescapedSymbol(getSnippet(type, this.name), '|', caret_placeholder);
 		this.parent = null;
+		
+		this.copyAttributes(node);
 	}
 
 	inherit(Snippet, Tag);
@@ -366,7 +439,8 @@ var zen_coding = (function(){
 	 * @return {Object|null}
 	 */
 	function getAbbreviation(type, abbr) {
-		return getSettingsResource(type, abbr, 'abbreviations');
+		return getSettingsResource(type, abbr, 'abbreviations') 
+			|| getSettingsResource(type, abbr.replace(/\-/g, ':'), 'abbreviations');
 	}
 
 	/**
@@ -376,7 +450,8 @@ var zen_coding = (function(){
 	 * @return {Object|null}
 	 */
 	function getSnippet(type, snippet_name) {
-		return getSettingsResource(type, snippet_name, 'snippets');
+		return getSettingsResource(type, snippet_name, 'snippets')
+			|| getSettingsResource(type, snippet_name.replace(/\-/g, ':'), 'snippets');
 	}
 
 	/**
@@ -384,7 +459,9 @@ var zen_coding = (function(){
 	 * @return {String}
 	 */
 	function getVariable(name) {
-		return zen_settings.variables[name];
+		return (name in user_variables)
+			? user_variables[name]
+			: zen_settings.variables[name];
 	}
 
 	/**
@@ -434,13 +511,17 @@ var zen_coding = (function(){
 	}
 
 	/**
-	 * Returns resurce value from data set with respect of inheritance
+	 * Returns resource value from data set with respect of inheritance
 	 * @param {String} syntax Resource syntax (html, css, ...)
 	 * @param {String} abbr Abbreviation name
 	 * @param {String} name Resource name ('snippets' or 'abbreviation')
 	 * @return {Object|null}
 	 */
 	function getSettingsResource(syntax, abbr, name) {
+		var result = getUserDefinedResource(syntax, abbr, name);
+		if (result)
+			return result;
+			
 		var chain = createResourceChain(syntax, name);
 		for (var i = 0, il = chain.length; i < il; i++) {
 			if (abbr in chain[i])
@@ -451,216 +532,19 @@ var zen_coding = (function(){
 	}
 
 	/**
-	 * Get word, starting at <code>ix</code> character of <code>str</code>
+	 * Returns user defined resource
+	 * @param {String} syntax Resource syntax (html, css, ...)
+	 * @param {String} abbr Abbreviation name
+	 * @param {String} name Resource name ('snippets' or 'abbreviation')
+	 * @return {Object|null}
 	 */
-	function getWord(ix, str) {
-		var m = str.substring(ix).match(/^[\w\-:\$]+/);
-		return m ? m[0] : '';
+	function getUserDefinedResource(syntax, abbr, name) {
+		var storage = zen_coding.user_resources;
+		if (storage && syntax in storage && name in storage[syntax]) {
+			return storage[syntax][name][abbr] || null;
 	}
 
-	/**
-	 * Extract attributes and their values from attribute set 
-	 * @param {String} attr_set
-	 */
-	function extractAttributes(attr_set) {
-		attr_set = trim(attr_set);
-		var loop_count = 100, // endless loop protection
-			re_string = /^(["'])((?:(?!\1)[^\\]|\\.)*)\1/,
-			result = [],
-			attr;
-
-		while (attr_set && loop_count--) {
-			var attr_name = getWord(0, attr_set);
-			attr = null;
-			if (attr_name) {
-				attr = {name: attr_name, value: ''};
-//				result[attr_name] = '';
-				// let's see if attribute has value
-				var ch = attr_set.charAt(attr_name.length);
-				switch (ch) {
-					case '=':
-						var ch2 = attr_set.charAt(attr_name.length + 1);
-						if (ch2 == '"' || ch2 == "'") {
-							// we have a quoted string
-							var m = attr_set.substring(attr_name.length + 1).match(re_string);
-							if (m) {
-								attr.value = m[2];
-								attr_set = trim(attr_set.substring(attr_name.length + m[0].length + 1));
-							} else {
-								// something wrong, break loop
-								attr_set = '';
-							}
-						} else {
-							// unquoted string
-							var m = attr_set.substring(attr_name.length + 1).match(/(.+?)(\s|$)/);
-							if (m) {
-								attr.value = m[1];
-								attr_set = trim(attr_set.substring(attr_name.length + m[1].length + 1));
-							} else {
-								// something wrong, break loop
-								attr_set = '';
-							}
-						}
-						break;
-					default:
-						attr_set = trim(attr_set.substring(attr_name.length));
-						break;
-				}
-			} else {
-				// something wrong, can't extract attribute name
-				break;
-			}
-
-			if (attr) result.push(attr);
-		}
-		return result;
-	}
-
-	/**
-	 * Parses tag attributes extracted from abbreviation
-	 * @param {String} str
-	 */
-	function parseAttributes(str) {
-		/*
-		 * Example of incoming data:
-		 * #header
-		 * .some.data
-		 * .some.data#header
-		 * [attr]
-		 * #item[attr=Hello other="World"].class
-		 */
-		var result = [],
-			class_name,
-			char_map = {'#': 'id', '.': 'class'};
-
-		// walk char-by-char
-		var i = 0,
-			il = str.length,
-			val;
-
-		while (i < il) {
-			var ch = str.charAt(i);
-			switch (ch) {
-				case '#': // id
-					val = getWord(i, str.substring(1));
-					result.push({name: char_map[ch], value: val});
-					i += val.length + 1;
-					break;
-				case '.': // class
-					val = getWord(i, str.substring(1));
-					if (!class_name) {
-						// remember object pointer for value modification
-						class_name = {name: char_map[ch], value: ''};
-						result.push(class_name);
-					}
-
-					class_name.value += ((class_name.value) ? ' ' : '') + val;
-					i += val.length + 1;
-					break;
-				case '[': //begin attribute set
-					// search for end of set
-					var end_ix = str.indexOf(']', i);
-					if (end_ix == -1) {
-						// invalid attribute set, stop searching
-						i = str.length;
-					} else {
-						var attrs = extractAttributes(str.substring(i + 1, end_ix));
-						for (var j = 0, jl = attrs.length; j < jl; j++) {
-							result.push(attrs[j]);
-						}
-						i = end_ix;
-					}
-					break;
-				default:
-					i++;
-
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Creates group element
-	 * @param {String} expr Part of abbreviation that belongs to group item
-	 * @param {abbrGroup} [parent] Parent group item element
-	 */
-	function abbrGroup(parent) {
-		return {
-			expr: '',
-			parent: parent || null,
-			children: [],
-			addChild: function() {
-				var child = abbrGroup(this);
-				this.children.push(child);
-				return child;
-			},
-			cleanUp: function() {
-				for (var i = this.children.length - 1; i >= 0; i--) {
-					var expr = this.children[i].expr;
-					if (!expr)
-						this.children.splice(i, 1);
-					else {
-						// remove operators at the and of expression
-//						this.children[i].expr = expr.replace(/[\+>]+$/, '');
-						this.children[i].cleanUp();
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Split abbreviation by groups
-	 * @param {String} abbr
-	 * @return {abbrGroup()}
-	 */
-	function splitByGroups(abbr) {
-		var root = abbrGroup(),
-			last_parent = root,
-			cur_item = root.addChild(),
-			stack = [],
-			i = 0,
-			il = abbr.length;
-
-		while (i < il) {
-			var ch = abbr.charAt(i);
-			switch(ch) {
-				case '(':
-					// found new group
-					var operator = i ? abbr.charAt(i - 1) : '';
-					if (operator == '>') {
-						stack.push(cur_item);
-						last_parent = cur_item;
-					} else {
-						stack.push(last_parent);
-					}
-					cur_item = null;
-					break;
-				case ')':
-					last_parent = stack.pop();
-					cur_item = null;
-					var next_char = (i < il - 1) ? abbr.charAt(i + 1) : '';
-					if (next_char == '+' || next_char == '>') 
-						// next char is group operator, skip it
-						i++;
-					break;
-				default:
-					if (ch == '+' || ch == '>') {
-						// skip operator if it's followed by parenthesis
-						var next_char = (i + 1 < il) ? abbr.charAt(i + 1) : '';
-						if (next_char == '(') break;
-					}
-					if (!cur_item)
-						cur_item = last_parent.addChild();
-					cur_item.expr += ch;
-			}
-
-			i++;
-		}
-
-		root.cleanUp();
-		return root;
+		return null;
 	}
 
 	/**
@@ -669,13 +553,26 @@ var zen_coding = (function(){
 	 * @param {Tag} tag
 	 */
 	function ZenNode(tag) {
-
 		this.type = (tag instanceof Snippet) ? 'snippet' : 'tag';
 		this.name = tag.name;
-		this.attributes = tag.attributes;
+		this.real_name = tag.real_name;
 		this.children = [];
 		this.counter = 1;
 
+		// create deep copy of attribute list so we can change
+		// their values in runtime without affecting other nodes
+		// created from the same tag
+		this.attributes = [];
+		if (tag.attributes) {
+			for (var i = 0, il = tag.attributes.length; i < il; i++) {
+				var a =  tag.attributes[i];
+				this.attributes.push({
+					name: a.name,
+					value: a.value
+				});
+			}
+		}
+		
 		/** @type {Tag} Source element from which current tag was created */
 		this.source = tag;
 
@@ -690,7 +587,7 @@ var zen_coding = (function(){
 		// output params
 		this.start = '';
 		this.end = '';
-		this.content = '';
+		this.content = tag.getContent() || '';
 		this.padding = '';
 	}
 
@@ -740,7 +637,7 @@ var zen_coding = (function(){
 		 * @return {Boolean}
 		 */
 		isInline: function() {
-			return (this.name in getElementsCollection(this.source._res, 'inline_level'));
+			return this.type == 'text' || (this.name in getElementsCollection(this.source._res, 'inline_level'));
 		},
 
 		/**
@@ -812,6 +709,50 @@ var zen_coding = (function(){
 			}
 
 			return this.start + this.content + content + this.end;
+		},
+		
+		/**
+		 * Paste content in context of current node. Pasting is a special case
+		 * of recursive adding content in node. 
+		 * This function will try to find ${output} variable inside node's 
+		 * attributes and text content and replace in with <code>text</code>.
+		 * If it doesn't find ${output} variable, it will put <code>text</code>
+		 * value as the deepest child content
+		 * @param {String} text Test to paste
+		 * @param {Number} [had_var] Flag indicating that previous function run
+		 * (basically, on node's parent) had replaced ${output} variable (1),
+		 * pasted as node content (2) or did nothing (0)
+		 * @return {Number} Is text was pasted as ${output} variable
+		 */
+		pasteContent: function(text, had_var) {
+			had_var = had_var || 0;
+			var fn = function(str, p1) {
+				if (p1 == 'output') {
+					had_var = 1;
+					return text;
+				}
+				
+				return str;
+			};
+			
+			for (var i = 0, il = this.attributes.length; i < il; i++) {
+				var a = this.attributes[i];
+				a.value = replaceVariables(a.value, fn);
+			}
+			
+			this.content = replaceVariables(this.content, fn);
+			if (this.hasChildren()) {
+				for (var i = 0, il = this.children.length; i < il; i++) {
+					had_var = this.children[i].pasteContent(text, had_var);
+					if (had_var == 2) return had_var;
+				}
+			} else if (had_var == 0) {
+				// put text as node content
+				this.content += text;
+				return 2;
+			}
+			
+			return had_var;
 		}
 	}
 
@@ -831,9 +772,11 @@ var zen_coding = (function(){
 	 */
 	function rolloutTree(tree, parent) {
 		parent = parent || new ZenNode(tree);
+
 		var how_many = 1,
 			tag_content = '';
 
+		if (tree.children) {
 		for (var i = 0, il = tree.children.length; i < il; i++) {
 			/** @type {Tag} */
 			var child = tree.children[i];
@@ -841,10 +784,10 @@ var zen_coding = (function(){
 
 			if (child.repeat_by_lines) {
 				// it's a repeating element
-				tag_content = splitByLines(child.getContent(), true);
+					tag_content = splitByLines(child.getPasteContent(), true);
 				how_many = Math.max(tag_content.length, 1);
 			} else {
-				tag_content = child.getContent();
+					tag_content = child.getPasteContent();
 			}
 
 			for (var j = 0; j < how_many; j++) {
@@ -852,14 +795,15 @@ var zen_coding = (function(){
 				parent.addChild(tag);
 				tag.counter = j + 1;
 
-				if (child.children.length)
+					if (child.children && child.children.length)
 					rolloutTree(child, tag);
 
-				var add_point = tag.findDeepestChild() || tag;
 				if (tag_content) {
-					add_point.content = (typeof(tag_content) == 'string') 
+						var text = (typeof(tag_content) == 'string') 
 						? tag_content 
 						: (tag_content[j] || '');
+						tag.pasteContent(trim(text));
+					}
 				}
 			}
 		}
@@ -875,11 +819,7 @@ var zen_coding = (function(){
 	 * @return {ZenNode}
 	 */
 	function runFilters(tree, profile, filter_list) {
-		if (typeof(profile) == 'string' && profile in profiles)
-			profile = profiles[profile];
-
-		if (!profile)
-			profile = profiles['plain'];
+		profile = processProfile(profile);
 
 		if (typeof(filter_list) == 'string')
 			filter_list = filter_list.split(/[\|,]/g);
@@ -897,108 +837,70 @@ var zen_coding = (function(){
 	/**
 	 * Transforms abbreviation into a primary internal tree. This tree should'n 
 	 * be used ouside of this scope
-	 * @param {String} abbr Abbreviation
+	 * @param {zen_parser.TreeNode} abbr Parsed tree node
 	 * @param {String} [type] Document type (xsl, html, etc.)
 	 * @return {Tag}
 	 */
-	function abbrToPrimaryTree(abbr, type) {
+	function transformTreeNode(node, type) {
 		type = type || 'html';
-		var root = new Tag('', 1, type),
-			parent = root,
-			last = null,
-			multiply_elem = null,
-			res = zen_settings[type],
-			re = /([\+>])?([a-z@\!\#\.][\w:\-]*)((?:(?:[#\.][\w\-\$]+)|(?:\[[^\]]+\]))+)?(\*(\d*))?(\+$)?/ig;
-//				re = /([\+>])?([a-z@\!][a-z0-9:\-]*)(#[\w\-\$]+)?((?:\.[\w\-\$]+)*)(\*(\d*))?(\+$)?/ig;
+		if (node.isEmpty()) return null;
 
-		if (!abbr)
-			return null;
-
-		// replace expandos
-		abbr = abbr.replace(/([a-z][\w\:\-]*)\+$/i, function(str){
-			var a = getAbbreviation(type, str);
-			return a ? a.value : str;
-		});
-
-		abbr = abbr.replace(re, function(str, operator, tag_name, attrs, has_multiplier, multiplier, has_expando){
-			var multiply_by_lines = (has_multiplier && !multiplier);
-			multiplier = multiplier ? parseInt(multiplier) : 1;
-
-			var tag_ch = tag_name.charAt(0);
-			if (tag_ch == '#' || tag_ch == '.') {
-				attrs = tag_name + (attrs || '');
-				tag_name = default_tag;
-			}
-
-			if (has_expando)
-				tag_name += '+';
-
-			var current = isShippet(tag_name, type) ? new Snippet(tag_name, multiplier, type) : new Tag(tag_name, multiplier, type);
-			if (attrs) {
-				attrs = parseAttributes(attrs);
-				for (var i = 0, il = attrs.length; i < il; i++) {
-					current.addAttribute(attrs[i].name, attrs[i].value);
-				}
-			}
-
-			// dive into tree
-			if (operator == '>' && last)
-				parent = last;
-
-			parent.addChild(current);
-
-			last = current;
-
-			if (multiply_by_lines)
-				multiply_elem = current;
-
-			return '';
-		});
-
-		root.last = last;
-		root.multiply_elem = multiply_elem;
-
-		// empty 'abbr' string means that abbreviation was successfully expanded,
-		// if not — abbreviation wasn't valid 
-		return (!abbr) ? root : null;	
+		return isShippet(node.name, type) 
+				? new Snippet(node, type)
+				: new Tag(node, type);
 	}
 
 	/**
-	 * Expand single group item 
-	 * @param {abbrGroup} group
+	 * Process single tree node: expand it and its children 
+	 * @param {zen_parser.TreeNode} node
 	 * @param {String} type
 	 * @param {Tag} parent
 	 */
-	function expandGroup(group, type, parent) {
-		var tree = abbrToPrimaryTree(group.expr, type),
-			/** @type {Tag} */
-			last_item = null;
-
-		if (tree) {
-			for (var i = 0, il = tree.children.length; i < il; i++) {
-				last_item = tree.children[i];
-				parent.addChild(last_item);
-			}
-		} else {
-			throw new Error('InvalidGroup');
-		}
+	function processParsedNode(node, type, parent) {
+		var t_node = transformTreeNode(node, type);
+		parent.addChild(t_node);
 
 		// set repeating element to the topmost node
 		var root = parent;
 		while (root.parent)
 			root = root.parent;
 
-		root.last = tree.last;
-		if (tree.multiply_elem)
-			root.multiply_elem = tree.multiply_elem;
+		root.last = t_node;
+		if (t_node.repeat_by_lines)
+			root.multiply_elem = t_node;
 
 		// process child groups
-		if (group.children.length) {
-			var add_point = last_item.findDeepestChild() || last_item;
-			for (var j = 0, jl = group.children.length; j < jl; j++) {
-				expandGroup(group.children[j], type, add_point);
-			}
+		for (var j = 0, jl = node.children.length; j < jl; j++) {
+			processParsedNode(node.children[j], type, t_node);
 		}
+	}
+	
+	/**
+	 * Replaces expando nodes by its parsed content
+	 * @param {zen_parser.TreeNode}
+	 * @param {String} type
+	 */
+	function replaceExpandos(node, type) {
+		for (var i = 0, il = node.children.length; i < il; i++) {
+			var n = node.children[i];
+			if (!n.isEmpty() && !n.isTextNode() && n.name.indexOf('+') != -1) {
+				// it's expando
+				var a = getAbbreviation(type, n.name);
+				if (a)
+					node.children[i] = zen_parser.parse(a.value);
+			}
+			replaceExpandos(node.children[i], type);
+		}
+		}
+	
+	/**
+	 * Replaces expandos and optimizes tree structure by removing empty nodes
+	 * @param {zen_parser.TreeNode} tree
+	 * @param {String} type
+	 */
+	function preprocessParsedTree(tree, type) {
+		replaceExpandos(tree, type);
+		return zen_parser.optimizeTree(tree);
 	}
 
 	/**
@@ -1037,7 +939,7 @@ var zen_coding = (function(){
 				var cur_sl = sl;
 				match_count++;
 				var new_value = replace;
-				if (typeof(replace) !== 'string') {
+				if (typeof(replace) != 'string') {
 					var replace_data = replace(str, symbol, i, match_count);
 					if (replace_data) {
 						cur_sl = replace_data[0].length;
@@ -1047,7 +949,7 @@ var zen_coding = (function(){
 					}
 				}
 
-				if (new_value === false) { // skip replacement
+				if (new_value == false) { // skip replacement
 					i++;
 					continue;
 				}
@@ -1064,6 +966,20 @@ var zen_coding = (function(){
 		return str;
 	}
 
+	/**
+	 * Porcesses profile argument, returning, if possible, profile object
+	 */
+	function processProfile(profile) {
+		var _profile = profile;
+		if (typeof(profile) == 'string' && profile in profiles)
+			_profile = profiles[profile];
+		
+		if (!_profile)
+			_profile = profiles['plain'];
+			
+		return _profile;
+	}
+	
 	// create default profiles
 	setupProfile('xhtml');
 	setupProfile('html', {self_closing_tag: false});
@@ -1075,6 +991,9 @@ var zen_coding = (function(){
 		/** Hash of all available actions */
 		actions: {},
 
+		/** User-defined snippets and abbreviations */
+		user_resources: {},
+		
 		/**
 		 * Adds new Zen Coding action. This action will be available in
 		 * <code>zen_settings.actions</code> object.
@@ -1104,17 +1023,19 @@ var zen_coding = (function(){
 				if (name in this.actions)
 					return this.actions[name].apply(this, args);
 			} catch(e){
+				if (window && window.console)
+					console.error(e);
 				return false; 
 			}
 		},
 
 		expandAbbreviation: function(abbr, type, profile) {
 			type = type || 'html';
-			var tree_root = this.parseIntoTree(abbr, type);
+			var parsed_tree = this.parseIntoTree(abbr, type);
 
-			if (tree_root) {
-				var tree = rolloutTree(tree_root);
-				this.applyFilters(tree, type, profile, tree_root.filters);
+			if (parsed_tree) {
+				var tree = rolloutTree(parsed_tree);
+				this.applyFilters(tree, type, profile, parsed_tree.filters);
 				return replaceVariables(tree.toString());
 			}
 
@@ -1129,7 +1050,8 @@ var zen_coding = (function(){
 		extractAbbreviation: function(str) {
 			var cur_offset = str.length,
 				start_index = -1,
-				brace_count = 0;
+				brace_count = 0,
+				text_count = 0;
 
 			while (true) {
 				cur_offset--;
@@ -1145,9 +1067,13 @@ var zen_coding = (function(){
 					brace_count++;
 				else if (ch == '[')
 					brace_count--;
+				if (ch == '}')
+					text_count++;
+				else if (ch == '{')
+					text_count--;
 				else {
-					if (brace_count) 
-						// respect all characters inside attribute sets
+					if (brace_count || text_count) 
+						// respect all characters inside attribute sets or text nodes
 						continue;
 					else if (!isAllowedChar(ch) || (ch == '>' && isEndsWithTag(str.substring(0, cur_offset + 1)))) {
 						// found stop symbol
@@ -1180,17 +1106,14 @@ var zen_coding = (function(){
 			});
 
 			// split abbreviation by groups
-			var group_root = splitByGroups(abbr),
-				tree_root = new Tag('', 1, type);
+			var abbr_tree = zen_parser.parse(abbr),
+				tree_root = new Tag({}, type);
+				
+			abbr_tree = preprocessParsedTree(abbr_tree, type);
 
 			// then recursively expand each group item
-			try {
-				for (var i = 0, il = group_root.children.length; i < il; i++) {
-					expandGroup(group_root.children[i], type, tree_root);
-				}
-			} catch(e) {
-				// there's invalid group, stop parsing
-				return null;
+			for (var i = 0, il = abbr_tree.children.length; i < il; i++) {
+				processParsedNode(abbr_tree.children[i], type, tree_root);
 			}
 
 			tree_root.filters = filter_list;
@@ -1227,7 +1150,7 @@ var zen_coding = (function(){
 			var tree_root = this.parseIntoTree(abbr, type);
 			if (tree_root) {
 				var repeat_elem = tree_root.multiply_elem || tree_root.last;
-				repeat_elem.setContent(text);
+				repeat_elem.setPasteContent(text);
 				repeat_elem.repeat_by_lines = !!tree_root.multiply_elem;
 
 				var tree = rolloutTree(tree_root);
@@ -1318,8 +1241,11 @@ var zen_coding = (function(){
 		 * 
 		 * @return {ZenNode}
 		 */
-		applyFilters: function(tree, syntax, profile, additional_filters){
-			var _filters = getResource(syntax, 'filters') || basic_filters;
+		applyFilters: function(tree, syntax, profile, additional_filters) {
+			profile = processProfile(profile);
+			var _filters = profile.filters;
+			if (!_filters)
+				_filters = getResource(syntax, 'filters') || basic_filters;
 
 			if (additional_filters)
 				_filters += '|' + ((typeof(additional_filters) == 'string') 
@@ -1338,8 +1264,16 @@ var zen_coding = (function(){
 		repeatString: repeatString,
 		getVariable: getVariable,
 		setVariable: function(name, value) {
-			zen_settings.variables[name] = value;
+			user_variables[name] = value;
 		},
+		
+		/**
+		 * Removes all user-defined variables
+		 */
+		resetVariables: function() {
+			user_variables = {};
+		},
+		
 		replaceVariables: replaceVariables,
 
 		/**
@@ -1369,21 +1303,48 @@ var zen_coding = (function(){
 		 * @return {String}
 		 */
 		replaceCounter: function(str, value) {
-			var symbol = '$';
+			var ch, symbol = '$';
 			value = String(value);
 			return replaceUnescapedSymbol(str, symbol, function(str, symbol, pos, match_num){
-				if (str.charAt(pos + 1) == '{') {
+				if (str.charAt(pos + 1) == '{' || ((ch = str.charAt(pos + 1)) > 47 && ch < 58) ) {
 					// it's a variable, skip it
 					return false;
 				}
-
+				
 				// replace sequense of $ symbols with padded number  
 				var j = pos + 1;
 				while(str.charAt(j) == '$' && str.charAt(j + 1) != '{') j++;
 				return [str.substring(pos, j), zeroPadString(value, j - pos)];
 			});
 		},
-
+		
+		isNumeric: isNumeric,
+		
+		/**
+		 * Upgrades tabstops in zen node in order to prevent naming conflicts
+		 * @param {ZenNode} node
+		 * @param {Number} offset Tab index offset
+		 * @returns {Number} Maximum tabstop index in element
+		 */
+		upgradeTabstops: function(node, offset) {
+			var max_num = 0,
+				props = ['start', 'end', 'content'];
+				
+			for (var i = 0, il = props.length; i < il; i++) {
+				node[props[i]] = node[props[i]].replace(/\$(\d+)|\$\{(\d+)(\:[^\}]+)?\}/g, function(str, p1, p2){
+					var num = parseInt(p1 || p2, 10);
+					if (num > max_num)
+						max_num = num;
+						
+					return str.replace(/\d+/, num + offset);
+				});
+			}
+			
+			return max_num;
+		},
+		
+		getResource: getResource,
+		
 		/**
 		 * Get profile by it's name. If profile wasn't found, returns 'plain'
 		 * profile
@@ -1391,7 +1352,7 @@ var zen_coding = (function(){
 		getProfile: function(name) {
 			return (name in profiles) ? profiles[name] : profiles['plain'];
 		},
-
+		
 		settings_parser: (function(){
 			/**
 			 * Unified object for parsed data
@@ -1447,24 +1408,34 @@ var zen_coding = (function(){
 			}
 
 			/**
+			 * Parses single abbreviation
+			 * @param {String} key Abbreviation name
+			 * @param {String} value = Abbreviation value
+			 * @return {Object}
+			 */
+			function parseAbbreviation(key, value) {
+					key = trim(key);
+				var m;
+					if (key.substr(-1) == '+') {
+						// this is expando, leave 'value' as is
+					return makeExpando(key, value);
+				} else if ( (m = re_tag.exec(value)) ) {
+					return makeAbbreviation(key, m[1], m[2], m[4] == '/');
+					} else {
+						// assume it's reference to another abbreviation
+					return entry(TYPE_REFERENCE, key, value);
+				}
+					}
+					
+			/**
 			 * Parses all abbreviations inside object
 			 * @param {Object} obj
 			 */
 			function parseAbbreviations(obj) {
 				for (var key in obj) {
-					var value = obj[key], m;
-
-					key = trim(key);
-					if (key.substr(-1) == '+') {
-						// this is expando, leave 'value' as is
-						obj[key] = makeExpando(key, value);
-					} else if ( (m = re_tag.exec(value)) ) {
-						obj[key] = makeAbbreviation(key, m[1], m[2], m[4] == '/');
-					} else {
-						// assume it's reference to another abbreviation
-						obj[key] = entry(TYPE_REFERENCE, key, value);
-					}
-
+					var value = obj[key];
+					obj[key] = parseAbbreviation(trim(key), value);
+					obj[key].__ref = value;
 				}
 			}
 
@@ -1488,6 +1459,8 @@ var zen_coding = (function(){
 					}
 				},
 
+				parseAbbreviation: parseAbbreviation,
+				
 				extend: function(parent, child) {
 					for (var p in child) {
 						if (typeof(child[p]) == 'object' && parent.hasOwnProperty(p))
@@ -1531,7 +1504,7 @@ if ('zen_settings' in this || zen_settings) {
 		zen_coding.settings_parser.createMaps(my_zen_settings);
 		zen_coding.settings_parser.extend(zen_settings, my_zen_settings);
 	}
-
+	
 	// now we need to parse final set of settings
 	zen_coding.settings_parser.parse(zen_settings);
 }

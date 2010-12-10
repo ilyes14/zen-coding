@@ -4,10 +4,6 @@
  * "Expand Abbreviation".
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- * 
- * @include "zen_editor.js"
- * @include "html_matcher.js"
- * @include "zen_coding.js"
  */
 
 /**
@@ -16,15 +12,16 @@
  * @return {String|null}
  */
 function findAbbreviation(editor) {
-	var range = editor.getSelectionRange();
+	var range = editor.getSelectionRange(),
+		content = editor.getContent();
 	if (range.start != range.end) {
 		// abbreviation is selected by user
-		return editor.getContent().substring(range.start, range.end);
+		return content.substring(range.start, range.end);
 	}
 
 	// search for new abbreviation from current caret position
 	var cur_line = editor.getCurrentLineRange();
-	return zen_coding.extractAbbreviation(editor.getContent().substring(cur_line.start, range.start));
+	return zen_coding.extractAbbreviation(content.substring(cur_line.start, range.start));
 }
 
 /**
@@ -116,7 +113,7 @@ function matchPair(editor, direction, syntax) {
 		range = zen_coding.html_matcher(content, cursor, syntax);
 	}
 
-	if (range !== null && range[0] != -1) {
+	if (range != null && range[0] != -1) {
 		editor.createSelection(range[0], range[1]);
 		return true;
 	} else {
@@ -134,24 +131,14 @@ function matchPair(editor, direction, syntax) {
 function narrowToNonSpace(text, start, end) {
 	// narrow down selection until first non-space character
 	var re_space = /\s|\n|\r/;
-	function isSpace(ch) {
-		return re_space.test(ch);
-	}
 
-	while (start < end) {
-		if (!isSpace(text.charAt(start)))
-			break;
+	var non_space = text.substring(start,end).search(/[^\s\n\r]/);
+	~non_space ?
+		start += non_space :
+		start = end;
 
-		start++;
-	}
-
-	while (end > start) {
-		end--;
-		if (!isSpace(text.charAt(end))) {
-			end++;
-			break;
-		}
-	}
+	while (--end >= start && re_space.test(text.charAt(end)));
+	end++
 
 	return [start, end];
 }
@@ -166,7 +153,8 @@ function narrowToNonSpace(text, start, end) {
 function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
 	syntax = syntax || editor.getSyntax();
 	profile_name = profile_name || editor.getProfileName();
-
+	abbr = abbr || editor.prompt("Enter abbreviation");
+	
 	var range = editor.getSelectionRange(),
 		start_offset = range.start,
 		end_offset = range.end,
@@ -215,7 +203,7 @@ function unindent(editor, text) {
  */
 function unindentText(text, pad) {
 	var lines = zen_coding.splitByLines(text);
-	for (var i = 0; i < lines.length; i++) {
+	for (var i = lines.length; i--; ) {
 		if (lines[i].search(pad) == 0)
 			lines[i] = lines[i].substr(pad.length);
 	}
@@ -262,15 +250,12 @@ function findNewEditPoint(editor, inc, offset) {
 	}
 
 	function getLine(ix) {
-		var start = ix;
-		while (start >= 0) {
-			var c = ch(start);
-			if (c == '\n' || c == '\r')
-				break;
-			start--;
-		}
+		var first_part = content.substring(0, ix),
+		    lf = first_part.lastIndexOf('\n'),
+		    cr = first_part.lastIndexOf('\r'),
+		    start = (lf > cr ? lf : cr) + 1;
 
-		return content.substring(start, ix);
+		return first_part.substring(start);
 	}
 
 	while (cur_point < max_len && cur_point > 0) {
@@ -331,7 +316,7 @@ function prevEditPoint(editor) {
  */
 function nextEditPoint(editor) {
 	var new_point = findNewEditPoint(editor, 1);
-	if (new_point != -1)
+	if (~new_point)
 		editor.setCaretPos(new_point);
 }
 
@@ -421,7 +406,7 @@ function mergeLines(editor) {
 			old_length = text.length;
 		var lines =  zen_coding.splitByLines(text);
 
-		for (var i = 1; i < lines.length; i++) {
+		for (var i = lines.length; i--; ) {
 			lines[i] = lines[i].replace(/^\s+/, '');
 		}
 
@@ -594,7 +579,7 @@ function genericCommentToggle(editor, comment_start, comment_end, range_start, r
 	}
 
 	// replace editor content
-	if (new_content !== null) {
+	if (new_content != null) {
 		editor.setCaretPos(range_start);
 		editor.replaceContent(unindent(editor, new_content), range_start, range_end);
 		editor.setCaretPos(caret_pos);
@@ -623,7 +608,7 @@ function splitJoinTag(editor, profile_name) {
 
 		if (pair[1]) { // join tag
 			var closing_slash = ' /';
-			if (profile.self_closing_tag === true)
+			if (profile.self_closing_tag == true)
 				closing_slash = '/';
 
 			new_content = new_content.replace(/\s*>$/, closing_slash + '>');
@@ -642,7 +627,7 @@ function splitJoinTag(editor, profile_name) {
 				pad = zen_coding.getVariable('indentation');
 
 			// define tag content depending on profile
-			var tag_content = (profile.tag_nl === true)
+			var tag_content = (profile.tag_nl == true)
 					? nl + pad +caret + nl
 					: caret;
 
@@ -710,11 +695,129 @@ function removeTag(editor) {
 			tag_content = unindentText(tag_content, start_line_pad);
 			editor.replaceContent(zen_coding.getCaretPlaceholder() + tag_content, pair[0].start, pair[1].end);
 		}
-
+		
 		return true;
 	} else {
 		return false;
 	}
+}
+
+/**
+ * Replaces or adds attribute to the tag
+ * @param {String} img_tag
+ * @param {String} attr_name
+ * @param {String} attr_value
+ */
+function replaceOrAppend(img_tag, attr_name, attr_value) {
+	if (img_tag.toLowerCase().indexOf(attr_name) != -1) {
+		// attribute exists
+		var re = new RegExp(attr_name + '=([\'"])(.*?)([\'"])', 'i');
+		return img_tag.replace(re, function(str, p1, p2){
+			return attr_name + '=' + p1 + attr_value + p1;
+		});
+	} else {
+		return img_tag.replace(/\s*(\/?>)$/, ' ' + attr_name + '="' + attr_value + '" $1');
+	}
+}
+
+/**
+ * Make decimal number look good: convert it to fixed precision end remove
+ * traling zeroes 
+ * @param {Number} num
+ * @param {Number} [fracion] Fraction numbers (default is 2)
+ * @return {String}
+ */
+function prettifyNumber(num, fracion) {
+	return num.toFixed(typeof fraction == 'undefined' ? 2 : fracion).replace(/\.?0+$/, '');
+}
+
+/**
+ * Find expression bounds in current editor at caret position. 
+ * On each character a <code>fn</code> function will be caller which must 
+ * return <code>true</code> if current character meets requirements, 
+ * <code>false</code> otherwise
+ * @param {zen_editor} editor
+ * @param {Function} fn Function to test each character of expression
+ * @requires {Array} If expression found, returns array with start and end 
+ * positions 
+ */
+function findExpressionBounds(editor, fn) {
+	var content = editor.getContent(),
+		il = content.length,
+		expr_start = editor.getCaretPos() - 1,
+		expr_end = expr_start + 1;
+		
+	// start by searching left
+	while (expr_start >= 0 && fn(content.charAt(expr_start), expr_start, content)) expr_start--;
+	
+	// then search right
+	while (expr_end < il && fn(content.charAt(expr_end), expr_end, content)) expr_end++;
+	
+	return expr_end > expr_start ? [++expr_start, expr_end] : null;
+}
+
+/**
+ * Extract number from current caret position of the <code>editor</code> and
+ * increment it by <code>step</code>
+ * @param {zen_editor} editor
+ * @param {Number} step Increment step (may be negative)
+ */
+function incrementNumber(editor, step) {
+	var content = editor.getContent(),
+		has_sign = false,
+		has_decimal = false;
+		
+	var r = findExpressionBounds(editor, function(ch) {
+		if (zen_coding.isNumeric(ch))
+			return true;
+		if (ch == '.')
+			return has_decimal ? false : has_decimal = true;
+		if (ch == '-')
+			return has_sign ? false : has_sign = true;
+			
+		return false;
+	});
+		
+	if (r) {
+		var num = parseFloat(content.substring(r[0], r[1]));
+		if (!isNaN(num)) {
+			num = prettifyNumber(num + step);
+			editor.replaceContent(num, r[0], r[1]);
+			editor.createSelection(r[0], r[0] + num.length);
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+/**
+ * Evaluates simple math expresison under caret
+ * @param {zen_editor} editor
+ */
+function evaluateMathExpression(editor) {
+	var content = editor.getContent(),
+		chars = '.+-*/\\';
+		
+	var r = findExpressionBounds(editor, function(ch) {
+		return zen_coding.isNumeric(ch) || chars.indexOf(ch) != -1;
+	});
+		
+	if (r) {
+		var expr = content.substring(r[0], r[1]);
+		
+		// replace integral division: 11\2 => Math.round(11/2) 
+		expr = expr.replace(/([\d\.\-]+)\\([\d\.\-]+)/g, 'Math.round($1/$2)');
+		
+		try {
+			var result = new Function('return ' + expr)();
+			result = prettifyNumber(result);
+			editor.replaceContent(result, r[0], r[1]);
+			editor.setCaretPos(r[0] + result.length);
+		} catch (e) {}
+	}
+	
+	return false;
 }
 
 // register all actions
@@ -738,3 +841,29 @@ zen_coding.registerAction('merge_lines', mergeLines);
 zen_coding.registerAction('toggle_comment', toggleComment);
 zen_coding.registerAction('split_join_tag', splitJoinTag);
 zen_coding.registerAction('remove_tag', removeTag);
+
+zen_coding.registerAction('increment_number_by_1', function(editor) {
+	return incrementNumber(editor, 1);
+});
+
+zen_coding.registerAction('decrement_number_by_1', function(editor) {
+	return incrementNumber(editor, -1);
+});
+
+zen_coding.registerAction('increment_number_by_10', function(editor) {
+	return incrementNumber(editor, 10);
+});
+
+zen_coding.registerAction('decrement_number_by_10', function(editor) {
+	return incrementNumber(editor, -10);
+});
+
+zen_coding.registerAction('increment_number_by_01', function(editor) {
+	return incrementNumber(editor, 0.1);
+});
+
+zen_coding.registerAction('decrement_number_by_01', function(editor) {
+	return incrementNumber(editor, -0.1);
+});
+
+zen_coding.registerAction('evaluate_math_expression', evaluateMathExpression);
