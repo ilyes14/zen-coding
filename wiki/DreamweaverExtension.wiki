@@ -1,0 +1,100 @@
+#summary Zen Coding extension for Adobe Dreamweaver
+#labels Phase-Deploy
+
+= Introduction =
+
+Zen Coding is an editor plugin for high-speed HTML, XML, XSL (or any other structured code format) coding and editing. The core of this plugin is a powerful abbreviation engine which allows you to expand expressions—similar to CSS selectors—into HTML code. You can find more information on [http://code.google.com/p/zen-coding/ project main page].
+
+
+= About Adobe Dreamweaver extension =
+
+This extension contains all Zen Coding features which can be supported by editor extension engine. The bad news is that Dreamweaver doesn't have multiple tab stops and can't read image (binary) files. So related features like "encode to base64" aren't realized. Maybe someone will do it with C-level extensibility.
+
+But the good news is that since version 0.7 *you can expand abbreviations with Tab button*! Also some new actions were added and almost all actions now have shortcuts.
+
+= Actions and shortcuts =
+
+Except Tab key you can expand abbreviations with "Ctrl+," as before. Unfortunately it conflicts with hotkeys in some Dreamweaver localizations. If you faced with this issue you should manage hotkeys manually via Edit → Keyboard Shortcuts menu.
+
+As for other shortcuts I tried to assign non-used ones. The two of them with Ctrl key: "Ctrl+H" and "Ctrl+K" were assigned to "Wrap with Abbreviation" and "Select Line". With some others Alt key became very helpful because Dreamweaver doesn't allow to assign it via user interaction. (I suspect in order to avoid collisions with menu bar.) You can still assign your own shortcuts via Keyboard Shortcuts editor.
+
+The only action without shortcut is "Balance Tag". There are two reasons: outward and inward versions of the action and similar function of Dreamweaver "Select Parent Tag" ("Ctrl+[").
+
+== Shortcuts table ==
+{{{
+Expand Abbreviation         Tab or Ctrl+,
+Wrap with Abbreviation      Ctrl+H
+
+Balance Tag Outward         Alt+[
+Balance Tag Inward          Alt+]
+Select Line                 Ctrl+K
+Split/Join Tag              Ctrl+Shift+\
+Remove Tag                  Ctrl+\
+
+Previous Edit Point         Alt+Left
+Next Edit Point             Alt+Right
+Go to Matching Pair         Alt+Up
+
+Merge Lines                 Ctrl+/
+Toggle Comment              Ctrl+Shift+'
+
+Increment number by 1       Alt+1
+Decrement number by 1       Alt+2
+Increment number by 10      Alt+3
+Decrement number by 10      Alt+4
+Increment number by 0.1     Alt+5
+Decrement number by 0.1     Alt+6
+Evaluate Math Expression    Alt+=
+}}}
+
+= New CSS shortcuts =
+
+With standard [http://code.google.com/p/zen-coding/wiki/ZenCSSPropertiesEn CSS-properties and its aliases] there also were added some new shortcuts:
+{{{
+color:transparent;                             c:t
+color:rgb();                                   c:r
+color:rgba();                                  c:ra
+color:hsl();                                   c:h
+color:hsla();                                  c:ha
+ 
+text-overflow:;                                tov
+text-overflow:"";                              tov+
+text-overflow:clip;                            tov:c
+text-overflow:ellipsis;                        tov:e
+ 
+box-decoration-break:clone;                    bxdb (the only non-default option)
+box-decoration-break:slice;                    bxdb:s
+ 
+transition:                                    ts
+transition-property:;                          tsp
+transition-duration:;                          tsd
+transition-delay:;                             tsdl
+transition-timing-function:;                   tst
+transition-timing-function:ease;               tst:e
+transition-timing-function:linear;             tst:l
+transition-timing-function:ease-in;            tst:i
+transition-timing-function:ease-out;           tst:o
+transition-timing-function:ease-in-out;        tst:io
+transition-timing-function:step-start;         tst:ss
+transition-timing-function:step-end;           tst:se
+transition-timing-function:steps();            tst:s
+transition-timing-function:cubic-bezier();     tst:cb
+
+@page {}                                       @p
+@top-left-corner {}                            @tlc
+@top-left {}                                   @tl
+@top-center {}                                 @tc
+@top-right {}                                  @tr
+@top-right-corner {}                           @trc
+@bottom-left-corner {}                         @blc
+@bottom-left {}                                @bl
+@bottom-center {}                              @bc
+@bottom-right {}                               @br
+@bottom-right-corner {}                        @brc
+@footnote {}                                   @fn
+@counter-style   ""                            @cs
+}}}
+
+= Extensibility =
+
+Also my_zen_settings.js was added to package to help you adding of new snippets. It can be located in source files (and then deployed with extension reinstall) or in "Commands\ZenCoding" folder under your [http://help.adobe.com/en_US/dreamweaver/cs/extend/WS5b3ccc516d4fbf351e63e3d117f508c8de-7fdb.html configuration folder]. You should [http://help.adobe.com/en_US/dreamweaver/cs/extend/WS5b3ccc516d4fbf351e63e3d117f508c8de-7fd1.html reload extensions] or restart Dreamweaver to make changes work.
