@@ -13,23 +13,16 @@
  * //now you are ready to use editor object
  * zen_editor.getSelectionRange();
  * 
- * @author Sergey Chikuyonok (serge.che@gmail.com)
- * @link http://chikuyonok.ru
- * @modification GreLI (grelimail@gmail.com)
+ * @author GreLI (grelimail@gmail.com)
+ * @link http://code.google.com/p/zen-coding/
  */
 var zen_editor = (function(){
-	var dom = null,
-	    // Set default indentation to one tab as per Zen Coding default
+	var dom,
+	    // Set default indentation to one tab
 	    indent_size = 1,
-	    indentation_use_tabs = 'TRUE',
+	    indent_tabs = 'TRUE',
 	    // Check for style attribute
-	    re_style_attr_begin = /\bstyle\s*=\s*("[^"]*|'[^']*)$/,
-		app_language = dw.getAppLanguage();
-
-	if (app_language) {
-		zen_coding.setVariable('lang', app_language.substring(0,2));
-		zen_coding.setVariable('locale', app_language);
-	}
+	    re_style_attr = /\bstyle\s*=\s*("[^"]*|'[^']*)$/;
 
 	/**
 	 * Returns whitrespace padding of string
@@ -41,22 +34,72 @@ var zen_editor = (function(){
 	}
 
 	/**
+	 * Returns editor's content
+	 * @return {String}
+	 */
+	function getContent(){
+		return dom.source.getText();
+	};
+
+	/**
+	 * Replaces the range of source text
+	 * @return {Boolean}
+	 */
+	function replaceRange(start, end, value) {
+		return dom.source.replaceRange(start, end, value);
+	}
+
+	/**
+	 * Returns current caret position
+	 * @return {Number|null}
+	 */
+	function getCaretPos() {
+		var caret_pos = dom.source.getSelection()[1];
+		return ( ~caret_pos ? caret_pos : null );
+	};
+
+	/**
+	 * Set new caret position
+	 * @param {Number} pos Caret position
+	 */
+	function setCaretPos(pos){
+		dom.source.setSelection(pos, pos);
+	};
+
+	/**
+	 * Returns content of current line
+	 * @return {String}
+	 */
+	function getCurrentLine() {
+		var content = getContent(),
+		    line = getLineBounds(content, getCaretPos());
+
+		return content.substring(line.start, line.end);
+	};
+
+	/**
 	 * Find start and end index of text line for <code>from</code> index
 	 * @param {String} text 
 	 * @param {Number} from 
 	 */
 	function getLineBounds(text, from) {
-		var ch = '',
-			end = from,
-			text_length = text.length;
+		var end = from,
+		    len = text.length;
 
-		// Find start of line
-		while (from && (ch = text.charAt(from - 1)) !== '\n' && ch !== '\r')
-			from--;
+		// lastIndexOf and search generally faster than iterating characters
+		// to find line breaks especially for long strings
 
-		// Find end of line
-		while (end < text_length && (ch = text.charAt(end)) !== '\n' && ch !== '\r')
-			end++;
+		// Search for start of the line (regular expressions too slow here)
+		var first_part = text.substring(0, from),
+		    lf = first_part.lastIndexOf('\n'),
+		    cr = first_part.lastIndexOf('\r');
+		from = (lf > cr ? lf : cr) + 1;
+
+		// Search for end of the line (let the engine do the work for us)
+		var end_search = text.substring(end, len).search(/[\n\r]/);
+		~end_search ?
+			end += end_search :
+			end = len;
 
 		return {start: from, end: end};
 	}
@@ -69,25 +112,29 @@ var zen_editor = (function(){
 		 */
 		setContext: function() {
 			dom = dw.getDocumentDOM(); // Get current document DOM.
+			if (!dom) return false;
 
 			// Check new line settings.
-			var newLine = dw.getPreferenceInt('Source Format', 'Line Break Type', 0x0A);
-			zen_coding.setNewline( (newLine === 0x0D0A) ? '\x0D\x0A' : String.fromCharCode(newLine) );
+			var nl = dw.getPreferenceInt('Source Format', 'Line Break Type', 0x0A);
+			zen_coding.setNewline( nl == 0x0D0A ? '\x0D\x0A' : String.fromCharCode(nl) );
 
-			// Check identation settings. Defaults set to Dreamweaver values.
-			var sf_indent_size = dw.getPreferenceInt('Source Format', 'Indent Size', 2),
-				sf_use_tabs = dw.getPreferenceString('Source Format', 'Use Tabs', 'FALSE'),
-				indentation = '';
+			// Check identation settings.
+			var dw_indent_size = dw.getPreferenceInt('Source Format', 'Indent Size', 1),
+			    dw_use_tabs = dw.getPreferenceString('Source Format', 'Use Tabs', 'TRUE');
 
-			// Apply settings if they are different
-			if (this.indent_size !== sf_indent_size && this.indentation_use_tabs !== sf_use_tabs) {
-				this.indent_size = sf_indent_size;
-				this.indentation_use_tabs = sf_use_tabs;
+			// Apply settings if they differs.
+			if (indent_size == dw_indent_size && indent_tabs == dw_use_tabs) return true;
 
-				indentation = zen_coding.repeatString(sf_use_tabs.toUpperCase() === 'TRUE' ? '\t' : ' ', sf_indent_size);
+			indent_size = dw_indent_size;
+			indent_tabs = dw_use_tabs;
 
-				zen_coding.setVariable('indentation', indentation);
-			}
+			var indent_str = zen_coding.repeatString(
+				dw_use_tabs.toUpperCase() == 'TRUE'? '\t' : ' ',
+				dw_indent_size
+			);
+
+			zen_coding.setVariable('indentation', indent_str);
+			return true;
 		},
 
 		/**
@@ -102,6 +149,7 @@ var zen_editor = (function(){
 		 */
 		getSelectionRange: function() {
 			var selection = dom.source.getSelection();
+
 			return {
 				start: selection[0],
 				end: selection[1]
@@ -121,6 +169,7 @@ var zen_editor = (function(){
 		 * zen_editor.createSelection(15);
 		 */
 		createSelection: function(start, end) {
+			if (end == null) end = start;
 			return dom.source.setSelection(start, end);
 		},
 
@@ -133,39 +182,26 @@ var zen_editor = (function(){
 		 * alert(range.start + ', ' + range.end);
 		 */
 		getCurrentLineRange: function() {
-			var content = this.getContent(),
-				caret_pos = this.getCaretPos();
-
-			return getLineBounds(content, caret_pos);
+			return getLineBounds(getContent(), getCaretPos());
 		},
 
 		/**
 		 * Returns current caret position
 		 * @return {Number|null}
 		 */
-		getCaretPos: function(){
-			return dom.source.getSelection()[1];
-		},
+		getCaretPos: getCaretPos,
 
 		/**
 		 * Set new caret position
 		 * @param {Number} pos Caret position
 		 */
-		setCaretPos: function(pos){
-			return dom.source.setSelection(pos, pos);
-		},
+		setCaretPos: setCaretPos,
 
 		/**
 		 * Returns content of current line
 		 * @return {String}
 		 */
-		getCurrentLine: function() {
-			var content = this.getContent(),
-			    caret_pos = this.getCaretPos(),
-				line = getLineBounds(content, caret_pos);
-
-			return content.substring(line.start, line.end);
-		},
+		getCurrentLine: getCurrentLine,
 
 		/**
 		 * Replace editor's content or it's part (from <code>start</code> to 
@@ -187,53 +223,61 @@ var zen_editor = (function(){
 		 * @param {Number} [end] End index of editor's content
 		 */
 		replaceContent: function(value, start, end) {
-			var caret_placeholder = zen_coding.getCaretPlaceholder(), // get '{%::zen-caret::%}', do not hardcode it!
-				caret_pos = end;
+			if (end == null) {
+				if (start == null) {
+					start = 0;
+					end = getContent().length;
+				} else {
+					end = start;
+				}
+			}
 
 			// indent new value
-			value = zen_coding.padString(value, getStringPadding(this.getCurrentLine()));
+			value = zen_coding.padString(value, getStringPadding(getCurrentLine()));
+
+			var caret_placeholder = zen_coding.getCaretPlaceholder(), // get '{%::zen-caret::%}', do not hardcode it!
+				caret_new_pos = start;
 
 			// find new caret position
-			var new_pos = value.indexOf(caret_placeholder);
-			if (new_pos !== -1) {
-				caret_pos = start + new_pos; // adjust caret position
+			var caret_place = value.indexOf(caret_placeholder);
+			if (~caret_place) {
+				caret_new_pos += caret_place; // adjust caret position
 				value = value.split(caret_placeholder).join(''); // remove placeholders from string
 			} else {
 				// if there is no position placeholder set caret position to the end of the insertion
-				caret_pos = start + value.length;
+				caret_new_pos += value.length;
 			}
 
-			dom.source.replaceRange(start, end, value); // paste new content
-			this.setCaretPos(caret_pos); // place caret
+			replaceRange(start, end, value); // paste new content
+
+			setCaretPos(caret_new_pos); // place caret
 		},
 
 		/**
 		 * Returns editor's content
 		 * @return {String}
 		 */
-		getContent: function(){
-			return dom.source.getText();
-		},
+		getContent: getContent,
 
 		/**
 		 * Returns current editor's syntax mode
 		 * @return {String}
 		 */
 		getSyntax: function(){
-			var parse_mode = dom.getParseMode(),
-				caret_pos = this.getCaretPos();
+			var content = getContent(),
+			    caret_pos = getCaretPos(),
+			    parse_mode = dom.getParseMode();
 
-			if (dom.documentType.indexOf('XSLT') !== -1)
+			if (~dom.documentType.indexOf('XSLT'))
 				parseMode = 'xsl';
 
-			if (parse_mode === 'html') {
-				var content = this.getContent(),
-					pair = zen_coding.html_matcher.getTags(content, caret_pos); // get the context tag
-				if (pair && pair[0] && pair[0].type === 'tag') {
-					// check that we're inside style tag
-					if( (pair[0].name.toLowerCase() === 'style' && pair[0].end <= caret_pos && pair[1].start >= caret_pos)
+			if (parse_mode == 'html') {
+				var pair = zen_coding.html_matcher.getTags(content, caret_pos); // get the context tag
+				if (pair && pair[0] && pair[0].type == 'tag') {
+					// check if we're inside <style> tag
+					if( (pair[0].name.toLowerCase() == 'style' && pair[0].end <= caret_pos && pair[1].start >= caret_pos)
 						// or inside style attribute
-						|| re_style_attr_begin.test(content.substring(pair[0].start, caret_pos)) ) {
+						|| pair[0].end >= caret_pos && re_style_attr.test(content.substring(pair[0].start, caret_pos)) ) {
 						parse_mode = 'css';
 					}
 				}
@@ -252,12 +296,39 @@ var zen_editor = (function(){
 				case 'XSLT':
 				case 'XSLT-fragment':
 					return 'xml';
-				case 'HTML':
-					// html or xhtml?
-					return dom.source.getText().search(/<!DOCTYPE[^>]+XHTML.+?>/) !== -1 ? 'xhtml' : 'html';
+				// Allow to edit HTML in PHP and other non-HTML documents
 				default:
-					return dom.documentType;
+					return dom.getIsXHTMLDocument() ? 'xhtml' : 'html';
 			}
+		},
+
+		/**
+		 * Ask user to enter something
+		 * @param {String} title Dialog title
+		 * @return {String} Entered data
+		 * @since 0.65
+		 */
+		prompt: function(title) {
+			return window.prompt(title);
+		},
+		
+		/**
+		 * Returns current selection
+		 * @return {String}
+		 * @since 0.65
+		 */
+		getSelection: function() {
+			var selection = dom.source.getSelection();
+			return dom.source.getText(selection[0], selection[1]);
+		},
+
+		/**
+		 * Returns current editor's file path
+		 * @return {String}
+		 * @since 0.65 
+		 */
+		getFilePath: function() {
+			return dom.URL;
 		}
 	}
 })();

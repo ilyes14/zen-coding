@@ -237,7 +237,7 @@
 							break;
 						}
 					} else if (hasMatch('<!--')) { // found comment
-						ix += check_str.search('-->') + 3;
+						ix += check_str.search('-->') + 2;
 					}
 				} else if (ch == '-' && hasMatch('-->')) {
 					// looks like cursor was inside comment with invalid HTML
@@ -259,7 +259,7 @@
 	 * 
 	 * @return {Array|null}
 	 */
-	var HTMLPairMatcher = this.HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix, /*  */ mode){
+	var HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix, /*  */ mode){
 		return findPair(html, start_ix, mode, saveMatch);
 	}
 

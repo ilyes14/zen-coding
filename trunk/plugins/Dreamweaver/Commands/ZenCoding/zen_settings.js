@@ -12,18 +12,34 @@ var zen_settings = {
 		'lang': 'en',
 		'locale': 'en-US',
 		'charset': 'UTF-8',
-		'profile': 'xhtml',
-
+//		'profile': 'xhtml', // force profile for html editors
+		
 		/** Inner element indentation */
-		'indentation': '\t'     // TODO take from Aptana settings
+		'indentation': '\t'
 	},
-
+	
 	'css': {
+		'filters': 'html,css',
 		'snippets': {
+			"@c": "@charset \"utf-8\";",
 			"@i": "@import url(|);",
 			"@m": "@media print {\n\t|\n}",
 			"@f": "@font-face {\n\tfont-family:|;\n\tsrc:url(|);\n}",
+			"@p": "@page {\n\t|\n}",
+			"@tlc": "@top-left-corner {\n\t|\n}",
+			"@tl": "@top-left {\n\t|\n}",
+			"@tc": "@top-center {\n\t|\n}",
+			"@tr": "@top-right {\n\t|\n}",
+			"@trc": "@top-right-corner {\n\t|\n}",
+			"@blc": "@bottom-left-corner {\n\t|\n}",
+			"@bl": "@bottom-left {\n\t|\n}",
+			"@bc": "@bottom-center {\n\t|\n}",
+			"@br": "@bottom-right {\n\t|\n}",
+			"@brc": "@bottom-right-corner {\n\t|\n}",
+			"@fn": "@footnote {\n\t|\n}",
+			"@cs": "@counter-style | \"\"",
 			"!": "!important",
+			"exp": "expression(|)",
 			"pos": "position:|;",
 			"pos:s": "position:static;",
 			"pos:a": "position:absolute;",
@@ -43,6 +59,16 @@ var zen_settings = {
 			"fl:n": "float:none;",
 			"fl:l": "float:left;",
 			"fl:r": "float:right;",
+			"fl:i": "float:inside;",
+			"fl:o": "float:outside;",
+			"fl:p": "float:page;",
+			"fl:m": "float:multicol;",
+			"fl:it": "float:intrude;",
+			"fl:u": "float:unless-room;",
+			"fl:t": "float:top;",
+			"fl:b": "float:bottom;",
+			"fl:nx": "float:next;",
+			"fl:h": "float:hide;",
 			"cl": "clear:|;",
 			"cl:n": "clear:none;",
 			"cl:l": "clear:left;",
@@ -53,6 +79,8 @@ var zen_settings = {
 			"d:b": "display:block;",
 			"d:i": "display:inline;",
 			"d:ib": "display:inline-block;",
+			"d:mib": "display:-moz-inline-box;",
+			"d:mis": "display:-moz-inline-stack;",
 			"d:li": "display:list-item;",
 			"d:ri": "display:run-in;",
 			"d:cp": "display:compact;",
@@ -105,8 +133,25 @@ var zen_settings = {
 			"bxz:bb": "box-sizing:border-box;",
 			"bxsh": "box-shadow:|;",
 			"bxsh:n": "box-shadow:none;",
-			"bxsh:w": "-webkit-box-shadow:0 0 0 #000;",
-			"bxsh:m": "-moz-box-shadow:0 0 0 0 #000;",
+			"bxsh+": "box-shadow:0 0 0 #000;",
+			"bxsh:w": "-webkit-box-shadow:|;",
+			"bxsh:w+": "-webkit-box-shadow:0 0 0 #000;",
+			"bxsh:m": "-moz-box-shadow:|;",
+			"bxsh:m+": "-moz-box-shadow:0 0 0 #000;",
+			"ts": "transition:|;",
+			"tsp": "transition-property:|;",
+			"tsd": "transition-duration:|;",
+			"tst": "transition-timing-function:|;",
+			"tst:e": "transition-timing-function:ease;",
+			"tst:l": "transition-timing-function:linear;",
+			"tst:i": "transition-timing-function:ease-in;",
+			"tst:o": "transition-timing-function:ease-out;",
+			"tst:io": "transition-timing-function:ease-in-out;",
+			"tst:ss": "transition-timing-function:step-start;",
+			"tst:se": "transition-timing-function:step-end;",
+			"tst:s": "transition-timing-function:steps(|);",
+			"tst:cb": "transition-timing-function:cubic-bezier(|);",
+			"tsdl": "transition-delay:|;",
 			"m": "margin:|;",
 			"m:a": "margin:auto;",
 			"m:0": "margin:0;",
@@ -141,6 +186,7 @@ var zen_settings = {
 			"miw": "min-width:|;",
 			"mih": "min-height:|;",
 			"o": "outline:|;",
+			"o+": "outline:1px solid #000;",
 			"o:n": "outline:none;",
 			"oo": "outline-offset:|;",
 			"ow": "outline-width:|;",
@@ -156,33 +202,38 @@ var zen_settings = {
 			"bdcl:c": "border-collapse:collapse;",
 			"bdcl:s": "border-collapse:separate;",
 			"bdc": "border-color:#000;",
-			"bdi": "border-image:url(|);",
+			"bdi": "border-image:|;",
+			"bdi+": "border-image:url(|) 0 repeat;",
 			"bdi:n": "border-image:none;",
-			"bdi:w": "-webkit-border-image:url(|) 0 0 0 0 stretch stretch;",
-			"bdi:m": "-moz-border-image:url(|) 0 0 0 0 stretch stretch;",
-			"bdti": "border-top-image:url(|);",
+			"bdi:w": "-webkit-border-image:|;",
+			"bdi:w+": "-webkit-border-image:url(|) 0 repeat;",
+			"bdi:m": "-moz-border-image:|;",
+			"bdi:m+": "-moz-border-image:url(|) 0 repeat;",
+			"bdti": "border-top-image:|;",
 			"bdti:n": "border-top-image:none;",
-			"bdri": "border-right-image:url(|);",
+			"bdri": "border-right-image:|;",
 			"bdri:n": "border-right-image:none;",
-			"bdbi": "border-bottom-image:url(|);",
+			"bdbi": "border-bottom-image:|;",
 			"bdbi:n": "border-bottom-image:none;",
-			"bdli": "border-left-image:url(|);",
+			"bdli": "border-left-image:|;",
 			"bdli:n": "border-left-image:none;",
-			"bdci": "border-corner-image:url(|);",
+			"bdci": "border-corner-image:|;",
 			"bdci:n": "border-corner-image:none;",
 			"bdci:c": "border-corner-image:continue;",
-			"bdtli": "border-top-left-image:url(|);",
+			"bdtli": "border-top-left-image:|;",
 			"bdtli:n": "border-top-left-image:none;",
 			"bdtli:c": "border-top-left-image:continue;",
-			"bdtri": "border-top-right-image:url(|);",
+			"bdtri": "border-top-right-image:|;",
 			"bdtri:n": "border-top-right-image:none;",
 			"bdtri:c": "border-top-right-image:continue;",
-			"bdbri": "border-bottom-right-image:url(|);",
+			"bdbri": "border-bottom-right-image:|;",
 			"bdbri:n": "border-bottom-right-image:none;",
 			"bdbri:c": "border-bottom-right-image:continue;",
-			"bdbli": "border-bottom-left-image:url(|);",
+			"bdbli": "border-bottom-left-image:|;",
 			"bdbli:n": "border-bottom-left-image:none;",
 			"bdbli:c": "border-bottom-left-image:continue;",
+			"bxdb": "box-decoration-break:clone;",
+			"bxdb:s": "box-decoration-break:slice;",
 			"bdf": "border-fit:|;",
 			"bdf:c": "border-fit:clip;",
 			"bdf:r": "border-fit:repeat;",
@@ -215,6 +266,18 @@ var zen_settings = {
 			"bdtw": "border-top-width:|;",
 			"bdts": "border-top-style:|;",
 			"bdts:n": "border-top-style:none;",
+			"bdts:h": "border-top-style:hidden;",
+			"bdts:dt": "border-top-style:dotted;",
+			"bdts:ds": "border-top-style:dashed;",
+			"bdts:s": "border-top-style:solid;",
+			"bdts:db": "border-top-style:double;",
+			"bdts:dtds": "border-top-style:dot-dash;",
+			"bdts:dtdtds": "border-top-style:dot-dot-dash;",
+			"bdts:w": "border-top-style:wave;",
+			"bdts:g": "border-top-style:groove;",
+			"bdts:r": "border-top-style:ridge;",
+			"bdts:i": "border-top-style:inset;",
+			"bdts:o": "border-top-style:outset;",
 			"bdtc": "border-top-color:#000;",
 			"bdr": "border-right:|;",
 			"bdr+": "border-right:1px solid #000;",
@@ -222,6 +285,18 @@ var zen_settings = {
 			"bdrw": "border-right-width:|;",
 			"bdrs": "border-right-style:|;",
 			"bdrs:n": "border-right-style:none;",
+			"bdrs:h": "border-right-style:hidden;",
+			"bdrs:dt": "border-right-style:dotted;",
+			"bdrs:ds": "border-right-style:dashed;",
+			"bdrs:s": "border-right-style:solid;",
+			"bdrs:db": "border-right-style:double;",
+			"bdrs:dtds": "border-right-style:dot-dash;",
+			"bdrs:dtdtds": "border-right-style:dot-dot-dash;",
+			"bdrs:w": "border-right-style:wave;",
+			"bdrs:g": "border-right-style:groove;",
+			"bdrs:r": "border-right-style:ridge;",
+			"bdrs:i": "border-right-style:inset;",
+			"bdrs:o": "border-right-style:outset;",
 			"bdrc": "border-right-color:#000;",
 			"bdb": "border-bottom:|;",
 			"bdb+": "border-bottom:1px solid #000;",
@@ -229,6 +304,18 @@ var zen_settings = {
 			"bdbw": "border-bottom-width:|;",
 			"bdbs": "border-bottom-style:|;",
 			"bdbs:n": "border-bottom-style:none;",
+			"bdbs:h": "border-bottom-style:hidden;",
+			"bdbs:dt": "border-bottom-style:dotted;",
+			"bdbs:ds": "border-bottom-style:dashed;",
+			"bdbs:s": "border-bottom-style:solid;",
+			"bdbs:db": "border-bottom-style:double;",
+			"bdbs:dtds": "border-bottom-style:dot-dash;",
+			"bdbs:dtdtds": "border-bottom-style:dot-dot-dash;",
+			"bdbs:w": "border-bottom-style:wave;",
+			"bdbs:g": "border-bottom-style:groove;",
+			"bdbs:r": "border-bottom-style:ridge;",
+			"bdbs:i": "border-bottom-style:inset;",
+			"bdbs:o": "border-bottom-style:outset;",
 			"bdbc": "border-bottom-color:#000;",
 			"bdl": "border-left:|;",
 			"bdl+": "border-left:1px solid #000;",
@@ -236,23 +323,39 @@ var zen_settings = {
 			"bdlw": "border-left-width:|;",
 			"bdls": "border-left-style:|;",
 			"bdls:n": "border-left-style:none;",
+			"bdls:h": "border-left-style:hidden;",
+			"bdls:dt": "border-left-style:dotted;",
+			"bdls:ds": "border-left-style:dashed;",
+			"bdls:s": "border-left-style:solid;",
+			"bdls:db": "border-left-style:double;",
+			"bdls:dtds": "border-left-style:dot-dash;",
+			"bdls:dtdtds": "border-left-style:dot-dot-dash;",
+			"bdls:w": "border-left-style:wave;",
+			"bdls:g": "border-left-style:groove;",
+			"bdls:r": "border-left-style:ridge;",
+			"bdls:i": "border-left-style:inset;",
+			"bdls:o": "border-left-style:outset;",
 			"bdlc": "border-left-color:#000;",
-			"bdrs": "border-radius:|;",
-			"bdtrrs": "border-top-right-radius:|;",
-			"bdtlrs": "border-top-left-radius:|;",
-			"bdbrrs": "border-bottom-right-radius:|;",
-			"bdblrs": "border-bottom-left-radius:|;",
+			"bdrz": "border-radius:|;",
+			"bdrz:w": "-webkit-border-radius:|;",
+			"bdrz:m": "-moz-border-radius:|;",
+			"bdtrrz": "border-top-right-radius:|;",
+			"bdtlrz": "border-top-left-radius:|;",
+			"bdbrrz": "border-bottom-right-radius:|;",
+			"bdblrz": "border-bottom-left-radius:|;",
 			"bg": "background:|;",
-			"bg+": "background:#FFF url(|) 0 0 no-repeat;",
+			"bg+": "background:#FFF url(|) no-repeat 0 0;",
 			"bg:n": "background:none;",
-			"bg:ie": "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='|x.png');",
+			"bg:ie": "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='|x.png',sizingMethod='crop');",
 			"bgc": "background-color:#FFF;",
+			"bgc:t": "background-color:transparent;",
 			"bgi": "background-image:url(|);",
 			"bgi:n": "background-image:none;",
 			"bgr": "background-repeat:|;",
-			"bgr:n": "background-repeat:no-repeat;",
+			"bgr:r": "background-repeat:repeat;",
 			"bgr:x": "background-repeat:repeat-x;",
 			"bgr:y": "background-repeat:repeat-y;",
+			"bgr:n": "background-repeat:no-repeat;",
 			"bga": "background-attachment:|;",
 			"bga:f": "background-attachment:fixed;",
 			"bga:s": "background-attachment:scroll;",
@@ -277,6 +380,11 @@ var zen_settings = {
 			"bgz:ct": "background-size:contain;",
 			"bgz:cv": "background-size:cover;",
 			"c": "color:#000;",
+			"c:t": "color:transparent;",
+			"c:r": "color:rgb(|);",
+			"c:ra": "color:rgba(|);",
+			"c:h": "color:hsl(|);",
+			"c:ha": "color:hsla(|);",
 			"tbl": "table-layout:|;",
 			"tbl:a": "table-layout:auto;",
 			"tbl:f": "table-layout:fixed;",
@@ -330,6 +438,7 @@ var zen_settings = {
 			"ta:l": "text-align:left;",
 			"ta:c": "text-align:center;",
 			"ta:r": "text-align:right;",
+			"ta:j": "text-align:justify;",
 			"tal": "text-align-last:|;",
 			"tal:a": "text-align-last:auto;",
 			"tal:l": "text-align-last:left;",
@@ -337,9 +446,9 @@ var zen_settings = {
 			"tal:r": "text-align-last:right;",
 			"td": "text-decoration:|;",
 			"td:n": "text-decoration:none;",
-			"td:u": "text-decoration:underline;",
 			"td:o": "text-decoration:overline;",
 			"td:l": "text-decoration:line-through;",
+			"td:u": "text-decoration:underline;",
 			"te": "text-emphasis:|;",
 			"te:n": "text-emphasis:none;",
 			"te:ac": "text-emphasis:accent;",
@@ -366,6 +475,10 @@ var zen_settings = {
 			"to": "text-outline:|;",
 			"to+": "text-outline:0 0 #000;",
 			"to:n": "text-outline:none;",
+			"tov": "text-overflow:|;",
+			"tov+": "text-overflow:"|";",
+			"tov:c": "text-overflow:clip;",
+			"tov:e": "text-overflow:ellipsis;",
 			"tr": "text-replace:|;",
 			"tr:n": "text-replace:none;",
 			"tt": "text-transform:|;",
@@ -402,8 +515,8 @@ var zen_settings = {
 			"wob:ba": "word-break:break-all;",
 			"wos": "word-spacing:|;",
 			"wow": "word-wrap:|;",
-			"wow:nm": "word-wrap:normal;",
-			"wow:n": "word-wrap:none;",
+			"wow:n": "word-wrap:normal;",
+			"wow:no": "word-wrap:none;",
 			"wow:u": "word-wrap:unrestricted;",
 			"wow:s": "word-wrap:suppress;",
 			"lts": "letter-spacing:|;",
@@ -425,11 +538,11 @@ var zen_settings = {
 			"fza": "font-size-adjust:|;",
 			"fza:n": "font-size-adjust:none;",
 			"ff": "font-family:|;",
-			"ff:s": "font-family:serif;",
-			"ff:ss": "font-family:sans-serif;",
-			"ff:c": "font-family:cursive;",
-			"ff:f": "font-family:fantasy;",
-			"ff:m": "font-family:monospace;",
+			"ff:s": "font-family:Georgia,'Times New Roman',serif;",
+			"ff:ss": "font-family:Helvetica,Arial,sans-serif;",
+			"ff:c": "font-family:'Monotype Corsiva','Comic Sans MS',cursive;",
+			"ff:f": "font-family:Capitals,Impact,fantasy;",
+			"ff:m": "font-family:Monaco,'Courier New',monospace;",
 			"fef": "font-effect:|;",
 			"fef:n": "font-effect:none;",
 			"fef:eg": "font-effect:engrave;",
@@ -477,23 +590,23 @@ var zen_settings = {
 			"cur:p": "cursor:pointer;",
 			"cur:t": "cursor:text;",
 			"pgbb": "page-break-before:|;",
-			"pgbb:au": "page-break-before:auto;",
-			"pgbb:al": "page-break-before:always;",
+			"pgbb:a": "page-break-before:auto;",
+			"pgbb:aw": "page-break-before:always;",
 			"pgbb:l": "page-break-before:left;",
 			"pgbb:r": "page-break-before:right;",
 			"pgbi": "page-break-inside:|;",
-			"pgbi:au": "page-break-inside:auto;",
-			"pgbi:av": "page-break-inside:avoid;",
+			"pgbi:a": "page-break-inside:auto;",
+			"pgbi:aw": "page-break-inside:avoid;",
 			"pgba": "page-break-after:|;",
-			"pgba:au": "page-break-after:auto;",
-			"pgba:al": "page-break-after:always;",
+			"pgba:a": "page-break-after:auto;",
+			"pgba:aw": "page-break-after:always;",
 			"pgba:l": "page-break-after:left;",
 			"pgba:r": "page-break-after:right;",
 			"orp": "orphans:|;",
 			"wid": "widows:|;"
 		}
 	},
-
+	
 	'html': {
 		'filters': 'html',
 		'snippets': {
@@ -501,23 +614,23 @@ var zen_settings = {
 			'cc:ie': '<!--[if IE]>\n\t${child}|\n<![endif]-->',
 			'cc:noie': '<!--[if !IE]><!-->\n\t${child}|\n<!--<![endif]-->',
 			'html:4t': '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">\n' +
-					'<html lang="${lang}">\n' +
+					'<html>\n' +
 					'<head>\n' +
 					'	<meta http-equiv="Content-Type" content="text/html;charset=${charset}">\n' +
 					'	<title></title>\n' +
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
-
+			
 			'html:4s': '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">\n' +
-					'<html lang="${lang}">\n' +
+					'<html>\n' +
 					'<head>\n' +
 					'	<meta http-equiv="Content-Type" content="text/html;charset=${charset}">\n' +
 					'	<title></title>\n' +
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
-
+			
 			'html:xt': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n' +
 					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${lang}">\n' +
 					'<head>\n' +
@@ -526,7 +639,7 @@ var zen_settings = {
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
-
+			
 			'html:xs': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n' +
 					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${lang}">\n' +
 					'<head>\n' +
@@ -535,7 +648,7 @@ var zen_settings = {
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
-
+			
 			'html:xxs': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n' +
 					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${lang}">\n' +
 					'<head>\n' +
@@ -544,9 +657,9 @@ var zen_settings = {
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
-
-			'html:5': '<!DOCTYPE HTML>\n' +
-					'<html lang="${locale}">\n' +
+			
+			'html:5': '<!DOCTYPE html>\n' +
+					'<html>\n' +
 					'<head>\n' +
 					'	<meta charset="${charset}">\n' +
 					'	<title></title>\n' +
@@ -554,7 +667,7 @@ var zen_settings = {
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>'
 		},
-
+		
 		'abbreviations': {
 			'a': '<a href=""></a>',
 			'a:link': '<a href="http://|"></a>',
@@ -565,13 +678,13 @@ var zen_settings = {
 			'bdo': '<bdo dir=""></bdo>',
 			'bdo:r': '<bdo dir="rtl"></bdo>',
 			'bdo:l': '<bdo dir="ltr"></bdo>',
-			'link:css': '<link rel="stylesheet" type="text/css" href="|style.css" media="all" />',
+			'link:css': '<link rel="stylesheet" type="text/css" href="${1:style}.css" media="all" />',
 			'link:print': '<link rel="stylesheet" type="text/css" href="|print.css" media="print" />',
 			'link:favicon': '<link rel="shortcut icon" type="image/x-icon" href="|favicon.ico" />',
 			'link:touch': '<link rel="apple-touch-icon" href="|favicon.png" />',
 			'link:rss': '<link rel="alternate" type="application/rss+xml" title="RSS" href="|rss.xml" />',
 			'link:atom': '<link rel="alternate" type="application/atom+xml" title="Atom" href="atom.xml" />',
-			'meta:utf': '<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />',
+			'meta:utf': '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />',
 			'meta:win': '<meta http-equiv="Content-Type" content="text/html;charset=windows-1251" />',
 			'meta:compat': '<meta http-equiv="X-UA-Compatible" content="IE=7" />',
 			'style': '<style type="text/css"></style>',
@@ -648,10 +761,11 @@ var zen_settings = {
 			'btn': '<button></button>',
 			'optg': '<optgroup></optgroup>',
 			'opt': '<option></option>',
-			'tarea': '<textarea></textarea>',
+			'tarea': '<textarea name="" id="" cols="30" rows="10"></textarea>',
 			'leg': '<legend></legend>',
 			'sect': '<section></section>',
 			'art': '<article></article>',
+			'hgr': '<hgroup></hgroup>',
 			'hdr': '<header></header>',
 			'ftr': '<footer></footer>',
 			'adr': '<address></address>',
@@ -665,7 +779,7 @@ var zen_settings = {
 			'out': '<output></output>',
 			'det': '<details></details>',
 			'cmd': '<command></command>',
-
+			
 			// expandos
 			'ol+': 'ol>li',
 			'ul+': 'ul>li',
@@ -680,14 +794,14 @@ var zen_settings = {
 			'optg+': 'optgroup>option'
 
 		},
-
+		
 		'element_types': {
 			'empty': 'area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,keygen,command',
 			'block_level': 'address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,link,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,h1,h2,h3,h4,h5,h6',
-			'inline_level': 'a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var'
+			'inline_level': 'a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,select,small,span,strike,strong,sub,sup,textarea,tt,u,var'
 		}
 	},
-
+	
 	'xsl': {
 		'extends': 'html',
 		'filters': 'html, xsl',
@@ -710,12 +824,12 @@ var zen_settings = {
 			'each': '<xsl:for-each select=""></xsl:for-each>',
 			'for': 'each',
 			'ap': '<xsl:apply-templates select="" mode=""/>',
-
+			
 			//expandos
 			'choose+': 'xsl:choose>xsl:when+xsl:otherwise'
 		}
 	},
-
+	
 	'haml': {
 		'filters': 'haml',
 		'extends': 'html'
