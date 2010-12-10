@@ -5,10 +5,12 @@
 
 Zen Coding is an editor plugin for high-speed HTML, XML, XSL (or any other structured code format) coding and editing. The core of this plugin is a powerful abbreviation engine which allows you to expand expressions—similar to CSS selectors—into HTML code. You can find more information on [http://code.google.com/p/zen-coding/ project main page].
 
+===[http://code.google.com/p/zen-coding/downloads/detail?name=Zen.Coding-Dreamweaver.v0.7.zip Download  	Zen Coding for Dreamweaver]===
+
 
 = About Adobe Dreamweaver extension =
 
-[http://code.google.com/p/zen-coding/downloads/detail?name=Zen.Coding-Dreamweaver.v0.7.zip This extension] contains all Zen Coding features which can be supported by editor extension engine. The bad news is that Dreamweaver doesn't have multiple tab stops and can't read image (binary) files. So related features like "encode to base64" aren't realized. Maybe someone will do it with C-level extensibility.
+This extension contains all Zen Coding features which can be supported by editor extension engine. The bad news is that Dreamweaver doesn't have multiple tab stops and can't read image (binary) files. So related features like "encode to base64" aren't realized. Maybe someone will do it with C-level extensibility.
 
 But the good news is that since version 0.7 *you can expand abbreviations with Tab button*! Also some new actions were added and almost all actions now have shortcuts.
 
