@@ -5,7 +5,13 @@
 
 Zen Coding is an editor plugin for high-speed HTML, XML, XSL (or any other structured code format) coding and editing. The core of this plugin is a powerful abbreviation engine which allows you to expand expressions—similar to CSS selectors—into HTML code. You can find more information on [http://code.google.com/p/zen-coding/ project main page].
 
-===[http://code.google.com/p/zen-coding/downloads/detail?name=Zen.Coding-Dreamweaver.v0.7.zip Download  	Zen Coding for Dreamweaver]===
+
+= How to install =
+To install it you need to download [http://code.google.com/p/zen-coding/downloads/detail?name=Zen.Coding-Dreamweaver.v0.7.zip zip-package] of the extension, unpack "Zen Coding v.0.7.mxp" and install it via Adobe Extension Manager. If file association with mxp don't work you can access it under Commands menu in Dreamweaver.
+
+There is source code also included. You can make changes if you want and install mxi extension then.
+
+After installing you need to restart Adobe Dreamweaver (or [http://help.adobe.com/en_US/dreamweaver/cs/extend/WS5b3ccc516d4fbf351e63e3d117f508c8de-7fd1.html reload extensions]) if it running.
 
 
 = About Adobe Dreamweaver extension =
