@@ -1,18 +1,18 @@
 /**
- * High-level editor interface that communicates with underlying editor (like 
+ * High-level editor interface that communicates with underlying editor (like
  * TinyMCE, CKEditor, etc.) or browser.
  * Basically, you should call <code>zen_editor.setContext(obj)</code> method to
  * set up undelying editor context before using any other method.
- * 
- * This interface is used by <i>zen_actions.js</i> for performing different 
- * actions like <b>Expand abbreviation</b>  
- * 
+ *
+ * This interface is used by <i>zen_actions.js</i> for performing different
+ * actions like <b>Expand abbreviation</b>
+ *
  * @example
  * var textarea = document.getElemenetsByTagName('textarea')[0];
  * zen_editor.setContext(textarea);
  * //now you are ready to use editor object
  * zen_editor.getSelectionRange();
- * 
+ *
  * @author GreLI (grelimail@gmail.com)
  * @link http://code.google.com/p/zen-coding/
  */
@@ -22,7 +22,8 @@ var zen_editor = (function(){
 	    indent_size = 1,
 	    indent_tabs = 'TRUE',
 	    // Check for style attribute
-	    re_style_attr = /\bstyle\s*=\s*("[^"]*|'[^']*)$/;
+	    re_style_attr = /(\bstyle\s*=\s*)("[^"]*|'[^']*)$/,
+		syntax_bounds;
 
 	/**
 	 * Returns whitrespace padding of string
@@ -30,7 +31,7 @@ var zen_editor = (function(){
 	 * @return {String}
 	 */
 	function getStringPadding(str) {
-		return (str.match(/^(\s+)/) || [''])[0];
+		return (str.match(/^\s+/) || [''])[0];
 	}
 
 	/**
@@ -72,47 +73,22 @@ var zen_editor = (function(){
 	 */
 	function getCurrentLine() {
 		var content = getContent(),
-		    line = getLineBounds(content, getCaretPos());
+		    line = zen_coding.getLineBounds(content, getCaretPos());
 
 		return content.substring(line.start, line.end);
 	};
 
-	/**
-	 * Find start and end index of text line for <code>from</code> index
-	 * @param {String} text 
-	 * @param {Number} from 
-	 */
-	function getLineBounds(text, from) {
-		var end = from,
-		    len = text.length;
-
-		// lastIndexOf and search generally faster than iterating characters
-		// to find line breaks especially for long strings
-
-		// Search for start of the line (regular expressions too slow here)
-		var first_part = text.substring(0, from),
-		    lf = first_part.lastIndexOf('\n'),
-		    cr = first_part.lastIndexOf('\r');
-		from = (lf > cr ? lf : cr) + 1;
-
-		// Search for end of the line (let the engine do the work for us)
-		var end_search = text.substring(end, len).search(/[\n\r]/);
-		~end_search ?
-			end += end_search :
-			end = len;
-
-		return {start: from, end: end};
-	}
-
 	return {
 		/**
-		 * Setup underlying editor context. You should call this method 
+		 * Setup underlying editor context. You should call this method
 		 * <code>before</code> using any Zen Coding action.
 		 * @param {Object} context
 		 */
 		setContext: function() {
 			dom = dw.getDocumentDOM(); // Get current document DOM.
 			if (!dom) return false;
+
+			syntax_bounds = null; // clear syntax bounds
 
 			// Check new line settings.
 			var nl = dw.getPreferenceInt('Source Format', 'Line Break Type', 0x0A);
@@ -139,13 +115,13 @@ var zen_editor = (function(){
 
 		/**
 		 * Returns character indexes of selected text: object with <code>start</code>
-		 * and <code>end</code> properties. If there's no selection, should return 
+		 * and <code>end</code> properties. If there's no selection, should return
 		 * object with <code>start</code> and <code>end</code> properties referring
 		 * to current caret position
 		 * @return {Object}
 		 * @example
 		 * var selection = zen_editor.getSelectionRange();
-		 * alert(selection.start + ', ' + selection.end); 
+		 * alert(selection.start + ', ' + selection.end);
 		 */
 		getSelectionRange: function() {
 			var selection = dom.source.getSelection();
@@ -158,13 +134,13 @@ var zen_editor = (function(){
 
 		/**
 		 * Creates selection from <code>start</code> to <code>end</code> character
-		 * indexes. If <code>end</code> is ommited, this method should place caret 
+		 * indexes. If <code>end</code> is ommited, this method should place caret
 		 * and <code>start</code> index
 		 * @param {Number} start
 		 * @param {Number} [end]
 		 * @example
 		 * zen_editor.createSelection(10, 40);
-		 * 
+		 *
 		 * //move caret to 15th character
 		 * zen_editor.createSelection(15);
 		 */
@@ -182,7 +158,7 @@ var zen_editor = (function(){
 		 * alert(range.start + ', ' + range.end);
 		 */
 		getCurrentLineRange: function() {
-			return getLineBounds(getContent(), getCaretPos());
+			return zen_coding.getLineBounds(getContent(), getCaretPos());
 		},
 
 		/**
@@ -204,36 +180,41 @@ var zen_editor = (function(){
 		getCurrentLine: getCurrentLine,
 
 		/**
-		 * Replace editor's content or it's part (from <code>start</code> to 
-		 * <code>end</code> index). If <code>value</code> contains 
-		 * <code>caret_placeholder</code>, the editor will put caret into 
+		 * Replace editor's content or it's part (from <code>start</code> to
+		 * <code>end</code> index). If <code>value</code> contains
+		 * <code>caret_placeholder</code>, the editor will put caret into
 		 * this position. If you skip <code>start</code> and <code>end</code>
-		 * arguments, the whole target's content will be replaced with 
-		 * <code>value</code>. 
-		 * 
+		 * arguments, the whole target's content will be replaced with
+		 * <code>value</code>.
+		 *
 		 * If you pass <code>start</code> argument only,
-		 * the <code>value</code> will be placed at <code>start</code> string 
-		 * index of current content. 
-		 * 
+		 * the <code>value</code> will be placed at <code>start</code> string
+		 * index of current content.
+		 *
 		 * If you pass <code>start</code> and <code>end</code> arguments,
-		 * the corresponding substring of current target's content will be 
-		 * replaced with <code>value</code>. 
+		 * the corresponding substring of current target's content will be
+		 * replaced with <code>value</code>.
 		 * @param {String} value Content you want to paste
 		 * @param {Number} [start] Start index of editor's content
 		 * @param {Number} [end] End index of editor's content
 		 */
 		replaceContent: function(value, start, end) {
+			var content = getContent();
+
 			if (end == null) {
 				if (start == null) {
 					start = 0;
-					end = getContent().length;
+					end = content.length;
 				} else {
 					end = start;
 				}
 			}
 
 			// indent new value
-			value = zen_coding.padString(value, getStringPadding(getCurrentLine()));
+			var start_line_bounds = zen_coding.getLineBounds(content, start),
+			    start_line_pad = getStringPadding(content.substring(start_line_bounds.start, start_line_bounds.end));
+
+			value = zen_coding.padString(value, start_line_pad);
 
 			var caret_placeholder = zen_coding.getCaretPlaceholder(), // get '{%::zen-caret::%}', do not hardcode it!
 				caret_new_pos = start;
@@ -263,10 +244,12 @@ var zen_editor = (function(){
 		 * Returns current editor's syntax mode
 		 * @return {String}
 		 */
-		getSyntax: function(){
+		getSyntax: function(for_abbr){
 			var content = getContent(),
-			    caret_pos = getCaretPos(),
-			    parse_mode = dom.getParseMode();
+			    sel = dom.source.getSelection(),
+			    caret_pos = sel[1],
+			    parse_mode = dom.getParseMode(),
+			    m;
 
 			if (~dom.documentType.indexOf('XSLT'))
 				parseMode = 'xsl';
@@ -275,15 +258,35 @@ var zen_editor = (function(){
 				var pair = zen_coding.html_matcher.getTags(content, caret_pos); // get the context tag
 				if (pair && pair[0] && pair[0].type == 'tag') {
 					// check if we're inside <style> tag
-					if( (pair[0].name.toLowerCase() == 'style' && pair[0].end <= caret_pos && pair[1].start >= caret_pos)
-						// or inside style attribute
-						|| pair[0].end >= caret_pos && re_style_attr.test(content.substring(pair[0].start, caret_pos)) ) {
+					if( (pair[0].name.toLowerCase() == 'style' && pair[0].end <= caret_pos && pair[1].start >= caret_pos) ) {
+						syntax_bounds = {
+							start: pair[0].end,
+							end: pair[1].start,
+							document_syntax: 'html',
+						};
+						parse_mode = 'css';
+					}
+					// or inside style attribute
+					else if ( (for_abbr || sel[0] != sel[1]) && sel[1] < pair[0].end && ( m = content.substring(pair[0].start, sel[0]).match(re_style_attr) ) ) {
+						syntax_bounds = {
+							start: pair[0].start + m.index + m[1].length + 1,
+							end: caret_pos + content.substring(caret_pos, pair[0].end).indexOf(m[2].charAt(0)),
+							document_syntax: 'html',
+						};
 						parse_mode = 'css';
 					}
 				}
 			}
 
 			return parse_mode;
+		},
+
+		/**
+		 * Returns current editor's syntax mode bounds
+		 * @return {Object|null}
+		 */
+		getSyntaxBounds: function() {
+			return syntax_bounds;
 		},
 
 		/**
@@ -311,7 +314,7 @@ var zen_editor = (function(){
 		prompt: function(title) {
 			return window.prompt(title);
 		},
-		
+
 		/**
 		 * Returns current selection
 		 * @return {String}
@@ -325,7 +328,7 @@ var zen_editor = (function(){
 		/**
 		 * Returns current editor's file path
 		 * @return {String}
-		 * @since 0.65 
+		 * @since 0.65
 		 */
 		getFilePath: function() {
 			return dom.URL;

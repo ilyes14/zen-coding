@@ -3,11 +3,13 @@
  * and text nodes
  * @author Sergey Chikuyonok (serge.che@gmail.com)
  * @link http://chikuyonok.ru
- * 
+ *
  * @include "zen_coding.js"
  */
 var zen_parser = (function(){
-	
+
+	var re_valid_name = /^[\w\d\-_\$\:@!]+\+?$/i;
+
 	/**
 	 * @class
 	 */
@@ -22,7 +24,7 @@ var zen_parser = (function(){
 		this.attributes = [];
 		this.is_repeating = false;
 	}
-	
+
 	TreeNode.prototype = {
 		/**
 		 * Adds passed or creates new child
@@ -35,7 +37,7 @@ var zen_parser = (function(){
 			this.children.push(child);
 			return child;
 		},
-		
+
 		/**
 		 * Replace current node in parent's child list with another node
 		 * @param {TreeNode} node
@@ -45,15 +47,14 @@ var zen_parser = (function(){
 				var children = this.parent.children;
 				for (var i = 0, il = children.length; i < il; i++) {
 					if (children[i] === this) {
-						var old_node = children[i];
 						children[i] = node;
-						old_node = old_node.parent = null;
+						this.parent = null;
 						return;
 					}
 				}
 			}
 		},
-		
+
 		/**
 		 * Sets abbreviation that belongs to current node
 		 * @param {String} abbr
@@ -66,28 +67,36 @@ var zen_parser = (function(){
 				this.is_repeating = !m[1];
 				abbr = abbr.substr(0, abbr.length - m[0].length);
 			}
-			
+
 			if (abbr) {
 				var name_text = splitExpression(abbr);
 				var name = name_text[0];
 				if (name_text.length == 2)
 					this.text = name_text[1];
-					
+
 				if (name) {
 					var attr_result = parseAttributes(name);
-					this.name = attr_result[0] || 'div';
+					this.name = attr_result[0]
+						|| (this.parent
+						&& this.parent.name in zen_resources.getElementsCollection(zen_settings['html'], 'inline_level') ?
+						'span' : 'div');
 					this.attributes = attr_result[1];
 				}
 			}
+
+			// validate name
+			if (this.name && !re_valid_name.test(this.name)) {
+				throw new Error('InvalidAbbreviation');
+			}
 		},
-		
+
 		/**
 		 * @return {String}
 		 */
 		getAbbreviation: function() {
 			return this.expr;
 		},
-		
+
 		/**
 		 * Dump current tree node into a foramtted string
 		 * @return {String}
@@ -99,28 +108,28 @@ var zen_parser = (function(){
 				output = '';
 				if (this.name)
 					output = this.name;
-					
+
 				if (this.text != null)
 					output += (output ? ' ' : '') + '{text: "' + this.text + '"}';
-					
+
 				if (this.attributes.length) {
 					var attrs = [];
 					for (var i = 0, il = this.attributes.length; i < il; i++) {
-						attrs.push(this.attributes[i].name + '="' + this.attributes[i].value + '"'); 
+						attrs.push(this.attributes[i].name + '="' + this.attributes[i].value + '"');
 					}
 					output += ' [' + attrs.join(', ') + ']';
 				}
 			}
 			var result = zen_coding.repeatString('-', level)
-				+ output 
+				+ output
 				+ '\n';
 			for (var i = 0, il = this.children.length; i < il; i++) {
 				result += this.children[i].toString(level + 1);
 			}
-			
+
 			return result;
 		},
-		
+
 		/**
 		 * Check if current node contains children with empty <code>expr</code>
 		 * property
@@ -131,17 +140,17 @@ var zen_parser = (function(){
 				if (this.children[i].isEmpty())
 					return true;
 			}
-			
+
 			return false;
 		},
-		
+
 		/**
 		 * @return {Boolean}
 		 */
 		isEmpty: function() {
 			return !this.abbreviation;
 		},
-		
+
 		/**
 		 * Check if current node is a text-only node
 		 * @return {Boolean}
@@ -150,7 +159,7 @@ var zen_parser = (function(){
 			return !this.name && this.text;
 		}
 	};
-	
+
 	/**
 	 * Check if character is numeric
 	 * @requires {Stirng} ch
@@ -159,10 +168,10 @@ var zen_parser = (function(){
 	function isNumeric(ch) {
 		if (typeof(ch) == 'string')
 			ch = ch.charCodeAt(0);
-			
+
 		return (ch && ch > 47 && ch < 58);
 	}
-	
+
 	/**
 	 * Optimizes tree node: replaces empty nodes with their children
 	 * @param {TreeNode} node
@@ -177,14 +186,14 @@ var zen_parser = (function(){
 				for (var j = 0, jl = n.children.length; j < jl; j++) {
 					args.push(n.children[j]);
 				}
-				
+
 				Array.prototype.splice.apply(node.children, args);
 			}
 		}
-		
+
 		return node;
 	}
-	
+
 	/**
 	 * Trim whitespace from string
 	 * @param {String} text
@@ -193,7 +202,7 @@ var zen_parser = (function(){
 	function trim(text) {
 		return (text || "").replace( /^\s+|\s+$/g, "" );
 	}
-	
+
 	/**
 	 * Get word, starting at <code>ix</code> character of <code>str</code>
 	 */
@@ -201,9 +210,9 @@ var zen_parser = (function(){
 		var m = str.substring(ix).match(/^[\w\-:\$]+/);
 		return m ? m[0] : '';
 	}
-	
+
 	/**
-	 * Extract attributes and their values from attribute set 
+	 * Extract attributes and their values from attribute set
 	 * @param {String} attr_set
 	 */
 	function extractAttributes(attr_set) {
@@ -212,7 +221,7 @@ var zen_parser = (function(){
 			re_string = /^(["'])((?:(?!\1)[^\\]|\\.)*)\1/,
 			result = [],
 			attr;
-			
+
 		while (attr_set && loop_count--) {
 			var attr_name = getWord(0, attr_set);
 			attr = null;
@@ -254,12 +263,12 @@ var zen_parser = (function(){
 				// something wrong, can't extract attribute name
 				break;
 			}
-			
+
 			if (attr) result.push(attr);
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Parses tag attributes extracted from abbreviation
 	 * @param {String} str
@@ -274,16 +283,16 @@ var zen_parser = (function(){
 		 * #item[attr=Hello other="World"].class
 		 */
 		var result = [],
-			name = '',
-			collect_name = true,
-			class_name,
-			char_map = {'#': 'id', '.': 'class'};
-		
+		    name = '',
+		    collect_name = true,
+		    class_name,
+		    char_map = {'#': 'id', '.': 'class'};
+
 		// walk char-by-char
 		var i = 0,
-			il = str.length,
-			val;
-			
+		    il = str.length,
+		    val;
+
 		while (i < il) {
 			var ch = str.charAt(i);
 			switch (ch) {
@@ -300,7 +309,7 @@ var zen_parser = (function(){
 						class_name = {name: char_map[ch], value: ''};
 						result.push(class_name);
 					}
-					
+
 					class_name.value += ((class_name.value) ? ' ' : '') + val;
 					i += val.length + 1;
 					collect_name = false;
@@ -308,7 +317,7 @@ var zen_parser = (function(){
 				case '[': //begin attribute set
 					// search for end of set
 					var end_ix = str.indexOf(']', i);
-					if (end_ix == -1) {
+					if (!~end_ix) {
 						// invalid attribute set, stop searching
 						i = str.length;
 					} else {
@@ -326,10 +335,10 @@ var zen_parser = (function(){
 					i++;
 			}
 		}
-		
+
 		return [name, result];
 	}
-	
+
 	/**
 	 * @param {TreeNode} node
 	 * @return {TreeNode}
@@ -337,14 +346,14 @@ var zen_parser = (function(){
 	function optimizeTree(node) {
 		while (node.hasEmptyChildren())
 			squash(node);
-			
+
 		for (var i = 0, il = node.children.length; i < il; i++) {
 			optimizeTree(node.children[i]);
 		}
-		
+
 		return node;
 	}
-	
+
 	/**
 	 * Split expression by node name and its content, if exists. E.g. if we pass
 	 * <code>a{Text}</code> expression, it will be splitted into <code>a</code>
@@ -355,16 +364,16 @@ var zen_parser = (function(){
 	 */
 	function splitExpression(expr) {
 		// fast test on text node
-		if (expr.indexOf('{') == -1)
+		if (!~expr.indexOf('{'))
 			return [expr];
-			
+
 		var attr_lvl = 0,
-			text_lvl = 0,
-			brace_stack = [],
-			i = 0,
-			il = expr.length,
-			ch;
-			
+		    text_lvl = 0,
+		    brace_stack = [],
+		    i = 0,
+		    il = expr.length,
+		    ch;
+
 		while (i < il) {
 			ch = expr.charAt(i);
 			switch (ch) {
@@ -398,43 +407,42 @@ var zen_parser = (function(){
 			}
 			i++;
 		}
-		
+
 		// if we are here, then no valid text node found
 		return [expr];
 	}
-	
-	
+
 	return {
 		/**
-		 * Parses abbreviation into tree with respect of groups, 
-		 * text nodes and attributes. Each node of the tree is a single 
-		 * abbreviation. Tree represents actual structure of the outputted 
+		 * Parses abbreviation into tree with respect of groups,
+		 * text nodes and attributes. Each node of the tree is a single
+		 * abbreviation. Tree represents actual structure of the outputted
 		 * result
 		 * @param {String} abbr Abbreviation to parse
 		 * @return {TreeNode}
 		 */
 		parse: function(abbr) {
 			var root = new TreeNode,
-				context = root.addChild(),
-				i = 0,
-				il = abbr.length,
-				text_lvl = 0,
-				attr_lvl = 0,
-				group_lvl = 0,
-				group_stack = [root],
-				ch, prev_ch,
-				token = '';
-				
+			    context = root.addChild(),
+			    i = 0,
+			    il = abbr.length,
+			    text_lvl = 0,
+			    attr_lvl = 0,
+			    group_lvl = 0,
+			    group_stack = [root],
+			    ch, prev_ch,
+			    token = '';
+
 			group_stack.last = function() {
 				return this[this.length - 1];
 			};
-			
+
 			var dumpToken = function() {
 				if (token)
 					context.setAbbreviation(token);
 				token = '';
 			};
-				
+
 			while (i < il) {
 				ch = abbr.charAt(i);
 				prev_ch = i ? abbr.charAt(i - 1) : '';
@@ -463,13 +471,13 @@ var zen_parser = (function(){
 						if (!text_lvl && !attr_lvl) {
 							// beginning of the new group
 							dumpToken();
-							
+
 							if (prev_ch != '+' && prev_ch != '>') {
 								// previous char is not an operator, assume it's
 								// a sibling
 								context = context.parent.addChild();
 							}
-							
+
 							group_stack.push(context);
 							context = context.addChild();
 						} else {
@@ -481,7 +489,7 @@ var zen_parser = (function(){
 							// end of the group, pop stack
 							dumpToken();
 							context = group_stack.pop();
-							
+
 							if (i < il - 1 && abbr.charAt(i + 1) == '*') {
 								// group multiplication
 								var group_mul = '', n_ch;
@@ -489,17 +497,17 @@ var zen_parser = (function(){
 									n_ch = abbr.charAt(j);
 									if (isNumeric(n_ch))
 										group_mul += n_ch;
-									else 
+									else
 										break;
 								}
-								
+
 								i += group_mul.length + 1;
 								group_mul = parseInt(group_mul || 1, 10);
 								while (1 < group_mul--)
 									context.parent.addChild(context);
 //									last_parent.addChild(cur_item);
 							}
-							
+
 						} else {
 							token += ch;
 						}
@@ -523,15 +531,15 @@ var zen_parser = (function(){
 					default:
 						token += ch;
 				}
-				
+
 				i++;
 			}
 			// put the final token
 			dumpToken();
-			
+
 			return optimizeTree(root);
 		},
-		
+
 		TreeNode: TreeNode,
 		optimizeTree: optimizeTree
 	}

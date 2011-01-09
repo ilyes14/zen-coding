@@ -4,39 +4,39 @@
  * @link http://chikuyonok.ru
  */
 var zen_settings = {
-	/** 
+	/**
 	 * Variables that can be placed inside snippets or abbreviations as ${variable}
-	 * ${child} variable is reserved, don't use it 
+	 * ${child} variable is reserved, don't use it
 	 */
 	'variables': {
 		'lang': 'en',
 		'locale': 'en-US',
 		'charset': 'UTF-8',
 //		'profile': 'xhtml', // force profile for html editors
-		
+
 		/** Inner element indentation */
 		'indentation': '\t'
 	},
-	
+
 	'css': {
 		'filters': 'html,css',
 		'snippets': {
 			"@c": "@charset \"utf-8\";",
 			"@i": "@import url(|);",
-			"@m": "@media print {\n\t|\n}",
+			"@m": "@media print {\n\t${child}|\n}",
 			"@f": "@font-face {\n\tfont-family:|;\n\tsrc:url(|);\n}",
-			"@p": "@page {\n\t|\n}",
-			"@tlc": "@top-left-corner {\n\t|\n}",
-			"@tl": "@top-left {\n\t|\n}",
-			"@tc": "@top-center {\n\t|\n}",
-			"@tr": "@top-right {\n\t|\n}",
-			"@trc": "@top-right-corner {\n\t|\n}",
-			"@blc": "@bottom-left-corner {\n\t|\n}",
-			"@bl": "@bottom-left {\n\t|\n}",
-			"@bc": "@bottom-center {\n\t|\n}",
-			"@br": "@bottom-right {\n\t|\n}",
-			"@brc": "@bottom-right-corner {\n\t|\n}",
-			"@fn": "@footnote {\n\t|\n}",
+			"@p": "@page {\n\t${child}|\n}",
+			"@tlc": "@top-left-corner {\n\t${child}|\n}",
+			"@tl": "@top-left {\n\t${child}|\n}",
+			"@tc": "@top-center {\n\t${child}|\n}",
+			"@tr": "@top-right {\n\t${child}|\n}",
+			"@trc": "@top-right-corner {\n\t${child}|\n}",
+			"@blc": "@bottom-left-corner {\n\t${child}|\n}",
+			"@bl": "@bottom-left {\n\t${child}|\n}",
+			"@bc": "@bottom-center {\n\t${child}|\n}",
+			"@br": "@bottom-right {\n\t${child}|\n}",
+			"@brc": "@bottom-right-corner {\n\t${child}|\n}",
+			"@fn": "@footnote {\n\t${child}|\n}",
 			"@cs": "@counter-style | \"\"",
 			"!": "!important",
 			"exp": "expression(|)",
@@ -346,7 +346,7 @@ var zen_settings = {
 			"bg": "background:|;",
 			"bg+": "background:#FFF url(|) no-repeat 0 0;",
 			"bg:n": "background:none;",
-			"bg:ie": "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='|x.png',sizingMethod='crop');",
+			"bg:ie": "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='|',sizingMethod='crop');",
 			"bgc": "background-color:#FFF;",
 			"bgc:t": "background-color:transparent;",
 			"bgi": "background-image:url(|);",
@@ -538,11 +538,11 @@ var zen_settings = {
 			"fza": "font-size-adjust:|;",
 			"fza:n": "font-size-adjust:none;",
 			"ff": "font-family:|;",
-			"ff:s": "font-family:Georgia,'Times New Roman',serif;",
-			"ff:ss": "font-family:Helvetica,Arial,sans-serif;",
-			"ff:c": "font-family:'Monotype Corsiva','Comic Sans MS',cursive;",
-			"ff:f": "font-family:Capitals,Impact,fantasy;",
-			"ff:m": "font-family:Monaco,'Courier New',monospace;",
+			"ff:s": "font-family:serif;",
+			"ff:ss": "font-family:sans-serif;",
+			"ff:c": "font-family:cursive;",
+			"ff:f": "font-family:fantasy;",
+			"ff:m": "font-family:monospace;",
 			"fef": "font-effect:|;",
 			"fef:n": "font-effect:none;",
 			"fef:eg": "font-effect:engrave;",
@@ -606,7 +606,7 @@ var zen_settings = {
 			"wid": "widows:|;"
 		}
 	},
-	
+
 	'html': {
 		'filters': 'html',
 		'snippets': {
@@ -621,7 +621,7 @@ var zen_settings = {
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
-			
+
 			'html:4s': '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">\n' +
 					'<html>\n' +
 					'<head>\n' +
@@ -630,7 +630,7 @@ var zen_settings = {
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
-			
+
 			'html:xt': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n' +
 					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${lang}">\n' +
 					'<head>\n' +
@@ -639,7 +639,7 @@ var zen_settings = {
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
-			
+
 			'html:xs': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n' +
 					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${lang}">\n' +
 					'<head>\n' +
@@ -648,7 +648,7 @@ var zen_settings = {
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
-			
+
 			'html:xxs': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n' +
 					'<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="${lang}">\n' +
 					'<head>\n' +
@@ -657,7 +657,7 @@ var zen_settings = {
 					'</head>\n' +
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>',
-			
+
 			'html:5': '<!DOCTYPE html>\n' +
 					'<html>\n' +
 					'<head>\n' +
@@ -667,7 +667,7 @@ var zen_settings = {
 					'<body>\n\t${child}|\n</body>\n' +
 					'</html>'
 		},
-		
+
 		'abbreviations': {
 			'a': '<a href=""></a>',
 			'a:link': '<a href="http://|"></a>',
@@ -779,7 +779,7 @@ var zen_settings = {
 			'out': '<output></output>',
 			'det': '<details></details>',
 			'cmd': '<command></command>',
-			
+
 			// expandos
 			'ol+': 'ol>li',
 			'ul+': 'ul>li',
@@ -794,14 +794,14 @@ var zen_settings = {
 			'optg+': 'optgroup>option'
 
 		},
-		
+
 		'element_types': {
 			'empty': 'area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed,keygen,command',
 			'block_level': 'address,applet,blockquote,button,center,dd,del,dir,div,dl,dt,fieldset,form,frameset,hr,iframe,ins,isindex,li,link,map,menu,noframes,noscript,object,ol,p,pre,script,table,tbody,td,tfoot,th,thead,tr,ul,h1,h2,h3,h4,h5,h6',
 			'inline_level': 'a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,select,small,span,strike,strong,sub,sup,textarea,tt,u,var'
 		}
 	},
-	
+
 	'xsl': {
 		'extends': 'html',
 		'filters': 'html, xsl',
@@ -824,12 +824,12 @@ var zen_settings = {
 			'each': '<xsl:for-each select=""></xsl:for-each>',
 			'for': 'each',
 			'ap': '<xsl:apply-templates select="" mode=""/>',
-			
+
 			//expandos
 			'choose+': 'xsl:choose>xsl:when+xsl:otherwise'
 		}
 	},
-	
+
 	'haml': {
 		'filters': 'haml',
 		'extends': 'html'
