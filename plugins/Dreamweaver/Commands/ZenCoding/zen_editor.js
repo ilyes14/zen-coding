@@ -23,7 +23,7 @@ var zen_editor = (function(){
 	    indent_tabs = 'TRUE',
 	    // Check for style attribute
 	    re_style_attr = /(\bstyle\s*=\s*)("[^"]*|'[^']*)$/,
-		syntax_bounds;
+	    syntax_bounds;
 
 	/**
 	 * Returns whitrespace padding of string

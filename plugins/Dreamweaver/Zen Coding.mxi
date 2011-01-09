@@ -12,32 +12,37 @@
 	<description
 	 href="http://code.google.com/p/zen-coding/wiki/DreamweaverExtension">
 	<![CDATA[
-	Zen Coding is an editor plugin for high-speed HTML, XML, XSL (or any other structured code format) coding and editing. The core of this plugin is a powerful abbreviation engine which allows you to expand expressions—similar to CSS selectors—into HTML code. You can find more information on project main page: <a href="http://code.google.com/p/zen-coding/">http://code.google.com/p/zen-coding/</a>.
+	Zen Coding is an editor plugin for high-speed HTML, XML, XSL (or any other structured code format) coding and editing. The core of this plugin is a powerful abbreviation engine which allows you to expand expressions—similar to CSS selectors—into HTML code. You can find more information on project main page: <a href="http://code.google.com/p/zen-coding/">http://code.google.com/p/zen-coding/</a> and Dreamweaver extension page: <a href="http://code.google.com/p/zen-coding/wiki/DreamweaverExtension">http://code.google.com/p/zen-coding/wiki/DreamweaverExtension</a>.
 	]]>
 	</description>
 
 	<ui-access>
 	<![CDATA[
 	Shortcuts:<br>
-Expand Abbreviation &mdash; Tab or Ctrl+,<br>
+Expand Abbreviation &mdash; Ctrl+,<br>
 Wrap with Abbreviation &mdash; Ctrl+H<br>
+<br>
 Balance Tag Outward &mdash; Alt+[<br>
 Balance Tag Inward &mdash; Alt+]<br>
+Next Edit Point &mdash; Ctrl+Alt+Right<br>
+Previous Edit Point &mdash; Ctrl+Alt+Left<br>
+Go to Matching Pair &mdash; Alt+/<br>
+<br>
+Insert Formatted Newline &mdash; Ctrl+Return<br>
 Select Line &mdash; Ctrl+K<br>
-Split/Join Tag &mdash; Ctrl+Shift+\<br>
-Remove Tag &mdash; Ctrl+Shift+`<br>
-Previous Edit Point &mdash; Alt+Left<br>
-Next Edit Point &mdash; Alt+Right<br>
-Go to Matching Pair &mdash; Alt+Up<br>
 Merge Lines &mdash; Ctrl+\<br>
 Toggle Comment &mdash; Ctrl+/<br>
-Increment number by 1 &mdash; Alt+1<br>
-Decrement number by 1 &mdash; Alt+2<br>
-Increment number by 10 &mdash; Alt+3<br>
-Decrement number by 10 &mdash; Alt+4<br>
-Increment number by 0.1 &mdash; Alt+5<br>
-Decrement number by 0.1 &mdash; Alt+6<br>
-Evaluate Math Expression &mdash; Alt+=
+Split/Join Tag &mdash; Ctrl+Shift+\<br>
+Rename Tag &mdash; Ctrl+Shift+B<br>
+Remove Tag &mdash; Alt+-<br>
+Evaluate Math Expression &mdash; Alt+=<br>
+<br>
+Increment number by 1 &mdash; Ctrl+Up<br>
+Decrement number by 1 &mdash; Ctrl+Down<br>
+Increment number by 10 &mdash; Ctrl+Alt+Up<br>
+Decrement number by 10 &mdash; Ctrl+Alt+Down<br>
+Increment number by 0.1 &mdash; Alt+Up<br>
+Decrement number by 0.1 &mdash; Alt+Down<br>
 	]]>
 	</ui-access>
 

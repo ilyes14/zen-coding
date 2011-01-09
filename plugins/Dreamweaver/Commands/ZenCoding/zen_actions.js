@@ -74,7 +74,7 @@ function expandAbbreviationWithTab(editor, syntax, profile_name) {
 	syntax = syntax || editor.getSyntax(true);
 	profile_name = profile_name || editor.getProfileName();
 	var selection = editor.getSelectionRange();
-	if ((syntax != 'html' && syntax != 'css')
+	if ((syntax != 'html' && syntax != 'css' && syntax != 'xsl')
 	     || selection.start != selection.end
 	     || !expandAbbreviation(editor, syntax, profile_name))
 		editor.replaceContent(zen_coding.getVariable('indentation'), selection.start, selection.end);
@@ -96,8 +96,7 @@ function matchPair(editor, direction, syntax) {
 	    range_end = range.end,
 	    content = editor.getContent(),
 	    range = null,
-	    _r;
-
+	    _r,
 		old_open_tag = zen_coding.html_matcher.last_match['opening_tag'],
 		old_close_tag = zen_coding.html_matcher.last_match['closing_tag'];
 

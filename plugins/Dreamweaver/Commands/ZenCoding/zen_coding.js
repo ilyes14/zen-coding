@@ -125,7 +125,7 @@ var zen_coding = (function(){
 	 */
 	function repeatString(str, how_many) {
 		var result = '';
-		for (var i = 0; i < how_many; i++)
+		while (how_many--)
 			result += str;
 
 		return result;
@@ -140,17 +140,12 @@ var zen_coding = (function(){
 	function padString(text, pad) {
 		var pad_str = (typeof(pad) == 'number')
 				? repeatString(getIndentation(), pad)
-				: pad,
-			result = '';
+				: pad;
 
 		var lines = splitByLines(text),
 		    nl = getNewline();
 
-		result += lines.join(nl + pad_str);
-/*		for (var j = 1, len = lines.length; j < len; j++)
-			result += nl + pad_str + lines[j];
-*/
-		return result;
+		return lines.join(nl + pad_str);
 	}
 
 	/**
@@ -426,7 +421,7 @@ var zen_coding = (function(){
 	 * @return {String}
 	 */
 	function getIndentation() {
-		return getVariable('indentation');
+		return zen_resources.getVariable('indentation');
 	}
 
 	/**
@@ -943,9 +938,12 @@ var zen_coding = (function(){
 						else if (ch == '[')
 							brace_count--;
 				}
-			start_index = cur_offset + 1;
+			if (~cur_offset || !brace_count && !text_count)
+				start_index = cur_offset + 1;
 
-			return str.substring(start_index);
+			return ~start_index ?
+				str.substring(start_index) :
+				'';
 		},
 
 		/**
