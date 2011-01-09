@@ -5,8 +5,8 @@
 (function(){
 	// Regular Expressions for parsing tags and attributes
 	var start_tag = /^<([\w\:\-]+)((?:\s+[\w\-:]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/,
-		end_tag = /^<\/([\w\:\-]+)[^>]*>/,
-		attr = /([\w\-:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
+	    end_tag = /^<\/([\w\:\-]+)[^>]*>/,
+	    attr = /([\w\-:]+)(?:\s*=\s*(?:(?:"((?:\\.|[^"])*)")|(?:'((?:\\.|[^'])*)')|([^>\s]+)))?/g;
 
 	// Empty Elements - HTML 4.01
 	var empty = makeMap("area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed");
@@ -26,10 +26,10 @@
 
 	/** Last matched HTML pair */
 	var last_match = {
-		opening_tag: null, // tag() or comment() object
-		closing_tag: null, // tag() or comment() object
-		start_ix: -1,
-		end_ix: -1
+	    opening_tag: null, // tag() or comment() object
+	    closing_tag: null, // tag() or comment() object
+	    start_ix: -1,
+	    end_ix: -1
 	};
 
 	function setMode(new_mode) {
@@ -77,15 +77,15 @@
 	function makeRange(opening_tag, closing_tag, ix) {
 		ix = ix || 0;
 
-		var start_ix = -1, 
-			end_ix = -1;
+		var start_ix = -1,
+		    end_ix = -1;
 
 		if (opening_tag && !closing_tag) { // unary element
 			start_ix = opening_tag.start;
 			end_ix = opening_tag.end;
 		} else if (opening_tag && closing_tag) { // complete element
 			if (
-				(opening_tag.start < ix && opening_tag.end > ix) || 
+				(opening_tag.start < ix && opening_tag.end > ix) ||
 				(closing_tag.start <= ix && closing_tag.end > ix)
 			) {
 				start_ix = opening_tag.start;
@@ -108,14 +108,14 @@
 	 */
 	function saveMatch(opening_tag, closing_tag, ix) {
 		ix = ix || 0;
-		last_match.opening_tag = opening_tag; 
+		last_match.opening_tag = opening_tag;
 		last_match.closing_tag = closing_tag;
 
 		var range = makeRange(opening_tag, closing_tag, ix);
 		last_match.start_ix = range[0];
 		last_match.end_ix = range[1];
 
-		return last_match.start_ix != -1 ? [last_match.start_ix, last_match.end_ix] : null;
+		return ~last_match.start_ix ? [last_match.start_ix, last_match.end_ix] : null;
 	}
 
 	/**
@@ -123,7 +123,7 @@
 	 * @param {String} text
 	 * @param {Number} ix
 	 * @param {tag} open_tag
-	 * @return {tag|null} Closing tag (or null if not found) 
+	 * @return {tag|null} Closing tag (or null if not found)
 	 */
 	function handleUnaryTag(text, ix, open_tag) {
 		if (open_tag.has_close)
@@ -134,10 +134,10 @@
 	}
 
 	/**
-	 * Search for matching tags in <code>html</code>, starting from 
+	 * Search for matching tags in <code>html</code>, starting from
 	 * <code>start_ix</code> position
 	 * @param {String} html Code to search
-	 * @param {Number} start_ix Character index where to start searching pair 
+	 * @param {Number} start_ix Character index where to start searching pair
 	 * (commonly, current caret position)
 	 * @param {Function} action Function that creates selection range
 	 * @return {Array|null}
@@ -147,33 +147,26 @@
 		setMode(mode);
 
 		var forward_stack = [],
-			backward_stack = [],
-			/** @type {tag()} */
-			opening_tag = null,
-			/** @type {tag()} */
-			closing_tag = null,
-			range = null,
-			html_len = html.length,
-			m,
-			ix,
-			tmp_tag;
+		    backward_stack = [],
+		    /** @type {tag()} */
+		    opening_tag = null,
+		    /** @type {tag()} */
+		    closing_tag = null,
+		    range = null,
+		    html_len = html.length,
+		    m,
+		    ix,
+		    tmp_tag;
 
 		forward_stack.last = backward_stack.last = function() {
 			return this[this.length - 1];
 		}
 
-		function hasMatch(str, start) {
-			if (arguments.length == 1)
-				start = ix;
-			return html.substr(start, str.length) == str;
-		}
-
 		function searchCommentStart(from) {
-			while (from--) {
-				if (html.charAt(from) == '<' && hasMatch('<!--', from))
-					break;
+			for (var bkw_text; ~from && html.substr(from, 4) != '<!--'; ) {
+				bkw_text = html.substring(0, from);
+				from = bkw_text.lastIndexOf('<');
 			}
-
 			return from;
 		}
 
@@ -195,7 +188,7 @@
 
 					if (tmp_tag.unary) {
 						if (tmp_tag.start < start_ix && tmp_tag.end > start_ix) // exact match
-							// TODO handle unary tag 
+							// TODO handle unary tag
 							return action(tmp_tag, null, start_ix);
 					} else if (backward_stack.last() && backward_stack.last().name == tmp_tag.name) {
 						backward_stack.pop();
@@ -205,10 +198,10 @@
 					}
 				} else if (check_str.indexOf('<!--') == 0) { // found comment start
 					var end_ix = check_str.search('-->') + ix + 3;
-					if (ix < start_ix && end_ix >= start_ix)
+					if (ix < start_ix && end_ix > start_ix)
 						return action( comment(ix, end_ix) );
 				}
-			} else if (ch == '-' && hasMatch('-->')) { // found comment end
+			} else if (ch == '-' && html.substr(ix, 3) == '-->') { // found comment end
 				// search left until comment start is reached
 				ix = searchCommentStart(ix);
 			}
@@ -236,10 +229,10 @@
 							closing_tag = tmp_tag;
 							break;
 						}
-					} else if (hasMatch('<!--')) { // found comment
+					} else if (html.substr(ix, 4) == '<!--') { // found comment
 						ix += check_str.search('-->') + 2;
 					}
-				} else if (ch == '-' && hasMatch('-->')) {
+				} else if (ch == '-' && html.substr(ix, 3) == '-->') {
 					// looks like cursor was inside comment with invalid HTML
 					if (!forward_stack.last() || forward_stack.last().type != 'comment') {
 						var end_ix = ix + 3;
@@ -253,10 +246,10 @@
 	}
 
 	/**
-	 * Search for matching tags in <code>html</code>, starting 
-	 * from <code>start_ix</code> position. The result is automatically saved in 
+	 * Search for matching tags in <code>html</code>, starting
+	 * from <code>start_ix</code> position. The result is automatically saved in
 	 * <code>last_match</code> property
-	 * 
+	 *
 	 * @return {Array|null}
 	 */
 	var HTMLPairMatcher = function(/* String */ html, /* Number */ start_ix, /*  */ mode){
@@ -267,23 +260,23 @@
 	HTMLPairMatcher.end_tag = end_tag;
 
 	/**
-	 * Search for matching tags in <code>html</code>, starting from 
-	 * <code>start_ix</code> position. The difference between 
-	 * <code>HTMLPairMatcher</code> function itself is that <code>find</code> 
+	 * Search for matching tags in <code>html</code>, starting from
+	 * <code>start_ix</code> position. The difference between
+	 * <code>HTMLPairMatcher</code> function itself is that <code>find</code>
 	 * method doesn't save matched result in <code>last_match</code> property.
-	 * This method is generally used for lookups 
+	 * This method is generally used for lookups
 	 */
 	HTMLPairMatcher.find = function(html, start_ix, mode) {
 		return findPair(html, start_ix, mode);
 	};
 
 	/**
-	 * Search for matching tags in <code>html</code>, starting from 
-	 * <code>start_ix</code> position. The difference between 
-	 * <code>HTMLPairMatcher</code> function itself is that <code>getTags</code> 
-	 * method doesn't save matched result in <code>last_match</code> property 
+	 * Search for matching tags in <code>html</code>, starting from
+	 * <code>start_ix</code> position. The difference between
+	 * <code>HTMLPairMatcher</code> function itself is that <code>getTags</code>
+	 * method doesn't save matched result in <code>last_match</code> property
 	 * and returns array of opening and closing tags
-	 * This method is generally used for lookups 
+	 * This method is generally used for lookups
 	 */
 	HTMLPairMatcher.getTags = function(html, start_ix, mode) {
 		return findPair(html, start_ix, mode, function(opening_tag, closing_tag){

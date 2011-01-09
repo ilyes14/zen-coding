@@ -3,6 +3,7 @@
 <script type="text/javascript" src="ZenCoding/zen_settings.js"></script>
 <script type="text/javascript" src="ZenCoding/my_zen_settings.js"></script>
 <script type="text/javascript" src="ZenCoding/zen_parser.js"></script>
+<script type="text/javascript" src="ZenCoding/zen_resources.js"></script>
 <script type="text/javascript" src="ZenCoding/zen_coding.js"></script>
 <script type="text/javascript" src="ZenCoding/html_matcher.js"></script>
 <script type="text/javascript" src="ZenCoding/zen_editor.js"></script>
@@ -19,7 +20,8 @@
 <script type="text/javascript" src="ZenCoding/filters/xsl.js"></script>
 <script type="text/javascript">
 function receiveArguments(name) {
-	if (!zen_editor.setContext()) return false;
-	zen_coding.runAction(name, zen_editor);
+	if ( !zen_editor.setContext()) return false;
+	return zen_coding.runAction(name, zen_editor);
 }
+window.console = { error: window.alert };
 </script>

@@ -1,6 +1,6 @@
 ﻿<macromedia-extension
 	 name="Zen Coding"
-	 version="0.7.0"
+	 version="0.7.1"
 	 type="suite">
 
 	<author name="GreLI" />
@@ -9,7 +9,8 @@
 		<product name="Dreamweaver" version="6" primary="true" />
 	</products>
 
-	<description href="http://code.google.com/p/zen-coding/wiki/DreamweaverExtension">
+	<description
+	 href="http://code.google.com/p/zen-coding/wiki/DreamweaverExtension">
 	<![CDATA[
 	Zen Coding is an editor plugin for high-speed HTML, XML, XSL (or any other structured code format) coding and editing. The core of this plugin is a powerful abbreviation engine which allows you to expand expressions—similar to CSS selectors—into HTML code. You can find more information on project main page: <a href="http://code.google.com/p/zen-coding/">http://code.google.com/p/zen-coding/</a>.
 	]]>
@@ -24,12 +25,12 @@ Balance Tag Outward &mdash; Alt+[<br>
 Balance Tag Inward &mdash; Alt+]<br>
 Select Line &mdash; Ctrl+K<br>
 Split/Join Tag &mdash; Ctrl+Shift+\<br>
-Remove Tag &mdash; Ctrl+\<br>
+Remove Tag &mdash; Ctrl+Shift+`<br>
 Previous Edit Point &mdash; Alt+Left<br>
 Next Edit Point &mdash; Alt+Right<br>
 Go to Matching Pair &mdash; Alt+Up<br>
-Merge Lines &mdash; Ctrl+/<br>
-Toggle Comment &mdash; Ctrl+Shift+'<br>
+Merge Lines &mdash; Ctrl+\<br>
+Toggle Comment &mdash; Ctrl+/<br>
 Increment number by 1 &mdash; Alt+1<br>
 Decrement number by 1 &mdash; Alt+2<br>
 Increment number by 10 &mdash; Alt+3<br>
@@ -51,6 +52,7 @@ Evaluate Math Expression &mdash; Alt+=
 		<file source="Commands/ZenCoding/zen_settings.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
 		<file source="Commands/ZenCoding/my_zen_settings.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
 		<file source="Commands/ZenCoding/zen_parser.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
+		<file source="Commands/ZenCoding/zen_resources.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
 		<file source="Commands/ZenCoding/zen_coding.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
 		<file source="Commands/ZenCoding/html_matcher.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
 		<file source="Commands/ZenCoding/zen_editor.js" destination="$Dreamweaver/configuration/Commands/ZenCoding" />
@@ -68,6 +70,10 @@ Evaluate Math Expression &mdash; Alt+=
 	</files>
 
 	<configuration-changes>
+		<shortcut-remove id="DWShortcuts_Main_CmdUp" />
+		<shortcut-remove id="DWShortcuts_Main_CmdDown" />
+		<shortcut-remove id="DWShortcuts_Main_ExitParagraph" />
+		<menu-remove id="DWMenu_Commands_ZenCoding_expandAbbreviationWithTab" />
 		<shortcut-insert listid="DWHTMLContext">
 			<shortcut key="Tab" command="dw.runCommand('ZenCoding.html', 'expand_abbreviation_with_tab')" name="Expand Abbreviation with Zen Coding" id="DWMenu_Shortcut_ZenCoding_expandAbbreviationWithTab" />
 		</shortcut-insert>
@@ -85,24 +91,25 @@ Evaluate Math Expression &mdash; Alt+=
 			<menuitem id="DWMenu_Commands_ZenCoding_matchPair" name="Balance Tag" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'match_pair')" />
 			<menuitem id="DWMenu_Commands_ZenCoding_matchPairOutward" name="Balance Tag Outward" key="Opt+[" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'match_pair_outward')" />
 			<menuitem id="DWMenu_Commands_ZenCoding_matchPairInward" name="Balance Tag Inward" key="Opt+]" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'match_pair_inward')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_nextEditPoint" name="_Next Edit Point" key="Cmd+Opt+Right" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'next_edit_point')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_prevEditPoint" name="_Previous Edit Point" key="Cmd+Opt+Left" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'prev_edit_point')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_goToMatchingPair" name="_Go to Matching Pair" key="Alt+/" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'matching_pair')" />
+			<separator />
+			<menuitem id="DWMenu_Commands_ZenCoding_insertFormattedNewline" name="_Insert Formatted Newline" key="Cmd+Return" enabled="dw.getFocus(true) == 'document' || dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="if (dw.getFocus() == 'document' && ~dw.getDocumentDOM().getView().indexOf('design') && dw.getDocumentDOM().getFocus() == 'body') dw.getDocumentDOM().exitBlock(); else dw.runCommand('ZenCoding.html', 'insert_formatted_line_break')" />
 			<menuitem id="DWMenu_Commands_ZenCoding_selectLine" name="Select _Line" key="Cmd+K" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'select_line')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_mergeLines" name="_Merge Lines" key="Cmd+\" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'merge_lines')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_toggleComment" name="_Toggle Comment" key="Cmd+/" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'toggle_comment')" />
 			<menuitem id="DWMenu_Commands_ZenCoding_splitJoinTag" name="_Split/Join Tag" key="Cmd+Shift+\" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'split_join_tag')" />
-			<menuitem id="DWMenu_Commands_ZenCoding_removeTag" name="_Remove Tag" key="Cmd+\" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'remove_tag')" />
-			<separator />
-			<menuitem id="DWMenu_Commands_ZenCoding_prevEditPoint" name="_Previous Edit Point" key="Opt+Left" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'prev_edit_point')" />
-			<menuitem id="DWMenu_Commands_ZenCoding_nextEditPoint" name="_Next Edit Point" key="Opt+Right" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'next_edit_point')" />
-			<menuitem id="DWMenu_Commands_ZenCoding_goToMatchingPair" name="_Go to Matching Pair" key="Opt+Up" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'matching_pair')" />
-			<separator />
-			<menuitem id="DWMenu_Commands_ZenCoding_mergeLines" name="_Merge Lines" key="Cmd+/" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'merge_lines')" />
-			<menuitem id="DWMenu_Commands_ZenCoding_toggleComment" name="_Toggle Comment" key="Cmd+Shift+'" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'toggle_comment')" />
-			<separator />
-			<menuitem id="DWMenu_Commands_ZenCoding_increment_number_by_1" name="Increment number by 1" key="Opt+1" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'increment_number_by_1')" />
-			<menuitem id="DWMenu_Commands_ZenCoding_decrement_number_by_1" name="Decrement number by 1" key="Opt+2" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'decrement_number_by_1')" />
-			<menuitem id="DWMenu_Commands_ZenCoding_increment_number_by_10" name="Increment number by 10" key="Opt+3" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'increment_number_by_10')" />
-			<menuitem id="DWMenu_Commands_ZenCoding_decrement_number_by_10" name="Decrement number by 10" key="Opt+4" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'decrement_number_by_10')" />
-			<menuitem id="DWMenu_Commands_ZenCoding_increment_number_by_01" name="Increment number by 0.1" key="Opt+5" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'increment_number_by_01')" />
-			<menuitem id="DWMenu_Commands_ZenCoding_decrement_number_by_01" name="Decrement number by 0.1" key="Opt+6" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'decrement_number_by_01')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_renameTag" name="_Rename Tag" key="Ctrl+Shift+B" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'rename_tag')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_removeTag" name="Rem_ove Tag" key="Opt+-" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'remove_tag')" />
 			<menuitem id="DWMenu_Commands_ZenCoding_evaluate_math_expression" name="E_valuate Math Expression" key="Opt+=" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'evaluate_math_expression')" />
+			<separator />
+			<menuitem id="DWMenu_Commands_ZenCoding_increment_number_by_1" name="Increment number by 1" key="Cmd+Up" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'increment_number_by_1')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_decrement_number_by_1" name="Decrement number by 1" key="Cmd+Down" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'decrement_number_by_1')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_increment_number_by_10" name="Increment number by 10" key="Cmd+Opt+Up" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'increment_number_by_10')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_decrement_number_by_10" name="Decrement number by 10" key="Cmd+Opt+Down" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'decrement_number_by_10')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_increment_number_by_01" name="Increment number by 0.1" key="Opt+Up" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'increment_number_by_01')" />
+			<menuitem id="DWMenu_Commands_ZenCoding_decrement_number_by_01" name="Decrement number by 0.1" key="Opt+Down" enabled="dw.getFocus(true) == 'textView' || dw.getFocus(true) == 'html'" command="dw.runCommand('ZenCoding.html', 'decrement_number_by_01')" />
 		</menu-insert>
 	</configuration-changes>
 </macromedia-extension>

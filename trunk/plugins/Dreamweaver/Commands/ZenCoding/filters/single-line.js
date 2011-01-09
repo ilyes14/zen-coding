@@ -9,23 +9,23 @@
 			/** @type {ZenNode} */
 			var item = tree.children[i];
 			if (item.type == 'tag') {
-				// remove padding from item 
+				// remove padding from item
 				var re_pad = /^\s+/;
 				item.start = item.start.replace(re_pad, '');
 				item.end = item.end.replace(re_pad, '');
 			}
-			
-			// remove newlines 
+
+			// remove newlines
 			var re_nl = /[\n\r]/g;
 			item.start = item.start.replace(re_nl, '');
 			item.end = item.end.replace(re_nl, '');
 			item.content = item.content.replace(re_nl, '');
-			
+
 			process(item);
 		}
-		
+
 		return tree;
 	}
-	
+
 	zen_coding.registerFilter('s', process);
-})();
+})();
