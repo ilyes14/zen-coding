@@ -897,14 +897,8 @@ var zen_coding = (function(){
 			if (!(args instanceof Array))
 				args = Array.prototype.slice.call(arguments, 1);
 
-			try {
-				if (name in this.actions)
-					return this.actions[name].apply(this, args);
-			} catch(e){
-				if (window && window.console)
-					console.error(e);
-				return false;
-			}
+			if (name in this.actions)
+				return this.actions[name].apply(this, args);
 		},
 
 		expandAbbreviation: function(abbr, type, profile) {
