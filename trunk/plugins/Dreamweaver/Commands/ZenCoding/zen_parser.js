@@ -78,7 +78,7 @@ var zen_parser = (function(){
 					var attr_result = parseAttributes(name);
 					this.name = attr_result[0]
 						|| (this.parent
-						&& this.parent.name in zen_resources.getElementsCollection(zen_settings['html'], 'inline_level') ?
+						&& zen_resources.isItemInCollection('html', 'inline_level', this.parent.name) ?
 						'span' : 'div');
 					this.attributes = attr_result[1];
 				}
