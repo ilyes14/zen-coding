@@ -19,8 +19,9 @@ After installing you need to restart Adobe Dreamweaver (or [http://help.adobe.co
   * Abbreviations itself now also got stricter rules for expanding, thus fixing [http://code.google.com/p/zen-coding/issues/detail?id=232 Issue 232] with CSS snippet expanding after opening curly brace.
   * Reworked menu commands shortcuts in order to try keep consistency with other plugins as much as possible. Sorry if you already accustomed to the old ones. I hope you will like it and quickly adapt to the new shortcuts. See [#Shortcuts_table] for information.
   * Also if you if you specify only the class or id for inline subelement in abbreviation it automatically will be `span` not `div` ([http://code.google.com/p/zen-coding/issues/detail?id=227 Issue 227]).
-  * As it was asked in comments “Merge Lines” without selection now automatically recognize blocks in CSS parsing mode (`{ ... }`). It correctly works with nested blocks and totally ignores braces in comments and quoted strings.
+  * As it was asked in comments “Merge Lines” without selection now automatically recognize blocks in CSS parsing mode (`{…}`). It correctly works with nested blocks and totally ignores braces in comments and quoted strings.
   * New action “Rename tag” were also added. It just changes a name of tag and leaves its attributes untouched. If it isn't enough for your “Wrap with abbreviation”/“Remove tag” combination is recommended.
+  * “Insert Formatted Newline” action were (re-)added. Being executed between newly created opening and closing tags or curly brackets it breaks them to separate lines and puts caret into middle line with indentation.
   * Various indentation issues were also fixed.
 
 
@@ -50,7 +51,7 @@ Next Edit Point                 Ctrl+Alt+Right
 Previous Edit Point             Ctrl+Alt+Left
 Go to Matching Pair             Alt+/
 
-Insert Formatted Newline        Ctrl+Return
+Insert Formatted Newline        Ctrl+Enter
 Select Line                     Ctrl+K
 Merge Lines                     Ctrl+\
 Toggle Comment                  Ctrl+/
