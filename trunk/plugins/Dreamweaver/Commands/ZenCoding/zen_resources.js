@@ -339,6 +339,16 @@ var zen_resources = (function(){
 			}
 			else
 				return {};
+		},
+		
+		/**
+		 * Check if there are resources for specified syntax
+		 * @param {String} syntax
+		 * @return {Boolean}
+		 */
+		hasSyntax: function(syntax) {
+			return syntax in getVocabulary(VOC_USER) 
+				|| syntax in getVocabulary(VOC_SYSTEM);
 		}
 	}
 })();
