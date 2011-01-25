@@ -7,14 +7,14 @@ Zen Coding is an editor plugin for high-speed HTML, XML, XSL (or any other struc
 
 
 = How to install =
-To install it you need to [http://code.google.com/p/zen-coding/downloads/detail?name=Zen.Coding-Dreamweaver.v0.7.1.zip download zip-package] of the extension, unpack “Zen Coding v.0.7.1.mxp” and install it via Adobe Extension Manager. If file association with “.mxp” don't work you can access it under Commands menu in Dreamweaver.
+To install it you need to [http://code.google.com/p/zen-coding/downloads/detail?name=Zen.Coding-Dreamweaver.v0.7.2.zip download zip-package] of the extension, unpack “Zen Coding v.0.7.2.mxp” and install it via Adobe Extension Manager. If file association with “.mxp” don't work you can access it under Commands menu in Dreamweaver.
 
 Source is code also included there. You can make changes if you want and install mxi extension then.
 
 After installing you need to restart Adobe Dreamweaver (or [http://help.adobe.com/en_US/dreamweaver/cs/extend/WS5b3ccc516d4fbf351e63e3d117f508c8de-7fd1.html reload extensions]) if it running.
 
 
-= Whats new in version 0.7.1 =
+= Whats new in version 0.7.2 =
   * Tab expanding now works with strict rules. If you are not editing HTML/CSS/XML code or selected text or caret is in tag no expanding will occur (except for CSS in style attribute) and normal tab will be inserted (or whatever in your settings). ([http://code.google.com/p/zen-coding/issues/detail?id=231 Issue 231])
   * Abbreviations itself now also got stricter rules for expanding, thus fixing [http://code.google.com/p/zen-coding/issues/detail?id=232 Issue 232] with CSS snippet expanding after opening curly brace.
   * Reworked menu commands shortcuts in order to try keep consistency with other plugins as much as possible. Sorry if you already accustomed to the old ones. I hope you will like it and quickly adapt to the new shortcuts. See [#Shortcuts_table] for information.
@@ -40,7 +40,7 @@ As for other shortcuts I tried to assign non-used ones. The two of them with Ctr
 The only action without shortcut is “Balance Tag”. There are two reasons: outward (same by default) and inward versions of the action and similar function of Dreamweaver “Select Parent Tag” (“`Ctrl+[`”).
 
 == Shortcuts table ==
-*Note:* This table matches to the latest extension version: *0.7.1*.
+*Note:* This table matches to the latest extension version: *0.7.2*.
 {{{
 Expand Abbreviation             Tab or Ctrl+, (on selection only Ctrl+,)
 Wrap with Abbreviation          Ctrl+H
