@@ -114,6 +114,14 @@ var zen_editor = (function(){
 		},
 
 		/**
+		 * Returns Tab size in spaces from editor preferences
+		 * @return {Number}
+		 */
+		getTabSize: function() {
+			return dw.getPreferenceInt('Source Format', 'Tab Size', 8);
+		},
+
+		/**
 		 * Returns character indexes of selected text: object with <code>start</code>
 		 * and <code>end</code> properties. If there's no selection, should return
 		 * object with <code>start</code> and <code>end</code> properties referring
@@ -197,8 +205,9 @@ var zen_editor = (function(){
 		 * @param {String} value Content you want to paste
 		 * @param {Number} [start] Start index of editor's content
 		 * @param {Number} [end] End index of editor's content
+		 * @param {Boolean} [no_indent] Do not auto indent <code>value</code>
 		 */
-		replaceContent: function(value, start, end) {
+		replaceContent: function(value, start, end, no_indent) {
 			var content = getContent();
 
 			if (end == null) {
@@ -214,7 +223,8 @@ var zen_editor = (function(){
 			var start_line_bounds = zen_coding.getLineBounds(content, start),
 			    start_line_pad = getStringPadding(content.substring(start_line_bounds.start, start_line_bounds.end));
 
-			value = zen_coding.padString(value, start_line_pad);
+			if (!no_indent)
+				value = zen_coding.padString(value, start_line_pad);
 
 			var caret_placeholder = zen_coding.getCaretPlaceholder(), // get '{%::zen-caret::%}', do not hardcode it!
 				caret_new_pos = start;

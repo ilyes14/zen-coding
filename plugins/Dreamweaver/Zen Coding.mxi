@@ -1,6 +1,6 @@
 ﻿<macromedia-extension
 	 name="Zen Coding"
-	 version="0.7.1"
+	 version="0.7.2"
 	 type="suite">
 
 	<author name="GreLI" />
@@ -43,6 +43,7 @@ Increment number by 10 &mdash; Ctrl+Alt+Up<br>
 Decrement number by 10 &mdash; Ctrl+Alt+Down<br>
 Increment number by 0.1 &mdash; Alt+Up<br>
 Decrement number by 0.1 &mdash; Alt+Down<br>
+
 	]]>
 	</ui-access>
 

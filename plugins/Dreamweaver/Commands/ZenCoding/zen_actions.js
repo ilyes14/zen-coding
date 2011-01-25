@@ -12,7 +12,7 @@ var re_non_space = /[^\s\n\r]/,
     re_empty_line = /^\s+$/,
     re_specials = /[.*+?|()\[\]{}\\]/g,
     re_digit = /[0-9]/,
-    re_math = /[0-9.\-+*\/\\]/;
+    re_curly_braces = /[{}]/g;
 
 /**
  * Search for abbreviation in editor from current caret position
@@ -29,6 +29,7 @@ function findAbbreviation(editor, syntax) {
 
 	// search for new abbreviation from current caret position
 	var cur_line = editor.getCurrentLineRange();
+	// find abbreviation if we are not inside a tag
 	if (syntax != 'html' || !zen_coding.isInsideTag(content, range.end))
 		return zen_coding.extractAbbreviation(content.substring(cur_line.start, range.start), syntax);
 
@@ -74,8 +75,7 @@ function expandAbbreviationWithTab(editor, syntax, profile_name) {
 	syntax = syntax || editor.getSyntax(true);
 	profile_name = profile_name || editor.getProfileName();
 	var selection = editor.getSelectionRange();
-	if ((syntax != 'html' && syntax != 'css' && syntax != 'xsl')
-	     || selection.start != selection.end
+	if (syntax == 'text' || selection.start != selection.end
 	     || !expandAbbreviation(editor, syntax, profile_name))
 		editor.replaceContent(zen_coding.getVariable('indentation'), selection.start, selection.end);
 }
@@ -97,8 +97,8 @@ function matchPair(editor, direction, syntax) {
 	    content = editor.getContent(),
 	    range = null,
 	    _r,
-		old_open_tag = zen_coding.html_matcher.last_match['opening_tag'],
-		old_close_tag = zen_coding.html_matcher.last_match['closing_tag'];
+	    old_open_tag = zen_coding.html_matcher.last_match['opening_tag'],
+	    old_close_tag = zen_coding.html_matcher.last_match['closing_tag'];
 
 	if (direction == 'in' && old_open_tag && range_start != range_end) {
 //		user has previously selected tag and wants to move inward
@@ -149,10 +149,9 @@ function narrowToNonSpace(text, start, end) {
 		start += non_space :
 		start = end;
 
-	while (--end >= start && !re_non_space.test(text.charAt(end)));
-	end++
+	while (end-- > start && !re_non_space.test(text.charAt(end)));
 
-	return [start, end];
+	return [start, ++end];
 }
 
 /**
@@ -179,7 +178,8 @@ function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
 		// Prevent toggling CSS abbreviations in style tag or attribute
 		var html_matcher = zen_coding.html_matcher,
 		    syntax_bounds = editor.getSyntaxBounds();
-		if (syntax_bounds) syntax = syntax_bounds.document_syntax;
+		if (syntax_bounds)
+			syntax = syntax_bounds.document_syntax;
 
 		// no selection, find tag pair
 		range = html_matcher(content, start_offset, profile_name);
@@ -202,7 +202,7 @@ function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
 	var start_line_bounds = zen_coding.getLineBounds(content, start_offset),
 	    pad = getLinePadding(content.substring(start_line_bounds.start, start_line_bounds.end)),
 	    new_content = content.substring(start_offset, end_offset),
-	    result = zen_coding.wrapWithAbbreviation(abbr, unindentText(new_content, pad), syntax, profile_name);
+	    result = zen_coding.wrapWithAbbreviation(abbr, unindentText(editor, new_content, pad), syntax, profile_name);
 
 	if (result) {
 		editor.setCaretPos(end_offset);
@@ -211,37 +211,27 @@ function wrapWithAbbreviation(editor, abbr, syntax, profile_name) {
 }
 
 /**
- * Unindent content, thus preparing text for tag wrapping
- * @param {zen_editor} editor Editor instance
- * @param {String} text
- * @return {String}
- */
-function unindent(editor, text) {
-	return unindentText(text, getCurrentLinePadding(editor));
-}
-
-/**
  * Removes padding at the beginning of each text's line
+ * @param {zen_editor} editor Editor instance
  * @param {String} text
  * @param {String} pad
  */
-function unindentText(text, pad) {
-	var lines = zen_coding.splitByLines(text);
-	for (var i = lines.length; i--; ) {
-		if (lines[i].search(pad) == 0)
-			lines[i] = lines[i].substr(pad.length);
-	}
+function unindentText(editor, text, pad) {
+	var tab_size = editor.getTabSize();
 
-	return lines.join(zen_coding.getNewline());
-}
+	// Make a multiline Regular Expressions considering tabs/spaces variations
+	// and possible shorter line paddings.
+	var re_pad = new RegExp('^' +
+		// Find tabs and space equivalents in sample pad and add to RegEx
+		pad.replace(
+			new RegExp(' {0,' + (tab_size - 1) + '}\t| {' + tab_size + '}', 'g'),
+			'( {0,' + (tab_size - 1) + '}\t| {' + tab_size + '}| *)?'
+		// add rest of the spaces
+		).replace(/ +$/, function(end_spaces) {
+			return ' {0,' + end_spaces.length + '}';
+		}), 'gm');
 
-/**
- * Returns padding of current editor's line
- * @param {zen_editor} Editor instance
- * @return {String}
- */
-function getCurrentLinePadding(editor) {
-	return getLinePadding(editor.getCurrentLine());
+	return text.replace(re_pad, '');
 }
 
 /**
@@ -343,30 +333,73 @@ function nextEditPoint(editor) {
 }
 
 /**
- * Inserts newline character with proper indentation
- * @param {zen_editor} editor Editor instance
- * @param {String} mode Syntax mode (only 'html' is implemented)
+ * Inserts newline character with proper indentation in specific positions only.
+ * @param {zen_editor} editor
+ * @return {Boolean} Returns <code>true</code> if line break was inserted 
  */
-function insertFormattedNewline(editor, mode) {
-	mode = mode || 'html';
-	var selection = editor.getSelectionRange(),
-	    caret_pos = selection.end,
+function insertFormattedNewlineOnly(editor) {
+	var caret_pos = editor.getCaretPos(),
+	    content = editor.getContent(),
 	    nl = zen_coding.getNewline(),
-	    pad = zen_coding.getVariable('indentation');
+	    pad = zen_coding.getVariable('indentation'),
+	    syntax = editor.getSyntax();
 
-	switch (mode) {
-		case 'html':
-			// let's see if we're breaking newly created tag or curly brackets
-			var content = editor.getContent(),
-			    pair = zen_coding.html_matcher.getTags(content, caret_pos, editor.getProfileName());
+	if (syntax == 'html') {
+		// let's see if we're breaking newly created tag
+		var pair = zen_coding.html_matcher.getTags(content, caret_pos, editor.getProfileName());
 
-			if (pair[0] && pair[1] && pair[0].type == 'tag'
-				&& pair[0].end == selection.start && pair[1].start == selection.end ||
-				content.charAt(selection.start - 1) == '{' && content.charAt(selection.end) == '}') {
-				editor.replaceContent(nl + pad + zen_coding.getCaretPlaceholder() + nl, selection.start, selection.end);
-				break;
+		if (pair[0] && pair[1] && pair[0].type == 'tag' && pair[0].end == caret_pos && pair[1].start == caret_pos) {
+			editor.replaceContent(nl + pad + nl, caret_pos);
+			return true;
+		}
+	} else if (syntax == 'css') {
+		if (caret_pos && content.charAt(caret_pos - 1) == '{') {
+			// look ahead for a closing brace
+			re_curly_braces.lastIndex = caret_pos + 1;
+			var brace = re_curly_braces.exec(content);
+			if (brace && brace[0] == '}')
+				return false;
+
+			// defining rule set
+			var ins_value = nl + pad + zen_coding.getCaretPlaceholder() + nl,
+			    has_close_brace = caret_pos < content.length && content.charAt(caret_pos) == '}';
+
+			var user_close_brace = zen_coding.getVariable('close_css_brace');
+			if (user_close_brace) {
+				// user defined how close brace should look like
+				ins_value += zen_coding.replaceVariables(user_close_brace);
+			} else if (!has_close_brace) {
+				ins_value += '}';
 			}
-		default:
+
+			editor.replaceContent(ins_value, caret_pos);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Inserts newline character with proper indentation. This action is used in
+ * editors that doesn't have indentation control (like textarea element) to 
+ * provide proper indentation
+ * @param {zen_editor} editor Editor instance
+ */
+function insertFormattedNewline(editor) {
+	if (!insertFormattedNewlineOnly(editor)) {
+		var cur_padding = getLinePadding(editor.getCurrentLine()),
+		    content = editor.getContent(),
+		    caret_pos = editor.getCaretPos(),
+		    nl = zen_coding.getNewline();
+
+		// check out next line padding
+		var line_range = editor.getCurrentLineRange(),
+		    next_padding = content.substring(line_range.end + nl.length).match(/^[ \t]*/)[0];
+
+		if (next_padding.length > cur_padding.length)
+			editor.replaceContent(nl + next_padding, caret_pos, caret_pos, true);
+		else
 			editor.replaceContent(nl, caret_pos);
 	}
 }
@@ -417,7 +450,7 @@ function goToMatchingPair(editor) {
  */
 function getCSSBlockRange(text, from) {
 	/* Replace comments and strings with fast created equal length spaces string */
-	var re_comments_strings = /\/\*(\*[^\/]|[^*])*\*\/|'(\\.|[^\\'])*'|"(\\.|[^\\"])*"/g;
+	var re_comments_strings = /\/\*[\S\s]*?\*\/|'(\\.|[^\\'])*'|"(\\.|[^\\"])*"/g;
 	text = text.replace(re_comments_strings, function(m) {
 		var len = m.length,
 		    shift_len = len,
@@ -438,21 +471,20 @@ function getCSSBlockRange(text, from) {
 	    last = from;
 	do {
 		bkw_text = text.substring(0, last); // get backward part of the CSS text
-		last = start_ix = bkw_text.lastIndexOf('{');
+		start_ix = bkw_text.lastIndexOf('{');
 		if (!~start_ix) return null; // no appropriate opening brace found, exit
 		end_ix = bkw_text.lastIndexOf('}');
 		if (start_ix < end_ix) {
 			last = end_ix; // closing brace is last
 			brc_cnt++; // add braces pair
 		} else {
-			// opening brace is last
-			brc_cnt-- // substract braces pair
+			last = start_ix; // opening brace is last
+			brc_cnt--; // substract braces pair
 		}
 	} while (brc_cnt); // if no more pairs we found it
 
 	/* Find end curly brace. Algorithm is similar but RegExp.exec() is very convenient.
 	   All we need to do is search and count braces, no string manipulations required */
-	var re_curly_braces = /[{}]/g;
 	re_curly_braces.lastIndex = from; // set lastIndex for proper search
 	for (var brc_cnt = 1, end_brace; brc_cnt; end_brace[0] == '{' ? brc_cnt++ : brc_cnt-- ) {
 		end_brace = re_curly_braces.exec(text);
@@ -460,9 +492,9 @@ function getCSSBlockRange(text, from) {
 	}
 
 	return {
-			start: ++start_ix,
-			end: end_brace.index
-		}
+		start: ++start_ix,
+		end: end_brace.index
+	}
 }
 
 /**
@@ -593,24 +625,23 @@ function toggleCSSComment(editor, bounds) {
 function searchComment(text, from, start_token, end_token) {
 	var bkw_text,
 	    start_ch = start_token.charAt(0),
-	    start_token_len = start_token.length,
-	    start_ix = from;
+	    start_token_len = start_token.length;
 
 	// search for comment start
 	do {
-		bkw_text = text.substring(0, start_ix);
-		start_ix = bkw_text.lastIndexOf(start_ch);
-		if (!~start_ix) return null;
-	} while (text.substr(start_ix, start_token_len) != start_token);
+		bkw_text = text.substring(0, from);
+		from = bkw_text.lastIndexOf(start_ch);
+		if (!~from) return null;
+	} while (text.substr(from, start_token_len) != start_token);
 
 	// search for comment end
-	var end_ix = text.substring(from).search(end_token);
+	var end_ix = text.substring(from).search(end_token.replace(re_specials, "\\$&"));
 	if (~end_ix)
-		end_ix += from;
+		end_ix += from + end_token.length;
 	else
 		return null;
 
-	return [start_ix, end_ix];
+	return [from, end_ix];
 }
 
 /**
@@ -634,8 +665,8 @@ function genericCommentToggle(editor, comment_start, comment_end, range_start, r
 	 */
 	function removeComment(str) {
 		return str
-			.replace(new RegExp('^' + comment_start.replace(re_specials, "\\$&") + '\\s*'), function(str){
-				caret_pos -= str.length;
+			.replace(new RegExp('^' + comment_start.replace(re_specials, "\\$&") + '\\s*'), function(start_str){
+				caret_pos -= start_str.length;
 				return '';
 			}).replace(new RegExp('\\s*' + comment_end.replace(re_specials, "\\$&") + '$'), '');
 	}
@@ -650,6 +681,7 @@ function genericCommentToggle(editor, comment_start, comment_end, range_start, r
 		range_end = comment_range[1];
 
 		new_content = removeComment(content.substring(range_start, range_end));
+		caret_pos = Math.max(caret_pos, range_start);
 	} else {
 		// should add comment
 		// make sure that there's no comment inside selection
@@ -664,8 +696,7 @@ function genericCommentToggle(editor, comment_start, comment_end, range_start, r
 
 	// replace editor content
 	if (new_content != null) {
-		editor.setCaretPos(range_start);
-		editor.replaceContent(unindent(editor, new_content), range_start, range_end);
+		editor.replaceContent(new_content, range_start, range_end, true);
 		editor.setCaretPos(caret_pos);
 		return true;
 	}
@@ -736,34 +767,30 @@ function renameTag(editor, new_tag_name) {
 
 	// search for tag
 	var pair = zen_coding.html_matcher.getTags(content, caret_pos, editor.getProfileName());
-	if (pair && pair[0]) {
-		new_tag_name = new_tag_name || editor.prompt("Enter new tag name");
-		if (!/^\w[\w\:\-]*$/.test(new_tag_name))
-			return false;
-
-		if (!pair[1]) {
-			// simply rename unary tag
-			editor.replaceContent(new_tag_name, pair[0].start + 1, pair[0].start + pair[0].name.length + 1);
-		} else {
-			var start = pair[0].start,
-			    end = pair[1].end,
-			    start_line_bounds = zen_coding.getLineBounds(content, start),
-			    start_line_pad = getLinePadding(content.substring(start_line_bounds.start, start_line_bounds.end)),
-			    outerHTML = content.substring(start, end),
-			    old_tag_name = pair[0].name;
-			// rename opening tag
-			outerHTML = outerHTML.replace(new RegExp("^<"+old_tag_name), "<" + new_tag_name);
-			// rename closing tag
-			outerHTML = outerHTML.replace(new RegExp("</"+old_tag_name+"([^>]*)>$"), "</" + new_tag_name + "$1>");
-
-			outerHTML = unindentText(outerHTML, start_line_pad);
-			editor.replaceContent(outerHTML, start, end);
-		}
-
-		return true;
-	} else {
+	if (!pair || !pair[0])
 		return false;
+
+	new_tag_name = new_tag_name || editor.prompt("Enter new tag name");
+	if (!/^\w[\w\:\-]*$/.test(new_tag_name))
+		return false;
+
+	var old_tag_name = pair[0].name;
+	if (!pair[1]) {
+		// simply rename unary tag
+		editor.replaceContent(new_tag_name, pair[0].start + 1, pair[0].start + pair[0].name.length + 1);
+	} else {
+		var start = pair[0].start,
+		    end = pair[1].end,
+		    outerHTML = content.substring(start, end);
+		// rename opening tag
+		outerHTML = outerHTML.replace(new RegExp("^<"+old_tag_name), "<" + new_tag_name)
+		// rename closing tag
+			.replace(new RegExp("</"+old_tag_name+"(?=[^>]*>$)"), "</" + new_tag_name);
+
+		editor.replaceContent(outerHTML, start, end, true);
 	}
+	editor.setCaretPos(caret_pos + new_tag_name.length - old_tag_name.length);
+	return true;
 }
 
 /**
@@ -776,43 +803,23 @@ function removeTag(editor) {
 
 	// search for tag
 	var pair = zen_coding.html_matcher.getTags(content, caret_pos, editor.getProfileName());
-	if (pair && pair[0]) {
-		if (!pair[1]) {
-			// simply remove unary tag
-			editor.replaceContent(zen_coding.getCaretPlaceholder(), pair[0].start, pair[0].end);
-		} else {
-			var tag_content_range = narrowToNonSpace(content, pair[0].end, pair[1].start),
-			    start_line_bounds = zen_coding.getLineBounds(content, tag_content_range[0]),
-			    start_line_pad = getLinePadding(content.substring(start_line_bounds.start, start_line_bounds.end)),
-			    tag_content = content.substring(tag_content_range[0], tag_content_range[1]);
-
-			tag_content = unindentText(tag_content, start_line_pad);
-			editor.replaceContent(zen_coding.getCaretPlaceholder() + tag_content, pair[0].start, pair[1].end);
-		}
-
-		return true;
-	} else {
+	if (!pair || !pair[0])
 		return false;
+
+	if (!pair[1]) {
+		// simply remove unary tag
+		editor.replaceContent(zen_coding.getCaretPlaceholder(), pair[0].start, pair[0].end);
+	} else {
+		var tag_content_range = narrowToNonSpace(content, pair[0].end, pair[1].start),
+		    tag_content = content.substring(tag_content_range[0], tag_content_range[1]);
+
+		tag_content = unindentText(editor, tag_content, zen_coding.getVariable('indentation'));
+		editor.replaceContent(zen_coding.getCaretPlaceholder() + tag_content, pair[0].start, pair[1].end, true);
 	}
+
+	return true;
 }
 
-/**
- * Replaces or adds attribute to the tag
- * @param {String} img_tag
- * @param {String} attr_name
- * @param {String} attr_value
- */
-function replaceOrAppend(img_tag, attr_name, attr_value) {
-	if (~img_tag.toLowerCase().indexOf(attr_name)) {
-		// attribute exists
-		var re = new RegExp(attr_name + '=([\'"]).*?\1', 'i');
-		return img_tag.replace(re, function(str, p1){
-			return attr_name + '=' + p1 + attr_value + p1;
-		});
-	} else {
-		return img_tag.replace(/\s*(\/?>)$/, ' ' + attr_name + '="' + attr_value + '" $1');
-	}
-}
 
 /**
  * Make decimal number look good: convert it to fixed precision end remove
@@ -886,28 +893,67 @@ function incrementNumber(editor, step) {
 }
 
 /**
- * Evaluates simple math expresison under caret
+ * Evaluates simple math expression under caret or all expressions found in selection.
  * @param {zen_editor} editor
  */
 function evaluateMathExpression(editor) {
-	var content = editor.getContent();
+	var content = editor.getContent(),
+	    selection = editor.getSelectionRange(),
+	    re_math_pow = /(\d+(?:\.\d+)?)\^(-?\d+)/g,
+	    re_math_round = /(\d+(?:\.\d+)?|\.\d+|Math.pow\([^)]*\))\\(-?(?:\d+(?:\.\d+)?|\.\d+|Math.pow\([^)]*\)))/g;
 
-	var r = findExpressionBounds(editor, function(ch) {
-		return re_math.test(ch);
-	});
+	if (selection.start != selection.end) {
+		// Compute all math expressions found in selection
+		var text = content.substring(selection.start, selection.end),
+		    // Search for "number (operation number)+" followed by non-math
+		    // characters. Alphabet characters are allowed in lookahead for
+		    // calculating something like 10+1px in CSS.
+		    re_math_expr = /-?(?:\d+(?:\.\d+)?|\.\d+)(?:[-+*\/\\^](?:-?\d+(?:\.\d+)?|\.\d+))+(?![-+*\/\\^%.\d])/g,
+		    re_math_expr_lookbehind = /[^-+*\/\\%.\w]/;
+		text = text.replace(re_math_expr, function(expr, pos) {
+			// JS doesn't have lookbehind assertions in Regular Expressions so
+			// test if we've found part of more complex unsupported expression.
+			// or whatever Note that evaluating without selection or selecting
+			// supported expression directly may compute such things.
+			if (!pos || re_math_expr_lookbehind.test(text.charAt(pos - 1))) {
+				// replace a power: 2^6 => Math.pow(2,6)
+				var expr_str = expr.replace(re_math_pow, 'Math.pow($1,$2)')
+					// replace integral division: 11\2 => Math.round(11/2)
+					.replace(re_math_round, 'Math.round($1/$2)');
+				try {
+					var solve = new Function('return ' + expr_str)();
+					if (isFinite(solve))
+						return prettifyNumber(solve);
+				} catch (e) {}
+			}
+			return expr; // Failed to compute, return unmodified.
+		});
+		editor.replaceContent(text, selection.start, selection.end, true);
+		return true;
+	} else {
+		// Find expression and compute it
+		var re_math_chars = /[-+*\/\\.\d^]/,
+		    r = findExpressionBounds(editor, function(ch) {
+		    	return re_math_chars.test(ch);
+		    });
 
-	if (r) {
-		var expr = content.substring(r[0], r[1]);
-		// replace integral division: 11\2 => Math.round(11/2)
-		expr = expr.replace(/([\d\.\-]+)\\([\d\.\-]+)/g, 'Math.round($1/$2)');
+		if (r) {
+			var expr = content.substring(r[0], r[1])
+				// replace a power: 2^6 => Math.pow(2,6)
+				.replace(re_math_pow, 'Math.pow($1,$2)')
+				// replace integral division: 11\2 => Math.round(11/2)
+				.replace(re_math_round, 'Math.round($1/$2)');
 
-		try {
-			var result = new Function('return ' + expr)();
-			result = prettifyNumber(result);
-			editor.replaceContent(result, r[0], r[1]);
-			editor.setCaretPos(r[0] + result.length);
-			return true;
-		} catch (e) {}
+			try {
+				var result = new Function('return ' + expr)();
+				if (!isFinite(result))
+					return false;
+				result = prettifyNumber(result);
+				editor.replaceContent(result, r[0], r[1]);
+				editor.setCaretPos(r[0] + result.length);
+				return true;
+			} catch (e) {}
+		}
 	}
 
 	return false;
@@ -923,6 +969,7 @@ zen_coding.registerAction('wrap_with_abbreviation', wrapWithAbbreviation);
 zen_coding.registerAction('prev_edit_point', prevEditPoint);
 zen_coding.registerAction('next_edit_point', nextEditPoint);
 zen_coding.registerAction('insert_formatted_line_break', insertFormattedNewline);
+zen_coding.registerAction('insert_formatted_line_break_only', insertFormattedNewlineOnly);
 zen_coding.registerAction('select_line', selectLine);
 zen_coding.registerAction('matching_pair', goToMatchingPair);
 zen_coding.registerAction('merge_lines', mergeLines);
