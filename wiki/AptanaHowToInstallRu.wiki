@@ -1,8 +1,0 @@
-#summary Как установить Aptana Zen Coding
-#labels Phase-Deploy
-
-Aptana Zen Coding устанавливается так же, как и любой другой скрипт: распакуйте содержимое архива в папку *scripts* или *monkey* любого проекта верхнего уровня в Eclipse. Если Eclipse в этот момент был запущен, не забудьте сделать refresh проекта. После этого в меню Script должен появится пункт Zen Coding.
-
-Стандартные клавиатурные сокращения:
-  * Alt+E — Expand Abbreviation
-  * Alt+I — Output Image Size
