@@ -106,8 +106,8 @@ display:none;                               d:n
 display:block;                              d:b
 display:inline;                             d:i
 display:inline-block;                       d:ib
-display:-moz-inline-box:;                   d:mib
-display:-moz-inline-stack:;                 d:mis
+display:-moz-inline-box;                   d:mib
+display:-moz-inline-stack;                 d:mis
 display:list-item;                          d:li
 display:run-in;                             d:ri
 display:compact;                            d:cp
