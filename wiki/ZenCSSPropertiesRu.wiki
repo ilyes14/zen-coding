@@ -478,13 +478,13 @@ border-left-color:#000;                     bdlc
 }}}
 
 {{{
-border-radius:;                             bdrz
--webkit-border-radius:;                     bdrz:w
--moz-border-radius:;                        bdrz:m
-border-top-right-radius:;                   bdtrrz
-border-top-left-radius:;                    bdtlrz
-border-bottom-right-radius:;                bdbrrz
-border-bottom-left-radius:;                 bdblrz
+border-radius:;                             bdrs
+-webkit-border-radius:;                     bdrs:w
+-moz-border-radius:;                        bdrs:m
+border-top-right-radius:;                   bdtrrs
+border-top-left-radius:;                    bdtlrs
+border-bottom-right-radius:;                bdbrrs
+border-bottom-left-radius:;                 bdblrs
 }}}
 
 {{{
